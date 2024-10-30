@@ -33,5 +33,23 @@ public class Board extends BaseEntity {
     @OneToMany(mappedBy = "board")
     private List<File> files = new ArrayList<>();
 
+    public Board() {
+    }
 
+    public Board(Member member, String title, String contents, Board_Type board_type, List<File> files) {
+        this.id = id;
+        this.member = member;
+        this.title = title;
+        this.contents = contents;
+        this.board_type = board_type;
+        this.files = files;
+    }
+
+    public Board(Member member, String title, String contents, Board_Type board_type) {
+        this.id = id;
+        this.member = member;
+        this.title = title;
+        this.contents = contents;
+        this.board_type = board_type;
+    }
 }

@@ -25,6 +25,7 @@ public class File extends BaseEntity {
 
     private int size;
 
+    @Enumerated(EnumType.STRING)
     private YN delete_yn;
 
     private LocalDateTime deleted_date;
@@ -32,4 +33,15 @@ public class File extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "board_id")
     private Board board;
+
+    public File() {
+    }
+
+    public File(String original_name, String save_name, int size, YN delete_yn, Board board) {
+        this.original_name = original_name;
+        this.save_name = save_name;
+        this.size = size;
+        this.delete_yn = delete_yn;
+        this.board = board;
+    }
 }

@@ -22,5 +22,16 @@ public class Member_Subject extends BaseEntity {
 
     private LocalDate app_date;
 
+    @Enumerated(EnumType.STRING)
     private Pay_Stat pay_stat;
+
+    public Member_Subject() {
+    }
+
+    public Member_Subject(Member member, Subject subject, LocalDate app_date, Pay_Stat pay_stat) {
+        this.member = member;
+        this.subject = subject;
+        this.app_date = app_date;
+        this.pay_stat = pay_stat;
+    }
 }
