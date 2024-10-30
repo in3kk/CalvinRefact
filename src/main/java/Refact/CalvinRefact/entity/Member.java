@@ -26,6 +26,7 @@ public class Member extends BaseEntity {
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
     private Member_Type member_type;
 
     private LocalDate  birth;
@@ -42,4 +43,17 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member")
     private List<Subject> subjects = new ArrayList<>();
+
+    public Member() {
+    }
+
+    public Member(String email, String pwd, String name, Member_Type member_type, LocalDate birth, String phone_number, String address) {
+        this.email = email;
+        this.pwd = pwd;
+        this.name = name;
+        this.member_type = member_type;
+        this.birth = birth;
+        this.phone_number = phone_number;
+        this.address = address;
+    }
 }

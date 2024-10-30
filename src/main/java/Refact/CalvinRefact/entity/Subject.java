@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * subject_code -> subject_id
+ * subject_stat -> ordinal
  */
 @Entity @Getter
 public class Subject extends BaseEntity {
@@ -40,8 +41,24 @@ public class Subject extends BaseEntity {
     private int personnel;
 
     //자격증/취창업 ->  자격증취창업으로 변경
+    @Enumerated(EnumType.STRING)
     private Subject_Type subject_type;
 
     @OneToMany(mappedBy = "subject")
     private List<Member_Subject> member_subjects = new ArrayList<>();
+
+    public Subject() {
+    }
+
+    public Subject(Member member, int fee, String subject_name, Subject_Field subject_field, Subject_Stat subject_stat, String lecture_time, String period, int personnel, Subject_Type subject_type) {
+        this.member = member;
+        this.fee = fee;
+        this.subject_name = subject_name;
+        this.subject_field = subject_field;
+        this.subject_stat = subject_stat;
+        this.lecture_time = lecture_time;
+        this.period = period;
+        this.personnel = personnel;
+        this.subject_type = subject_type;
+    }
 }
