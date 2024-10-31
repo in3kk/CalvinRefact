@@ -19,13 +19,17 @@ public class File extends BaseEntity {
     @Column(name = "file_id")
     private Long id;
 
+    @Column(length = 270, nullable = false)
     private String original_name;
 
+    @Column(length = 270, unique = true)
     private String save_name;
 
+    @Column(nullable = false)
     private int size;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private YN delete_yn;
 
     private LocalDateTime deleted_date;
