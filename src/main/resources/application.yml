@@ -12,6 +12,8 @@ spring:
       ddl-auto: create
     properties:
       hibernate:
+        validator:
+          apply_to_ddl: false
         #hibernate를 통한 sql 출력
         show_sql: true
         use_sql_comments: true

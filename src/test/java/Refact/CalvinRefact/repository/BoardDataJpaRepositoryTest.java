@@ -2,6 +2,7 @@ package Refact.CalvinRefact.repository;
 
 import Refact.CalvinRefact.entity.*;
 import Refact.CalvinRefact.entity.entityEnum.*;
+import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
@@ -12,6 +13,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +33,9 @@ class BoardDataJpaRepositoryTest {
     SubjectDataJpaRepository subjectDataJpaRepository;
     @Autowired
     Member_SubjectDataJpaRepository member_subjectDataJpaRepository;
+
+    @Autowired
+    BoardRepository boardRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -68,5 +73,33 @@ class BoardDataJpaRepositoryTest {
         assertThat(subjectCnt).isEqualTo(1);
         assertThat(member_subjectCnt).isEqualTo(1);
 
+    }
+
+    @Test
+    public void findBoardTop6Test(){
+        Member member = new Member("shy4792@naveer.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", "경기도 용인");
+        em.persist(member);
+
+        Board board = new Board(member, "제목","내용", Board_Type.공지사항);
+        em.persist(board);
+
+        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        em.persist(file);
+
+
+        Subject subject = new Subject(member, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        em.persist(subject);
+
+        Member_Subject member_subject = new Member_Subject(member, subject, LocalDate.now(),Pay_Stat.n);
+        em.persist(member_subject);
+
+        em.flush();
+        em.clear();
+
+        List<BoardListDto> results = boardRepository.findTop6ByBoard_type(Board_Type.공지사항);
+
+        for (BoardListDto result : results) {
+            System.out.println("result = "+result.getName());
+        }
     }
 }

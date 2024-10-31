@@ -13,16 +13,18 @@ public class Member_Subject extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id",nullable = false)
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
+    @JoinColumn(name = "subject_id",nullable = false)
     private Subject subject;
 
+    @Column(nullable = false)
     private LocalDate app_date;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Pay_Stat pay_stat;
 
     public Member_Subject() {

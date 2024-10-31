@@ -31,7 +31,15 @@ public class QBoard extends EntityPathBase<Board> {
     //inherited
     public final DateTimePath<java.time.LocalDateTime> createdDate = _super.createdDate;
 
-    public final ListPath<File, QFile> files = this.<File, QFile>createList("files", File.class, QFile.class, PathInits.DIRECT2);
+    public final QFile file1;
+
+    public final QFile file2;
+
+    public final QFile file3;
+
+    public final QFile file4;
+
+    public final QFile file5;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
@@ -57,6 +65,11 @@ public class QBoard extends EntityPathBase<Board> {
 
     public QBoard(Class<? extends Board> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.file1 = inits.isInitialized("file1") ? new QFile(forProperty("file1"), inits.get("file1")) : null;
+        this.file2 = inits.isInitialized("file2") ? new QFile(forProperty("file2"), inits.get("file2")) : null;
+        this.file3 = inits.isInitialized("file3") ? new QFile(forProperty("file3"), inits.get("file3")) : null;
+        this.file4 = inits.isInitialized("file4") ? new QFile(forProperty("file4"), inits.get("file4")) : null;
+        this.file5 = inits.isInitialized("file5") ? new QFile(forProperty("file5"), inits.get("file5")) : null;
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
     }
 

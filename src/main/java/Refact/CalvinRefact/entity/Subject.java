@@ -22,20 +22,27 @@ public class Subject extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id",nullable = false)
     private Member member;
 
+    @Column(nullable = false)
     private int fee;
+
+    @Column(nullable = false,length = 30)
     private String subject_name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Subject_Field subject_field;
 
     @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
     private Subject_Stat subject_stat;
 
+    @Column(length = 30)
     private String lecture_time;
 
+    @Column(length = 10)
     private String period;
 
     private int personnel;

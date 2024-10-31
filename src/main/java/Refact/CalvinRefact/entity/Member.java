@@ -20,19 +20,26 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    @Column(length = 40, unique = true)
     private String email;
 
+    @Column(length = 40, nullable = false)
     private String pwd;
 
+    @Column(length = 20, nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Member_Type member_type;
 
+    @Column(nullable = false)
     private LocalDate  birth;
 
+    @Column(nullable = false)
     private String phone_number;
 
+    @Column(nullable = false)
     private String address;
 
     @OneToMany(mappedBy = "member")
