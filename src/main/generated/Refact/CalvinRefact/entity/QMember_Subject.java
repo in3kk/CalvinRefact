@@ -55,7 +55,7 @@ public class QMember_Subject extends EntityPathBase<Member_Subject> {
 
     public QMember_Subject(Class<? extends Member_Subject> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.member = inits.isInitialized("member") ? new QMember(forProperty("member")) : null;
+        this.member = inits.isInitialized("member") ? new QMember(forProperty("member"), inits.get("member")) : null;
         this.subject = inits.isInitialized("subject") ? new QSubject(forProperty("subject"), inits.get("subject")) : null;
     }
 

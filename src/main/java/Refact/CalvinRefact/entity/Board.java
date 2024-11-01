@@ -34,37 +34,20 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private Board_Type board_type;
 
-    @OneToOne
-    @JoinColumn(name = "file_id",unique = true, insertable = false, updatable = false)
-    private File file1;
-    @OneToOne
-    @JoinColumn(name = "file_id",unique = true, insertable = false, updatable = false)
-    private File file2;
-    @OneToOne
-    @JoinColumn(name = "file_id",unique = true, insertable = false, updatable = false)
-    private File file3;
-    @OneToOne
-    @JoinColumn(name = "file_id",unique = true, insertable = false, updatable = false)
-    private File file4;
-    @OneToOne
-    @JoinColumn(name = "file_id",unique = true, insertable = false, updatable = false)
-    private File file5;
+    @OneToMany(mappedBy = "board")
+    private List<File> files;
 
 
     public Board() {
     }
 
-    public Board(Long id, Member member, String title, String contents, Board_Type board_type, File file1, File file2, File file3, File file4, File file5) {
+    public Board(Long id, Member member, String title, String contents, Board_Type board_type, List<File> files) {
         this.id = id;
         this.member = member;
         this.title = title;
         this.contents = contents;
         this.board_type = board_type;
-        this.file1 = file1;
-        this.file2 = file2;
-        this.file3 = file3;
-        this.file4 = file4;
-        this.file5 = file5;
+        this.files = files;
     }
 
     public Board(Member member, String title, String contents, Board_Type board_type) {

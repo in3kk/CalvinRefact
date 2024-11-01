@@ -1,6 +1,7 @@
 package Refact.CalvinRefact.entity;
 
 import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
+import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,8 +40,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String phone_number;
 
+    @Embedded
     @Column(nullable = false)
-    private String address;
+    private Address address;
 
     @OneToMany(mappedBy = "member")
     private List<Board> boards = new ArrayList<>();
@@ -54,7 +56,7 @@ public class Member extends BaseEntity {
     public Member() {
     }
 
-    public Member(String email, String pwd, String name, Member_Type member_type, LocalDate birth, String phone_number, String address) {
+    public Member(String email, String pwd, String name, Member_Type member_type, LocalDate birth, String phone_number, Address address) {
         this.email = email;
         this.pwd = pwd;
         this.name = name;
