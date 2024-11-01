@@ -1,101 +1,98 @@
 package Refact.CalvinRefact.controller;
 
-import org.springframework.web.bind.annotation.RestController;
+import Refact.CalvinRefact.entity.Member;
+import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.repository.dto.member.JoinMemberDto;
+import Refact.CalvinRefact.repository.dto.member.MemberLoginDto;
+import Refact.CalvinRefact.service.MemberService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RestController
+@Controller
 public class MemberController {
+
+    @Autowired
+    private MemberService memberService;
+
 //    @GetMapping("/errortest")
 //    public String errortest(){
 //        throw new CustomException(ErrorCode.INVALID_PERMISSION);
 //    }
-//
-//
-//    //회원가입 페이지
-//    @GetMapping("/member/join")
-//    public String joinPage(Model model, HttpSession httpSession){
-//        JoinMember jm = new JoinMember();
-//        httpSession.removeAttribute("member_id");
-//        httpSession.removeAttribute("member_type");
-//        model.addAttribute("member",jm);
-//        return "member/join";
-//    }
-//
-//    //회원가입
-//    @RequestMapping(value = "/member/join", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String memberJoin(JoinMember member, Model model){
-//        String result = "";
-//        Pattern id1_pattern = Pattern.compile("[A-Za-z0-9]{4,15}");
-//        Pattern id2_pattern = Pattern.compile("[a-z]{4,10}.(com|net|ac.kr)");
-//        Pattern pwd_pattern = Pattern.compile("[a-zA-Z0-9!@#$%^&\\*()_\\+]{10,25}");
-//        Pattern name_pattern = Pattern.compile("[가-힣A-Za-z]{2,10}");
-//        Pattern birth_pattern = Pattern.compile("(19[0-9][0-9]|20[0-9]{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])");
-//        Pattern pnum_pattern = Pattern.compile("0[0-9]{1,2}[0-9]{3,4}[0-9]{4}");
-//        Pattern address1_pattern = Pattern.compile("[가-힣0-9\\s-]*");
-//        Pattern address2_pattern = Pattern.compile("[가-힣0-9\\s-]*");
-//        Matcher m1 = id1_pattern.matcher(member.getId());
-//        Matcher m2 = id2_pattern.matcher(member.getId2());
-//        Matcher m3 = pwd_pattern.matcher(member.getPwd());
-//        Matcher m4 = name_pattern.matcher(member.getName());
-//        Matcher m5 = birth_pattern.matcher(member.getBirth());
-//        Matcher m6 = pnum_pattern.matcher(member.getPhone_number());
-//        Matcher m7 = address1_pattern.matcher(member.getAddress());
-//        Matcher m8 = address2_pattern.matcher(member.getAddress2());
-//        int rowCnt = 0;
-//        if(m1.matches()&&m2.matches()&&m3.matches()&&m4.matches()&&m5.matches()&&m6.matches()&&m7.matches()&&m8.matches()){
-//            rowCnt = calvinMemberService.JoinMember(member.getId()+"@"+member.getId2(),member.getPwd(),member.getName(),member.getBirth(),member.getPhone_number(),member.getAddress()+" "+member.getAddress2());
-//        }
-//
-//        if(rowCnt == 1){
-//            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='/member/login'</script>";
-////            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='http://localhost:8080/member/login'</script>";
-//        }else{
-//            result = "<script>alert('회원가입에 실패했습니다.');history.back();</script>";
-//        }
-//        return result;
-//    }
-//
-//    //로그인 페이지
-//    @GetMapping("/member/login")
-//    public String loginPage(Model model, HttpSession httpSession){
-//        Calvin_Member cm = new Calvin_Member();
-//        model.addAttribute("member", cm);
-//        httpSession.removeAttribute("member_id");
-//        httpSession.removeAttribute("member_type");
-//        return "member/login";
-//    }
-//
-//    //로그인
-//    @PostMapping("/member/login")
-//    @ResponseBody
-//    public String login(HttpSession httpSession,
-//                        @RequestParam(value="id") String id, @RequestParam(value="pwd")String pwd){
-//        String result;
-//        boolean check = calvinMemberService.login(id,pwd);
-//        if(check){
-//            httpSession.setAttribute("member_id", id);
-////            result = "<script>window.location.href='http://localhost:8080/'</script>";//
-//            result = "<script>window.location.href='/'</script>";//서버
-//            String member_type = calvinMemberService.GetMemberType(id);
-//            if(member_type.equals("member")){
-//                httpSession.setAttribute("member_type", "mb");
-//            }else if(member_type.equals("developer")){
-//                httpSession.setAttribute("member_type", "dd");
-//            }else if(member_type.equals("staff")){
-//                httpSession.setAttribute("member_type","st");
-//            }else if(member_type.equals("admin")){
-//                httpSession.setAttribute("member_type","ai");
-//            }
-//        }else{
-//            result = "<script>alert('회원정보가 일치하지 않습니다.');history.back();</script>";
-//        }
-//        return result;
-//    }
+
+
+    //회원가입 페이지
+    @GetMapping("/member/join")
+    public String joinPage(Model model, HttpSession httpSession){
+        JoinMemberDto jm = new JoinMemberDto();
+        httpSession.removeAttribute("member_id");
+        httpSession.removeAttribute("member_type");
+        model.addAttribute("member",jm);
+        return "member/join";
+    }
+
+    //회원가입
+    @PostMapping(value = "/member/join")
+    @ResponseBody
+    public String memberJoin(JoinMemberDto member, Model model){
+        String result = "";
+
+        boolean joinResult = memberService.joinMember(member);
+
+        if(joinResult){
+            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='/member/login'</script>";
+//            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='http://localhost:8080/member/login'</script>";
+        }else{
+            result = "<script>alert('회원가입에 실패했습니다.');history.back();</script>";
+        }
+        return result;
+    }
+
+    //로그인 페이지
+    @GetMapping("/member/login")
+    public String loginPage(Model model, HttpSession httpSession){
+        MemberLoginDto memberLoginDto = new MemberLoginDto();
+        model.addAttribute("member", memberLoginDto);
+        httpSession.removeAttribute("member_id");
+        httpSession.removeAttribute("member_type");
+        return "member/login";
+    }
+
+    //로그인
+    @PostMapping("/member/login")
+    @ResponseBody
+    public String login(HttpSession httpSession,
+                        @Valid MemberLoginDto memberLoginDto){
+        String result;
+        Optional<Member> member = memberService.login(memberLoginDto.getId(),memberLoginDto.getPwd());
+        if(member.isPresent()){
+            httpSession.setAttribute("member_id", member.get().getEmail());
+//            result = "<script>window.location.href='http://localhost:8080/'</script>";//
+            result = "<script>window.location.href='/'</script>";//서버
+            Member_Type member_type = member.get().getMember_type();
+            if(member_type.equals(Member_Type.member)){
+                httpSession.setAttribute("member_type", "mb");
+            }else if(member_type.equals(Member_Type.developer)){
+                httpSession.setAttribute("member_type", "dd");
+            }else if(member_type.equals(Member_Type.professor)){
+                httpSession.setAttribute("member_type","st");
+            }else if(member_type.equals(Member_Type.admin)){
+                httpSession.setAttribute("member_type","ai");
+            }
+        }else{
+            result = "<script>alert('회원정보가 일치하지 않습니다.');history.back();</script>";
+        }
+        return result;
+    }
 
     //로그아웃
 //    @GetMapping("/member/logout")
