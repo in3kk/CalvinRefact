@@ -2,12 +2,14 @@ package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
-import Refact.CalvinRefact.repository.dto.member.JoinMemberDto;
-import Refact.CalvinRefact.repository.dto.member.MemberLoginDto;
+import Refact.CalvinRefact.repository.dto.member.*;
 import Refact.CalvinRefact.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -95,84 +97,121 @@ public class MemberController {
     }
 
     //로그아웃
-//    @GetMapping("/member/logout")
-//    @ResponseBody
-//    public String Logout(HttpSession httpSession){
-//        String result;
-//        httpSession.removeAttribute("member_id");
-//        httpSession.removeAttribute("member_type");
-//        return "<script>window.location.href='/'</script>";
-////        return "<script>window.location.href='http://calvin.or.kr/'</script>";
-//    }
+    @GetMapping("/member/logout")
+    @ResponseBody
+    public String Logout(HttpSession httpSession){
+        String result;
+        httpSession.removeAttribute("member_id");
+        httpSession.removeAttribute("member_type");
+        return "<script>window.location.href='/'</script>";
+//        return "<script>window.location.href='http://calvin.or.kr/'</script>";
+    }
+
+    //회원 권한 변경
+    @PostMapping("/mypage/admin/member/grant")
+    @ResponseBody
+    public String AdminMemberGrant(@RequestParam(value = "member_type") Member_Type member_type,
+                                   @RequestParam(value = "member_code") Long member_code,
+                                   HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
+                boolean grant_result = memberService.memberGrant(member_code,httpSession.getAttribute("member_type").toString(),member_type);
+                if(grant_result){
+                    result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
+                }else{
+                    result = "<script>alert('권한변경에 실패했습니다.');history.back();</script>";
+                }
+            }else {
+                System.out.println("에러 : "+httpSession.getAttribute("member_type"));
+            }
+        } else{
+            /**
+             * 권한 부족 예외 추가
+             */
+        }
+        return result;
+    }
+
+    //회원 정보 삭제
+    @GetMapping("/mypage/admin/member/delete")
+    @ResponseBody
+    public String AdminMemberDelete(
+            @RequestParam(value = "member_code") Long member_code,
+            HttpSession httpSession){
+
+        String result = "";
+        String member_type = httpSession.getAttribute("member_type").toString();
+        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+            if(httpSession.getAttribute("member_type").equals("dd")||
+                    httpSession.getAttribute("member_type").equals("st")||
+                    httpSession.getAttribute("member_type").equals("ai")) {
+                boolean delete_result = memberService.deleteMember(member_code,member_type);
+                if(delete_result){
+                    result = "<script>alert('회원 정보가 삭제되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+
+                }else{
+                    result = "<script>alert('회원 정보 삭제에 실패했습니다.');history.back();</script>";
+                }
+            }
+        }else{
+            /**
+             * 권한 부족 예외 추가
+             */
+        }
+
+        return result;
+    }
+    //어드민 회원 관리 페이지
+    @GetMapping("/mypage/admin/member")
+    public String adminMember2(@PageableDefault(size = 20,sort = {"member_id"})Pageable pageable,
+                               @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
+                               @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
+                               Model model, HttpSession httpSession
+                               ){
+        String result = "menu/mypage/admin_member";
+        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+            if(httpSession.getAttribute("member_type").equals("dd")||
+                    httpSession.getAttribute("member_type").equals("st")||
+                    httpSession.getAttribute("member_type").equals("ai")) {
+                Page<MemberListDto> member_list = Page.empty();
+                if(search_word.equals("")){
+                    member_list = memberService.findAll(httpSession.getAttribute("member_id").toString(),pageable);
+                }else{
+                    if(search_type == 1){//아이디
+                        member_list = memberService.findAllByEmail(httpSession.getAttribute("member_id").toString(),search_word,pageable);
+                    }else{// 2 일때 이름
+                        member_list = memberService.findAllByUsername(httpSession.getAttribute("member_id").toString(),search_word,pageable);
+                    }
+                }
+                int page = member_list.getNumber();
+                int begin_page;
+                if(page % 10 == 0){
+                    begin_page = page-9;
+                }else{
+                    begin_page = page/10*10+1;
+                }
+
+                int max_page = member_list.getTotalPages();
+
+                model.addAttribute("search_word", search_word);
+                model.addAttribute("search_type", search_type);
+                model.addAttribute("page", page);
+                model.addAttribute("begin_page",begin_page);
+                model.addAttribute("max_page", max_page);
+                model.addAttribute("member_list",member_list);
+                model.addAttribute("page_type","9.3");
+            }
+        }else{
+            /**
+             * 권한 부족 예외 추가
+             */
+        }
+        return result;
 
 
-
-    //    @GetMapping("/menu/subject/list") //강의 리스트 페이지
-//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-//                              @RequestParam(value = "type") String type, Model model){
-//        List<Calvin_subject> subject_list;
-//        if(field.equals("")){
-//            subject_list= calvinSubjectService.SubjectList(type);
-//        }else{
-//            System.out.println("result"+field);
-//            subject_list= calvinSubjectService.SubjectList(field,type);
-//        }
-//        String result = "menu/subject/subject_list";
-//        model.addAttribute("subject_list", subject_list);
-//        model.addAttribute("page_type","2.2");
-//        return  result;
-//    }
-
-
-
-//    //회원 권한 변경
-//    @PostMapping("/mypage/admin/member/grant")
-//    @ResponseBody
-//    public String AdminMemberGrant(@RequestParam(value = "member_type") String member_type,
-//                                   @RequestParam(value = "member_code") String member_code,
-//                                   HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//                int grant_result = calvinMemberService.MemberGrant(member_code,member_type);
-//                if(grant_result == 1){
-//                    result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
-//                }else{
-//                    result = "<script>alert('권한변경에 실패했습니다.');history.back();</script>";
-//                }
-//            }else {
-//                System.out.println("에러 : "+httpSession.getAttribute("member_type"));
-//            }
-//        } else{
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//
-//        return result;
-//    }
-//
-//    //회원 정보 삭제
-//    @GetMapping("/mypage/admin/member/delete")
-//    @ResponseBody
-//    public String AdminMemberDelete(@RequestParam(value = "member_code") int member_code,HttpSession httpSession){
-//
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//                int delete_result = calvinMemberService.DeleteMember(member_code);
-//                if(delete_result == 1){
-//                    result = "<script>alert('회원 정보가 삭제되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
-//
-//                }else{
-//                    result = "<script>alert('회원 정보 삭제에 실패했습니다.');history.back();</script>";
-//                }
-//            }
-//        }else{
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//
-//        return result;
-//    }
-//    //어드민 회원관리
+    }
+//    //어드민 회원관리 V 완료
 //    @GetMapping("/mypage/admin/member")
 //    public String AdminMember(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
 //                              @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
@@ -228,58 +267,40 @@ public class MemberController {
 //        }
 //        return result;
 //    }
-//
-//    //회원정보 열람
-//    @GetMapping("/mypage/admin/member/view")
-//    public String AdminMemberView(Model model, @RequestParam(value = "member_code") int member_code,HttpSession httpSession){
-//        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//                Calvin_Member calvin_member = calvinMemberService.MemberInfo(member_code,2);
-//                model.addAttribute("member", calvin_member);
-//                model.addAttribute("page_type","9.3");
-//            }
-//        }else{
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//
-//        return "menu/mypage/admin_member_view";
-//    }
-//
-//
-//
-//
-//
-//
-//    //파일 다운로드
-//    @GetMapping("/download/{save_name}/{original_name}")
-//    public ResponseEntity DownloadFile(@PathVariable String save_name, @PathVariable String original_name){
-//        return calvinFileService.FileDownload(save_name,original_name);
-//    }
-//
-//    @GetMapping("/download/document/{original_name}")
-//    public ResponseEntity DownloadDoc(@PathVariable String original_name){
-//        return calvinFileService.FileDownload(original_name);
-//    }
-//
-//
-//
-//
-//
-//    //내 강의 9.1
-//    @GetMapping("/member/mypage/subject")
-//    public String my_subject(Model model, HttpSession httpSession){
-//        String result ="";
-//        if(httpSession.getAttribute("member_id") == null){
-//            result = "redirect:/member/login";
-//        }else{
-//            List<MyPageSubjectView> subject_list = calvinSubjectService.My_subject(httpSession.getAttribute("member_id").toString());
+
+    //회원정보 열람
+    @GetMapping("/mypage/admin/member/view")
+    public String AdminMemberView(Model model, @RequestParam(value = "member_code") Long member_code,HttpSession httpSession){
+        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
+                MemberDetailDto memberDetailDto = memberService.findMemberDetail(httpSession.getAttribute("member_id").toString(),member_code);
+                model.addAttribute("member", memberDetailDto);
+                model.addAttribute("page_type","9.3");
+            }
+        }else{
+            /**
+             * 권한 부족 예외 추가
+             */
+        }
+
+        return "menu/mypage/admin_member_view";
+    }
+
+    //내 강의 9.1
+    @GetMapping("/member/mypage/subject")
+    public String my_subject(Model model, HttpSession httpSession){
+        String result ="";
+        if(httpSession.getAttribute("member_id") == null){
+            result = "redirect:/member/login";
+        }else{
+//            List<MemberSubjectListDto> subject_list = calvinSubjectService.My_subject(httpSession.getAttribute("member_id").toString());
 //            model.addAttribute("subject_list",subject_list);
 //            model.addAttribute("page_type", "9.1");
 //            result = "menu/mypage/subject_list";
-//        }
-//
-//        return result;
-//    }
+        }
+
+        return result;
+    }
 //
 //    //내 정보 9.2
 //    @GetMapping("/member/mypage/info")

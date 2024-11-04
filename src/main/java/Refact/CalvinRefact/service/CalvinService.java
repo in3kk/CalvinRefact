@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class CalvinService {
+
+    //regex 패턴을 이용한 유효성 검사 메소드
     public boolean validationMethod(String target, Pattern pattern){
         boolean result = false;
 

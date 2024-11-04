@@ -1,5 +1,8 @@
 package Refact.CalvinRefact.controller;
 
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -9,6 +12,21 @@ import java.util.regex.Pattern;
 
 @RestController
 public class SubjectController {
+//    @GetMapping("/menu/subject/list") //강의 리스트 페이지
+//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
+//                              @RequestParam(value = "type") String type, Model model){
+//        List<Calvin_subject> subject_list;
+//        if(field.equals("")){
+//            subject_list= calvinSubjectService.SubjectList(type);
+//        }else{
+//            System.out.println("result"+field);
+//            subject_list= calvinSubjectService.SubjectList(field,type);
+//        }
+//        String result = "menu/subject/subject_list";
+//        model.addAttribute("subject_list", subject_list);
+//        model.addAttribute("page_type","2.2");
+//        return  result;
+//    }
 //    //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
 //    @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
 //    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
