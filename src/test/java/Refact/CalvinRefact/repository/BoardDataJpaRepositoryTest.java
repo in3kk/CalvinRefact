@@ -133,4 +133,35 @@ class BoardDataJpaRepositoryTest {
             System.out.println("이름 : "+ member1.get().getName());
         }
     }
+
+    @Test
+    public void memberSetTest(){
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+
+        Board board = new Board(member, "제목","내용", Board_Type.공지사항);
+        em.persist(board);
+
+        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        em.persist(file);
+
+
+        Subject subject = new Subject(member, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        em.persist(subject);
+
+        Member_Subject member_subject = new Member_Subject(member, subject, LocalDate.now(),Pay_Stat.n);
+        em.persist(member_subject);
+
+        em.flush();
+        em.clear();
+
+        Optional<Member> member1 = memberDataJpaRepository.findByEmail("shy4792");
+        if (member1.isPresent()) {
+            member = member1.get();
+        }
+        memberDataJpaRepository.deleteAll();
+
+        member = new Member(member.getEmail(),member.getPwd(),member.getName(),Member_Type.admin,member.getBirth(),member.getPhone_number(),member.getAddress());
+
+    }
 }

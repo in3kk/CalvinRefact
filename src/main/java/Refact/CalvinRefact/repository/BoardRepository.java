@@ -19,6 +19,7 @@ import static Refact.CalvinRefact.entity.QBoard.board;
 
 @Repository
 public class BoardRepository {
+
     EntityManager em;
     JPAQueryFactory queryFactory;
     public BoardRepository(EntityManager em){
@@ -40,6 +41,5 @@ public class BoardRepository {
                 .from(board)
                 .where(board.board_type.eq(board_type))
                 .fetch();
-
     }
 }

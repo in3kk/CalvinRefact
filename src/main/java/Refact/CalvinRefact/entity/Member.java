@@ -4,7 +4,10 @@ import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,11 +17,11 @@ import java.util.List;
  * member_code -> member_id
  * join_date -> createdDate
  */
-@Entity @Getter
+@Entity @Getter @Setter
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue
-    @Column(name = "member_id")
+    @Column(name = "member_id",updatable = false)
     private Long id;
 
     @Column(length = 40, unique = true)
