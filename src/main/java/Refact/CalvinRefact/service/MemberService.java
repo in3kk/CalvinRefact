@@ -207,8 +207,8 @@ public class MemberService {
         return memberSubjectRepository.findMySubjectByEmail(email,pageable);
     }
 
-    //pwd 변경
-    public void updatePwd(String newPwd, String email){
-        memberDataJpaRepository.
-    }
+//    //pwd 변경
+//    public void updatePwd(String newPwd, String email){
+//        memberDataJpaRepository.
+//    }
 }
