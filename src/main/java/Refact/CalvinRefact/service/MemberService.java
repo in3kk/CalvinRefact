@@ -4,6 +4,7 @@ import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
+import Refact.CalvinRefact.repository.Member_SubjectRepository;
 import Refact.CalvinRefact.repository.dto.member.JoinMemberDto;
 import Refact.CalvinRefact.repository.dto.member.MemberDetailDto;
 import Refact.CalvinRefact.repository.dto.member.MemberListDto;
@@ -34,6 +35,8 @@ public class MemberService {
 
     @Autowired
     MemberDataJpaRepository memberDataJpaRepository;
+    @Autowired
+    Member_SubjectRepository memberSubjectRepository;
 
     //권한 유효성 검사
     public boolean permissionCheck(Long id){
@@ -184,9 +187,28 @@ public class MemberService {
         }
         return memberDetailDto;
     }
+    //내 정보 보기
+    public MemberDetailDto findMemberDetail2(String email){
+        MemberDetailDto memberDetailDto = new MemberDetailDto();
+
+        Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            memberDetailDto = new MemberDetailDto(member.getId(),member.getName(),member.getEmail(),
+                    member.getPhone_number(),member.getAddress(),member.getBirth(),
+                    member.getCreatedDate(),member.getMember_type());
+        }
+
+        return memberDetailDto;
+    }
 
     //내 강의 리스트
-//    public Page<MemberSubjectListDto> findMemberSubjectList(String email) {
-//
-//    }
+    public List<MemberSubjectListDto> findMemberSubjectList(String email,Pageable pageable) {
+        return memberSubjectRepository.findMySubjectByEmail(email,pageable);
+    }
+
+    //pwd 변경
+    public void updatePwd(String newPwd, String email){
+        memberDataJpaRepository.
+    }
 }

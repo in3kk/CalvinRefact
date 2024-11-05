@@ -4,12 +4,15 @@ import Refact.CalvinRefact.entity.*;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.*;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,8 @@ class BoardDataJpaRepositoryTest {
 
     @Autowired
     BoardRepository boardRepository;
+    @Autowired
+    Member_SubjectRepository memberSubjectRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -163,5 +168,34 @@ class BoardDataJpaRepositoryTest {
 
         member = new Member(member.getEmail(),member.getPwd(),member.getName(),Member_Type.admin,member.getBirth(),member.getPhone_number(),member.getAddress());
 
+    }
+
+    @Test
+    public void mySubjectListTest() throws Exception{
+        //given
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+
+        Board board = new Board(member, "제목","내용", Board_Type.공지사항);
+        em.persist(board);
+
+        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        em.persist(file);
+
+        Subject subject = new Subject();
+        for (int x = 0; x < 100; x++) {
+            subject = new Subject(member, x, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+            em.persist(subject);
+            em.persist(new Member_Subject(member, subject, LocalDate.now(),Pay_Stat.n));
+        }
+
+        em.flush();
+        em.clear();
+        //when
+        Pageable pageable = PageRequest.of(0,20);
+        List<MemberSubjectListDto> page = memberSubjectRepository.findMySubjectByEmail("shy4792@naver.com",pageable);
+        for (MemberSubjectListDto memberSubjectListDto : page) {
+            System.out.println("result : "+memberSubjectListDto.getMember_subject_id()+" "+memberSubjectListDto.getPay_stat()+" "+memberSubjectListDto.getMember_id()+" "+memberSubjectListDto.getSubject_name()+" "+memberSubjectListDto.getSubject_field()+" "+memberSubjectListDto.getFee());
+        }
     }
 }
