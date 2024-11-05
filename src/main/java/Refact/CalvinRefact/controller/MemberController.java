@@ -288,87 +288,92 @@ public class MemberController {
 
     //내 강의 9.1
     @GetMapping("/member/mypage/subject")
-    public String my_subject(Model model, HttpSession httpSession){
+    public String my_subject(@PageableDefault(size = 20)Pageable pageable,Model model, HttpSession httpSession){
         String result ="";
         if(httpSession.getAttribute("member_id") == null){
             result = "redirect:/member/login";
         }else{
-//            List<MemberSubjectListDto> subject_list = calvinSubjectService.My_subject(httpSession.getAttribute("member_id").toString());
-//            model.addAttribute("subject_list",subject_list);
-//            model.addAttribute("page_type", "9.1");
-//            result = "menu/mypage/subject_list";
+            List<MemberSubjectListDto> subject_list = memberService.findMemberSubjectList(httpSession.getAttribute("member_id").toString(),pageable);
+            model.addAttribute("subject_list",subject_list);
+            model.addAttribute("page_type", "9.1");
+            result = "menu/mypage/subject_list";
         }
 
         return result;
     }
-//
-//    //내 정보 9.2
-//    @GetMapping("/member/mypage/info")
-//    public String my_info(Model model, HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "redirect:/member/login";
-//        }else{
-//            Calvin_Member cm = calvinMemberService.MyInfo(httpSession.getAttribute("member_id").toString(),1);
-//            model.addAttribute("info", cm);
-//            model.addAttribute("page_type","9.2");
-//            result = "menu/mypage/info";
-//        }
-//
-//        return result;
-//    }
-//
-//    //정보변경 페이지9.2
-//    @GetMapping("/member/mypage/modify")
-//    public String my_info_modify(Model model, HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "redirect:/member/login";
-//        }else{
-//            Calvin_Member cm = calvinMemberService.MyInfo(httpSession.getAttribute("member_id").toString(),2);
-//            JoinMember jm = new JoinMember();
-//            model.addAttribute("info", cm);
-//            model.addAttribute("member", jm);
-//            result =  "menu/mypage/modify";
-//        }
-//
-//        return result;
-//    }
-//
-//    //정보변경
-//    @RequestMapping(value = "/member/mypage/modify/pro", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String my_info_modify_pro(JoinMember member, HttpSession httpSession){
-//        boolean update_result = false;
-//        String result;
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/';</script>";
-//
-//        }else{
-//            if(!member.getPwd().equals("")){
+
+    //내 정보 9.2
+    @GetMapping("/member/mypage/info")
+    public String my_info(Model model, HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "redirect:/member/login";
+        }else{
+            MemberDetailDto md = memberService.findMemberDetail2(httpSession.getAttribute("member_id").toString());
+            model.addAttribute("info", md);
+            model.addAttribute("page_type","9.2");
+            result = "menu/mypage/info";
+        }
+
+        return result;
+    }
+
+    /**
+     * JoinMember -> JoinMemberDto
+     */
+    //정보변경 페이지9.2
+    @GetMapping("/member/mypage/modify")
+    public String my_info_modify(Model model, HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "redirect:/member/login";
+        }else{
+            MemberDetailDto md = memberService.findMemberDetail2(httpSession.getAttribute("member_id").toString());
+            JoinMemberDto jm = new JoinMemberDto();
+            model.addAttribute("info", md);
+            model.addAttribute("member", jm);
+            result =  "menu/mypage/modify";
+        }
+
+        return result;
+    }
+    /**
+     * JoinMember -> JoinMemberDto
+     */
+    //정보변경
+    @RequestMapping(value = "/member/mypage/modify/pro", method = RequestMethod.POST)
+    @ResponseBody
+    public String my_info_modify_pro(JoinMemberDto member, HttpSession httpSession){
+        boolean update_result = false;
+        String result;
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/';</script>";
+
+        }else{
+            if(!member.getPwd().equals("")){
 //                update_result = calvinMemberService.MemberInfoUpdatePwd(member.getPwd(),httpSession.getAttribute("member_id").toString());
-//            }
-//            if(!member.getPhone_number().equals("")){
+            }
+            if(!member.getPhone_number().equals("")){
 //                update_result = calvinMemberService.MemberInfoUpdatePn(member.getPhone_number(),httpSession.getAttribute("member_id").toString());
-//            }
-//            if(!member.getAddress().equals("")){
+            }
+            if(!member.getAddress().equals("")){
 //                update_result = calvinMemberService.MemberInfoUpdateAddress(member.getAddress(),httpSession.getAttribute("member_id").toString());
-//            }
-//
-//            if(update_result){
-////            result = "<script>alert('회원정보가 변경되었습니다..');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
-////            result = "<script>alert('회원정보가 변경되었습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
-//                result = "<script>alert('회원정보가 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
-//            }else{
-////            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
-////            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
-//                result = "<script>alert('회원정보 변경에 실패하였습니다.');history.go(-2);</script>";
-//
-//            }
-//        }
-//
-//        return result;
-//    }
+            }
+
+            if(update_result){
+//            result = "<script>alert('회원정보가 변경되었습니다..');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
+//            result = "<script>alert('회원정보가 변경되었습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
+                result = "<script>alert('회원정보가 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+            }else{
+//            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
+//            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
+                result = "<script>alert('회원정보 변경에 실패하였습니다.');history.go(-2);</script>";
+
+            }
+        }
+
+        return result;
+    }
 //
 //
 //
