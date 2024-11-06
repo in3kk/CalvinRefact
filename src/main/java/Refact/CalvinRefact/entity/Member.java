@@ -4,9 +4,7 @@ import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -34,8 +32,8 @@ public class Member extends BaseEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Member_Type member_type;
+    @Column(nullable = false,name = "member_type")
+    private Member_Type memberType;
 
     @Column(nullable = false)
     private LocalDate  birth;
@@ -59,11 +57,11 @@ public class Member extends BaseEntity {
     public Member() {
     }
 
-    public Member(String email, String pwd, String name, Member_Type member_type, LocalDate birth, String phone_number, Address address) {
+    public Member(String email, String pwd, String name, Member_Type memberType, LocalDate birth, String phone_number, Address address) {
         this.email = email;
         this.pwd = pwd;
         this.name = name;
-        this.member_type = member_type;
+        this.memberType = memberType;
         this.birth = birth;
         this.phone_number = phone_number;
         this.address = address;

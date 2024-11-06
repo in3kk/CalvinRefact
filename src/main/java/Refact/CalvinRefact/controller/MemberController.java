@@ -14,11 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 public class MemberController {
@@ -48,7 +45,7 @@ public class MemberController {
     public String memberJoin(JoinMemberDto member, Model model){
         String result = "";
 
-        boolean joinResult = memberService.joinMember(member);
+        boolean joinResult = memberService.saveMember(member);
 
         if(joinResult){
             result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='/member/login'</script>";
@@ -80,7 +77,7 @@ public class MemberController {
             httpSession.setAttribute("member_id", member.get().getEmail());
 //            result = "<script>window.location.href='http://localhost:8080/'</script>";//
             result = "<script>window.location.href='/'</script>";//서버
-            Member_Type member_type = member.get().getMember_type();
+            Member_Type member_type = member.get().getMemberType();
             if(member_type.equals(Member_Type.member)){
                 httpSession.setAttribute("member_type", "mb");
             }else if(member_type.equals(Member_Type.developer)){
@@ -344,23 +341,14 @@ public class MemberController {
     @RequestMapping(value = "/member/mypage/modify/pro", method = RequestMethod.POST)
     @ResponseBody
     public String my_info_modify_pro(JoinMemberDto member, HttpSession httpSession){
-        boolean update_result = false;
         String result;
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/';</script>";
 
         }else{
-            if(!member.getPwd().equals("")){
-//                update_result = calvinMemberService.MemberInfoUpdatePwd(member.getPwd(),httpSession.getAttribute("member_id").toString());
-            }
-            if(!member.getPhone_number().equals("")){
-//                update_result = calvinMemberService.MemberInfoUpdatePn(member.getPhone_number(),httpSession.getAttribute("member_id").toString());
-            }
-            if(!member.getAddress().equals("")){
-//                update_result = calvinMemberService.MemberInfoUpdateAddress(member.getAddress(),httpSession.getAttribute("member_id").toString());
-            }
+            boolean updateResult = memberService.updateMember(httpSession.getAttribute("member_id").toString(), member.getPwd(), member.getPhone_number(), member.getAddress(), member.getAddress2());
 
-            if(update_result){
+            if(updateResult){
 //            result = "<script>alert('회원정보가 변경되었습니다..');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
 //            result = "<script>alert('회원정보가 변경되었습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
                 result = "<script>alert('회원정보가 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
@@ -374,33 +362,33 @@ public class MemberController {
 
         return result;
     }
-//
-//
-//
-//    //비밀번호 인증
-//    @GetMapping("/member/mypage/auth")
-//    public String AuthPage(Model model){
-//        model.addAttribute("page_type","9.2");
-//        return "menu/mypage/auth";
-//    }
-//
-//    //인증
-//    @RequestMapping(value = "/member/mypage/auth/pro", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String AuthPro(HttpSession httpSession, @RequestParam(value = "o_pwd") String pwd){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login'</script>";//서버
-//        }else{
-//            if(calvinMemberService.login(httpSession.getAttribute("member_id").toString(), pwd)){
-//                result = "<script>window.location.href='/member/mypage/modify'</script>";//서버
-////            result = "window.location.href='http://localhost:8080/member/mypage/modify'</script>";//
-//            }else{
-//                result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='/member/mypage/auth'</script>";//서버
-////            result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='http://localhost:8080/member/mypage/auth'</script>";//
-//            }
-//        }
-//
-//        return result;
-//    }
+
+
+
+    //비밀번호 인증 페이지
+    @GetMapping("/member/mypage/auth")
+    public String AuthPage(Model model){
+        model.addAttribute("page_type","9.2");
+        return "menu/mypage/auth";
+    }
+
+    //비밀번호 인증
+    @RequestMapping(value = "/member/mypage/auth/pro", method = RequestMethod.POST)
+    @ResponseBody
+    public String AuthPro(HttpSession httpSession, @RequestParam(value = "o_pwd") String pwd){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login'</script>";//서버
+        }else{
+            if(memberService.login(httpSession.getAttribute("member_id").toString(), pwd).isPresent()){
+                result = "<script>window.location.href='/member/mypage/modify'</script>";//서버
+//            result = "window.location.href='http://localhost:8080/member/mypage/modify'</script>";//
+            }else{
+                result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='/member/mypage/auth'</script>";//서버
+//            result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='http://localhost:8080/member/mypage/auth'</script>";//
+            }
+        }
+
+        return result;
+    }
 }

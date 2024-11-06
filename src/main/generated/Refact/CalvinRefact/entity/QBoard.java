@@ -24,7 +24,7 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final Refact.CalvinRefact.entity.baseEntity.QBaseEntity _super = new Refact.CalvinRefact.entity.baseEntity.QBaseEntity(this);
 
-    public final EnumPath<Refact.CalvinRefact.entity.entityEnum.Board_Type> board_type = createEnum("board_type", Refact.CalvinRefact.entity.entityEnum.Board_Type.class);
+    public final EnumPath<Refact.CalvinRefact.entity.entityEnum.Board_Type> boardType = createEnum("boardType", Refact.CalvinRefact.entity.entityEnum.Board_Type.class);
 
     public final StringPath contents = createString("contents");
 

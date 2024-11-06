@@ -42,4 +42,6 @@ public class BoardRepository {
                 .where(board.board_type.eq(board_type))
                 .fetch();
     }
+
+
 }

@@ -5,7 +5,6 @@ import Refact.CalvinRefact.entity.entityEnum.Board_Type;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,8 +30,8 @@ public class Board extends BaseEntity {
     private String contents;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Board_Type board_type;
+    @Column(nullable = false,name = "board_type")
+    private Board_Type boardType;
 
     @OneToMany(mappedBy = "board")
     private List<File> files;
@@ -41,20 +40,20 @@ public class Board extends BaseEntity {
     public Board() {
     }
 
-    public Board(Long id, Member member, String title, String contents, Board_Type board_type, List<File> files) {
+    public Board(Long id, Member member, String title, String contents, Board_Type boardType, List<File> files) {
         this.id = id;
         this.member = member;
         this.title = title;
         this.contents = contents;
-        this.board_type = board_type;
+        this.boardType = boardType;
         this.files = files;
     }
 
-    public Board(Member member, String title, String contents, Board_Type board_type) {
+    public Board(Member member, String title, String contents, Board_Type boardType) {
         this.id = id;
         this.member = member;
         this.title = title;
         this.contents = contents;
-        this.board_type = board_type;
+        this.boardType = boardType;
     }
 }

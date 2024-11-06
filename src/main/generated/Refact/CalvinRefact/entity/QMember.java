@@ -39,7 +39,7 @@ public class QMember extends EntityPathBase<Member> {
 
     public final ListPath<Member_Subject, QMember_Subject> member_subjects = this.<Member_Subject, QMember_Subject>createList("member_subjects", Member_Subject.class, QMember_Subject.class, PathInits.DIRECT2);
 
-    public final EnumPath<Refact.CalvinRefact.entity.entityEnum.Member_Type> member_type = createEnum("member_type", Refact.CalvinRefact.entity.entityEnum.Member_Type.class);
+    public final EnumPath<Refact.CalvinRefact.entity.entityEnum.Member_Type> memberType = createEnum("memberType", Refact.CalvinRefact.entity.entityEnum.Member_Type.class);
 
     public final StringPath name = createString("name");
 
