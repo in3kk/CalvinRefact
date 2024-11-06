@@ -11,15 +11,12 @@ import Refact.CalvinRefact.repository.dto.member.MemberListDto;
 import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -44,7 +41,7 @@ public class MemberService {
         Optional<Member> memberOptional = memberDataJpaRepository.findById(id);
         if (memberOptional.isPresent()) {
             Member member = memberOptional.get();
-            if (member.getMember_type().equals(Member_Type.admin)||member.getMember_type().equals(Member_Type.developer)||member.getMember_type().equals(Member_Type.professor)) {
+            if (member.getMemberType().equals(Member_Type.admin)||member.getMemberType().equals(Member_Type.developer)||member.getMemberType().equals(Member_Type.professor)) {
                 result = true;
             }
         }
@@ -55,7 +52,7 @@ public class MemberService {
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
         if (memberOptional.isPresent()) {
             Member member = memberOptional.get();
-            if (member.getMember_type().equals(Member_Type.admin)||member.getMember_type().equals(Member_Type.developer)||member.getMember_type().equals(Member_Type.professor)) {
+            if (member.getMemberType().equals(Member_Type.admin)||member.getMemberType().equals(Member_Type.developer)||member.getMemberType().equals(Member_Type.professor)) {
                 result = true;
             }
         }
@@ -64,7 +61,7 @@ public class MemberService {
 
     //회원가입 유효성 검사 메소드
     @Transactional
-    public boolean joinMember(JoinMemberDto joinMemberDto){
+    public boolean saveMember(JoinMemberDto joinMemberDto){
 
         String id1 = joinMemberDto.getId();
         String id2 = joinMemberDto.getId2();
@@ -97,7 +94,7 @@ public class MemberService {
         if (result1 && result2 && result3 && result4 && result6 && result7 && result8) {
             Address address = new Address(address1,address2);
             Member member = new Member(id1+"@"+id2, pwd, name, Member_Type.member, birth, pnum, address);
-            em.persist(member);
+            memberDataJpaRepository.save(member);
             if(em.contains(member)){
                 result = true;
             }
@@ -121,7 +118,7 @@ public class MemberService {
             Optional<Member> findResult = memberDataJpaRepository.findById(id);
             if(findResult.isPresent()){
                 Member member = findResult.get();
-                member.setMember_type(target_member_type);
+                member.setMemberType(target_member_type);
                 result = true;
             }
         }
@@ -146,7 +143,7 @@ public class MemberService {
         Page<Member> members;
         if(permissionCheck(email)){
             members = memberDataJpaRepository.findAll(pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMember_type()));
+            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
         }
         return memberListDtos;
     }
@@ -157,7 +154,7 @@ public class MemberService {
         Page<Member> members;
         if(permissionCheck(email)){
             members = memberDataJpaRepository.findByEmailContaining(search_word, pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMember_type()));
+            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
         }
         return memberListDtos;
     }
@@ -168,7 +165,7 @@ public class MemberService {
         Page<Member> members;
         if(permissionCheck(email)){
             members = memberDataJpaRepository.findByNameContaining(search_word,pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMember_type()));
+            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
         }
         return memberListDtos;
     }
@@ -182,7 +179,7 @@ public class MemberService {
                 Member member = memberOptional.get();
                 memberDetailDto = new MemberDetailDto(member.getId(),member.getName(),member.getEmail(),
                         member.getPhone_number(),member.getAddress(),member.getBirth(),
-                        member.getCreatedDate(),member.getMember_type());
+                        member.getCreatedDate(),member.getMemberType());
             }
         }
         return memberDetailDto;
@@ -196,7 +193,7 @@ public class MemberService {
             Member member = memberOptional.get();
             memberDetailDto = new MemberDetailDto(member.getId(),member.getName(),member.getEmail(),
                     member.getPhone_number(),member.getAddress(),member.getBirth(),
-                    member.getCreatedDate(),member.getMember_type());
+                    member.getCreatedDate(),member.getMemberType());
         }
 
         return memberDetailDto;
@@ -207,8 +204,26 @@ public class MemberService {
         return memberSubjectRepository.findMySubjectByEmail(email,pageable);
     }
 
-//    //pwd 변경
-//    public void updatePwd(String newPwd, String email){
-//        memberDataJpaRepository.
-//    }
+    //pwd 변경
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updateMember( String email,String newPwd, String newPnum, String address, String address2){
+        boolean result = false;
+        Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
+        if(memberOptional.isPresent()){
+            Member member = memberOptional.get();
+            if(!newPwd.equals("")){
+                member.setPwd(newPwd);
+                result = true;
+            }
+            if(!newPnum.equals("")){
+                member.setPhone_number(newPnum);
+                result = true;
+            }
+            if(!address.equals("")&&!address2.equals("")){
+                member.setAddress(new Address(address,address2));
+                result = true;
+            }
+        }
+        return result;
+    }
 }

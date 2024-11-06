@@ -5,12 +5,14 @@ import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.*;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
+import Refact.CalvinRefact.service.BoardService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.Rollback;
@@ -43,6 +45,8 @@ class BoardDataJpaRepositoryTest {
     BoardRepository boardRepository;
     @Autowired
     Member_SubjectRepository memberSubjectRepository;
+    @Autowired
+    BoardService boardService;
 
     @PersistenceContext
     EntityManager em;
@@ -196,6 +200,30 @@ class BoardDataJpaRepositoryTest {
         List<MemberSubjectListDto> page = memberSubjectRepository.findMySubjectByEmail("shy4792@naver.com",pageable);
         for (MemberSubjectListDto memberSubjectListDto : page) {
             System.out.println("result : "+memberSubjectListDto.getMember_subject_id()+" "+memberSubjectListDto.getPay_stat()+" "+memberSubjectListDto.getMember_id()+" "+memberSubjectListDto.getSubject_name()+" "+memberSubjectListDto.getSubject_field()+" "+memberSubjectListDto.getFee());
+        }
+
+    }
+    @Test
+    public void findAllByTitleAndBoard_typeTest(){
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+
+
+        Board board = new Board();
+        for (int x = 0; x < 100; x++) {
+            board = new Board(member, " "+x, "123", Board_Type.공지사항);
+            em.persist(board);
+        }
+
+        em.flush();
+        em.clear();
+
+        Pageable pageable = PageRequest.of(0,20);
+        Page<BoardListDto> boardListDtos = boardService.findAllByTitleAndBoard_type("2",Board_Type.공지사항,pageable);
+//        Page<BoardListDto> boardListDtos = boardService.findAllByBoard_type(Board_Type.공지사항,pageable);
+
+        for (BoardListDto boardListDto : boardListDtos) {
+            System.out.println("result : "+boardListDto.getBoard_type()+" "+boardListDto.getBoard_code()+" "+boardListDto.getTitle());
         }
     }
 }

@@ -18,7 +18,20 @@ public class CalvinService {
         if(matcher.matches()){
             result = true;
         }
-
         return result;
+    }
+
+    public String searchWordFilter(String target) {
+        Pattern p1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
+        Matcher m1 = p1.matcher(target);
+        target = m1.replaceAll(" ");
+        String [] word_data = {"select", "insert", "delete", "update", "create", "drop", "exec", "union", "fetch", "declare", "truncate"};
+        for(String data : word_data){
+            target = target.replaceAll(data,"");
+        }
+        Pattern p2 = Pattern.compile("(%|#|-|>|<|=|'|\")");
+        Matcher m2 = p2.matcher(target);
+        target = m2.replaceAll("");
+        return target;
     }
 }

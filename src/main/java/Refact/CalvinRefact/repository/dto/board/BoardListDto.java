@@ -44,4 +44,14 @@ public class BoardListDto {
         this.board_type = board_type;
         this.board_thumbnail = board_thumbnail;
     }
+
+    public BoardListDto(Long board_code, Long member_code, String title, LocalDateTime created_date, String name, Board_Type board_type, String board_thumbnail) {
+        this.board_code = board_code;
+        this.member_code = member_code;
+        this.title = title;
+        this.created_date = created_date;
+        this.name = name;
+        this.board_type = board_type;
+        this.board_thumbnail = board_thumbnail;
+    }
 }

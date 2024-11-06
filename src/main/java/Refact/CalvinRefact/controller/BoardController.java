@@ -1,5 +1,18 @@
 package Refact.CalvinRefact.controller;
 
+import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import Refact.CalvinRefact.service.BoardService;
+import Refact.CalvinRefact.service.CalvinService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -9,106 +22,99 @@ import java.util.regex.Pattern;
 
 @RestController
 public class BoardController {
-//    //게시판 페이지 search_type = 검색방법 ex) 제목, 내용 admin => 관리자용 페이지
-//    @GetMapping({"/menu/board","/mypage/admin/board"})
-//    public String BoardPage(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
-//                            @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
-//                            @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-//                            @RequestParam(value = "board_type",required = false, defaultValue = "") String board_type,
-//                            HttpSession httpSession, Model model){
-//        if(!search_word.equals("")){
-//            Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
-//            Matcher m = RegPattern1.matcher(search_word);
-//            search_word = m.replaceAll(" ");
-//            search_word = calvinBoardService.WordValidationPro(search_word);
-//        }
-//        int count = 0;
-//        List<BoardView> board_list = new ArrayList<>();
-//        String result = "";
-//        String page_type = "8.5";
-//        if(search_word.equals("")){
-//            if(board_type.equals("")){
-//                if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//                    if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//                        count = calvinBoardService.paging();
-//                        board_list = calvinBoardService.SelectAllBoard(page, count);
-//                        result = "menu/mypage/admin_board";
-//                        page_type = "9.3";
-//                    }
-//                }else{
-//                    throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//                }
-//
-//            }else if(board_type.equals("공지사항")){
-//                count = calvinBoardService.paging(board_type);
-//                board_list = calvinBoardService.SelectAllBoard(board_type,page, count);
-//                result = "menu/board/board01";
-//                page_type = "8.5";
-//            }else if(board_type.equals("사진자료실")){
-//                count = calvinBoardService.paging(board_type);
-//                board_list = calvinBoardService.SelectAllBoard(board_type,page, count);
-//                result = "menu/info2/gallery";
-//                page_type = "8.6";
-//            }else if(board_type.equals("서식자료실")){
-//                count = calvinBoardService.paging(board_type);
-//                board_list = calvinBoardService.SelectAllBoard(board_type,page, count);
-//                result = "menu/info2/format";
-//                page_type = "8.7";
-//            }
-//        }else{
-//            if(board_type.equals("")){
-//                if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")){
-//                    count = calvinBoardService.paging(search_type,search_word);
-//                    board_list = calvinBoardService.SelectByTitle(search_word,page, count);
-//                    result = "menu/mypage/admin_board";
-//                    page_type = "9.3";
-//                }else{
-//                    throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//                }
-//            }else if(board_type.equals("공지사항")){
-//                count = calvinBoardService.paging(board_type,search_type,search_word);
-//                board_list = calvinBoardService.SelectByTitle(board_type,search_word,page, count);
-//                result = "menu/board/board01";
-//                page_type = "8.5";
-//            }else if(board_type.equals("사진자료실")){
-//                count = calvinBoardService.paging(board_type,search_type,search_word);
-//                board_list = calvinBoardService.SelectByTitle(board_type,search_word,page, count);
-//                result = "menu/info2/gallery";
-//                page_type = "8.6";
-//            }else if(board_type.equals("서식자료실")){
-//                count = calvinBoardService.paging(board_type);
-//                board_list = calvinBoardService.SelectAllBoard(board_type,page, count);
-//                result = "menu/info2/format";
-//                page_type = "8.7";
-//            }
-//        }
-//        int begin_page;
-//
-//        if(page % 10 == 0){
-//            begin_page = page-9;
-//        }else{
-//            begin_page = page/10*10+1;
-//        }
-//
-//        int max_page;
-//        if(count/20 == 0 && count%20 > 0){
-//            max_page = 1;
-//        }else if(count/20 > 0 && count%20 > 0){
-//            max_page = count/20 + 1;
-//        }else{
-//            max_page = count/20;
-//        }
-//        model.addAttribute("search_word", search_word);
-//        model.addAttribute("search_type", search_type);
-//        model.addAttribute("page", page);
-//        model.addAttribute("begin_page",begin_page);
-//        model.addAttribute("max_page", max_page);
-//        model.addAttribute("board_list",board_list);
-//
-//        model.addAttribute("page_type",page_type);
-//        model.addAttribute("board_type", board_type);
-//        return result;
-//    }
+
+    @Autowired
+    CalvinService calvinService;
+    @Autowired
+    BoardService boardService;
+
+    //게시판 페이지 search_type = 검색방법 ex) 제목, 내용 admin => 관리자용 페이지
+    @GetMapping({"/menu/board","/mypage/admin/board"})
+    public String BoardPage(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                            @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
+                            @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
+                            @RequestParam(value = "board_type",required = false, defaultValue = "") String board_type,
+                            @PageableDefault(size = 20,sort = {"board_id"}) Pageable pageable,
+                            HttpSession httpSession, Model model){
+        if(!search_word.equals("")){
+            search_word = calvinService.searchWordFilter(search_word);
+        }
+        int count = 0;
+        Page<BoardListDto> board_list = Page.empty();
+        String result = "";
+        String page_type = "8.5";
+        if(search_word.equals("")){
+            if(board_type.equals("")){
+                if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+                    if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
+                        board_list = boardService.findAll(pageable);
+                        result = "menu/mypage/admin_board";
+                        page_type = "9.3";
+                    }
+                }else{
+                    /**
+                     * 권한 부족 예외 추가
+                     */
+                }
+
+            }else if(board_type.equals("공지사항")){
+                board_list = boardService.findAllByBoard_type(Board_Type.공지사항,pageable);
+                result = "menu/board/board01";
+                page_type = "8.5";
+            }else if(board_type.equals("사진자료실")){
+                board_list = boardService.findAllByBoard_type(Board_Type.사진자료실,pageable);
+                result = "menu/info2/gallery";
+                page_type = "8.6";
+            }else if(board_type.equals("서식자료실")){
+                board_list = boardService.findAllByBoard_type(Board_Type.서식자료실,pageable);
+                result = "menu/info2/format";
+                page_type = "8.7";
+            }
+        }else{
+            if(board_type.equals("")){
+                if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")){
+                    board_list = boardService.findAllByTitle(search_word,pageable);
+                    result = "menu/mypage/admin_board";
+                    page_type = "9.3";
+                }else{
+                    /**
+                     * 권한 부족 예외 추가
+                     */
+                }
+            }else if(board_type.equals("공지사항")){
+                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.공지사항,pageable);
+                result = "menu/board/board01";
+                page_type = "8.5";
+            }else if(board_type.equals("사진자료실")){
+                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.사진자료실,pageable);
+                result = "menu/info2/gallery";
+                page_type = "8.6";
+            }else if(board_type.equals("서식자료실")){
+                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.서식자료실,pageable);
+                result = "menu/info2/format";
+                page_type = "8.7";
+            }
+        }
+
+        int begin_page;
+        if(page % 10 == 0){
+            begin_page = page-9;
+        }else{
+            begin_page = page/10*10+1;
+        }
+
+        int max_page = board_list.getTotalPages();
+        model.addAttribute("search_word", search_word);
+        model.addAttribute("search_type", search_type);
+        model.addAttribute("page", page);
+        model.addAttribute("begin_page",begin_page);
+        model.addAttribute("max_page", max_page);
+        model.addAttribute("board_list",board_list);
+
+        model.addAttribute("page_type",page_type);
+        model.addAttribute("board_type", board_type);
+        return result;
+    }
 
 //    //게시글 확인 페이지 id == board_code
 //    @GetMapping("/menu/board/view")

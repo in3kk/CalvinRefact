@@ -1,16 +1,18 @@
 package Refact.CalvinRefact.service;
 
+import Refact.CalvinRefact.entity.Board;
+import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.repository.BoardDataJpaRepository;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class BoardService {
+    @Autowired
+    BoardDataJpaRepository boardDataJpaRepository;
 
     //메인 페이지 표시용 공지사항
 //    public List<BoardListDto> SelectNotice6(){
@@ -35,4 +37,34 @@ public class BoardService {
 //        });
 //        return  result;
 //    }
+
+    public Page<BoardListDto> findAll(Pageable pageable){
+        Page<BoardListDto> boardListDtos = Page.empty();
+        Page<Board> boardPage;
+        boardPage = boardDataJpaRepository.findAll(pageable);
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+
+        return boardListDtos;
+    }
+
+    public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable){
+        Page<BoardListDto> boardListDtos = Page.empty();
+        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        return boardListDtos;
+    }
+
+    public Page<BoardListDto> findAllByTitle(String title, Pageable pageable) {
+        Page<BoardListDto> boardListDtos = Page.empty();
+        Page<Board> boardPage = boardDataJpaRepository.findAllByTitleContaining(title, pageable);
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        return boardListDtos;
+    }
+
+    public Page<BoardListDto> findAllByTitleAndBoard_type(String title,Board_Type board_type, Pageable pageable) {
+        Page<BoardListDto> boardListDtos = Page.empty();
+        Page<Board>  boardPage = boardDataJpaRepository.findAllByBoardTypeAndTitleContaining(board_type,title,pageable);
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        return boardListDtos;
+    }
 }
