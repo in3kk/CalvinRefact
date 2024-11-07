@@ -1,10 +1,10 @@
 package Refact.CalvinRefact.repository;
 
-import Refact.CalvinRefact.entity.Board;
-import Refact.CalvinRefact.entity.QBoard;
-import Refact.CalvinRefact.entity.QMember;
+import Refact.CalvinRefact.entity.*;
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static Refact.CalvinRefact.entity.QBoard.board;
+import static Refact.CalvinRefact.entity.QFile.file;
+import static Refact.CalvinRefact.entity.QMember.member;
 
 @Repository
 public class BoardRepository {
@@ -36,12 +38,41 @@ public class BoardRepository {
                 board.title,
                 board.createdDate,
                 board.member.name,
-                board.board_type
+                board.boardType
                 ))
                 .from(board)
-                .where(board.board_type.eq(board_type))
+                .where(board.boardType.eq(board_type))
                 .fetch();
     }
 
+    //게시글 디테일 쿼리
+    public BoardDetailDto findBoardDetailById(Long id) {
+        BoardDetailDto boardDetailDto = queryFactory.select(Projections.fields(BoardDetailDto.class,
+                        board.id.as("board_id"),
+                        member.name,
+                        board.title,
+                        board.contents,
+                        board.boardType
+                ))
+                .from(board)
+                .join(board.member, member)
+                .where(board.id.eq(id))
+                .fetchOne();
+
+        List<FileSimpleDto> files = queryFactory.select(Projections.fields(FileSimpleDto.class,
+                file.id,
+                file.original_name,
+                file.save_name,
+                file.size
+                ))
+                .from(file)
+                .join(file.board,board)
+                .where(board.id.eq(id))
+                .fetch();
+
+        boardDetailDto.setFiles(files);
+
+        return boardDetailDto;
+    }
 
 }

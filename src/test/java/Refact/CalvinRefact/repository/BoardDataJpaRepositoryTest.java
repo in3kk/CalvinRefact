@@ -3,7 +3,9 @@ package Refact.CalvinRefact.repository;
 import Refact.CalvinRefact.entity.*;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.*;
+import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
 import Refact.CalvinRefact.service.BoardService;
 import jakarta.persistence.EntityManager;
@@ -224,6 +226,38 @@ class BoardDataJpaRepositoryTest {
 
         for (BoardListDto boardListDto : boardListDtos) {
             System.out.println("result : "+boardListDto.getBoard_type()+" "+boardListDto.getBoard_code()+" "+boardListDto.getTitle());
+        }
+    }
+
+    @Test
+    public void findBoardDetailByIdTest(){
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+
+
+        Board board = new Board(member, "123", "123", Board_Type.공지사항);
+        em.persist(board);
+        File file = new File("1.jpg","1",123456, YN.no,board);
+        em.persist(file);
+        file = new File("2.jpg","2",123456, YN.no,board);
+        em.persist(file);
+        file = new File("3.jpg","3",123456, YN.no,board);
+        em.persist(file);
+        file = new File("4.jpg","4",123456, YN.no,board);
+        em.persist(file);
+        file = new File("5.jpg","5",123456, YN.no,board);
+        em.persist(file);
+
+
+        em.flush();
+        em.clear();
+
+        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(1L);
+        System.out.println("board data : "+boardDetailDto.getBoard_id()+" "+boardDetailDto.getBoardType()+" "+boardDetailDto.getTitle()+" "+boardDetailDto.getContents()+" ");
+
+        List<FileSimpleDto> files = boardDetailDto.getFiles();
+        for (FileSimpleDto file1 : files) {
+            System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
         }
     }
 }
