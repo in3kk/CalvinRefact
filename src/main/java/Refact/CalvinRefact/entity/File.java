@@ -4,6 +4,7 @@ import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
 import Refact.CalvinRefact.entity.entityEnum.YN;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
  * file_cod -> file_id
  * created_date -> createdDate
  */
-@Entity @Getter
-public class File extends BaseEntity {
+@Entity @Getter @Setter
+public class  File extends BaseEntity {
 
     @Id @GeneratedValue
     @Column(name = "file_id")
@@ -47,5 +48,12 @@ public class File extends BaseEntity {
         this.size = size;
         this.delete_yn = delete_yn;
         this.board = board;
+    }
+
+    public File(Long id, String original_name, String save_name, int size) {
+        this.id = id;
+        this.original_name = original_name;
+        this.save_name = save_name;
+        this.size = size;
     }
 }

@@ -1,9 +1,13 @@
 package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.repository.BoardRepository;
+import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
+import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import Refact.CalvinRefact.service.BoardService;
 import Refact.CalvinRefact.service.CalvinService;
+import Refact.CalvinRefact.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -12,8 +16,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +33,9 @@ public class BoardController {
     CalvinService calvinService;
     @Autowired
     BoardService boardService;
+    @Autowired
+    MemberService memberService;
+
 
     //게시판 페이지 search_type = 검색방법 ex) 제목, 내용 admin => 관리자용 페이지
     @GetMapping({"/menu/board","/mypage/admin/board"})
@@ -116,79 +125,80 @@ public class BoardController {
         return result;
     }
 
-//    //게시글 확인 페이지 id == board_code
-//    @GetMapping("/menu/board/view")
-//    public String BoardView(@RequestParam(value = "id") int id, Model model){
-//        BoardView boardView = calvinBoardService.SelectBoardDetail(id);
-//        Calvin_file calvinFile1 = calvinFileService.getFileOriginName(boardView.getFile_code1());
-//        Calvin_file calvinFile2 = calvinFileService.getFileOriginName(boardView.getFile_code2());
-//        Calvin_file calvinFile3 = calvinFileService.getFileOriginName(boardView.getFile_code3());
-//        Calvin_file calvinFile4 = calvinFileService.getFileOriginName(boardView.getFile_code4());
-//        Calvin_file calvinFile5 = calvinFileService.getFileOriginName(boardView.getFile_code5());
-//        model.addAttribute("boardView", boardView);
-//        model.addAttribute("file1",calvinFile1);
-//        model.addAttribute("file2",calvinFile2);
-//        model.addAttribute("file3",calvinFile3);
-//        model.addAttribute("file4",calvinFile4);
-//        model.addAttribute("file5",calvinFile5);
-//        model.addAttribute("page_type", "8.5");
-//        String board_type = boardView.getBoard_type();
-//        if(board_type.equals("공지사항")){
-//            model.addAttribute("page_type", "8.5");
-//        }else if(board_type.equals("사진자료실")){
-//            model.addAttribute("page_type", "8.6");
-//        }else if(board_type.equals("서식자료실")){
-//            model.addAttribute("page_type", "8.7");
-//        }
-//        return "menu/board/board_view";
-//    }
-//    //게시글 작성 페이지
-//    @GetMapping("/menu/board/write")
-//    public String BoardWrite(HttpSession httpSession){
-//        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//
-//            }
-//        }else {
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//        return "menu/board/board_write";
-//    }
+    //게시글 확인 페이지 id == board_code
+    @GetMapping("/menu/board/view")
+    public String BoardView(@RequestParam(value = "id") Long id, Model model){
+        BoardDetailDto boardDetailDto = boardService.findBoardDetailById(id);
 
-//    //게시글 작성
-//    @PostMapping("/menu/board/write")
-//    public String InsertBoard(@RequestParam(value = "title") String title, @RequestParam(value = "contents") String board_contents,
-//                              @RequestParam(value = "member_id") String member_id,
-//                              @RequestParam(value= "board_type") String board_type,
-//                              @RequestParam(value = "file1", required = false) MultipartFile file1,
-//                              @RequestParam(value = "file2", required = false) MultipartFile file2,
-//                              @RequestParam(value = "file3", required = false) MultipartFile file3,
-//                              @RequestParam(value = "file4", required = false) MultipartFile file4,
-//                              @RequestParam(value = "file5", required = false) MultipartFile file5){
-//        String result = "";
-//        List<MultipartFile> file_list = new ArrayList<>();
-//        boolean token = false;
-//        if(file1 != null){
-//            file_list.add(file1);
-//            token = true;
-//        }
-//        if(file2 != null){
-//            file_list.add(file2);
-//            token = true;
-//        }
-//        if(file3 != null){
-//            file_list.add(file3);
-//            token = true;
-//        }
-//        if(file4 != null){
-//            file_list.add(file4);
-//            token = true;
-//        }
-//        if(file5 != null){
-//            file_list.add(file5);
-//            token = true;
-//        }
-//        int insert_result;
+        model.addAttribute("boardView", boardDetailDto);
+        model.addAttribute("file1",boardDetailDto.getFiles().get(0));
+        model.addAttribute("file2",boardDetailDto.getFiles().get(1));
+        model.addAttribute("file3",boardDetailDto.getFiles().get(2));
+        model.addAttribute("file4",boardDetailDto.getFiles().get(3));
+        model.addAttribute("file5",boardDetailDto.getFiles().get(4));
+        model.addAttribute("page_type", "8.5");
+        Board_Type board_type = boardDetailDto.getBoardType();
+        if(board_type.equals(Board_Type.공지사항)){
+            model.addAttribute("page_type", "8.5");
+        }else if(board_type.equals(Board_Type.사진자료실)){
+            model.addAttribute("page_type", "8.6");
+        }else if(board_type.equals(Board_Type.서식자료실)){
+            model.addAttribute("page_type", "8.7");
+        }
+        return "menu/board/board_view";
+    }
+    //게시글 작성 페이지
+    @GetMapping("/menu/board/write")
+    public String BoardWrite(HttpSession httpSession){
+        String result ="<script>window.location.href='/';</script>";
+        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
+            if(memberService.permissionCheck(httpSession.getAttribute("id").toString())) {
+                result ="<script>window.location.href='/menu/board/board_write';</script>";
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }else {
+            result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
+        }
+        return result;
+    }
+
+    //게시글 작성
+    @PostMapping("/menu/board/write")
+    public String InsertBoard(@RequestParam(value = "title") String title, @RequestParam(value = "contents") String board_contents,
+                              @RequestParam(value = "member_id") String member_id,
+                              @RequestParam(value= "board_type") String board_type,
+                              @RequestParam(value = "file1", required = false) MultipartFile file1,
+                              @RequestParam(value = "file2", required = false) MultipartFile file2,
+                              @RequestParam(value = "file3", required = false) MultipartFile file3,
+                              @RequestParam(value = "file4", required = false) MultipartFile file4,
+                              @RequestParam(value = "file5", required = false) MultipartFile file5){
+        String result = "";
+        List<MultipartFile> file_list = new ArrayList<>();
+        boolean token = false;
+        if(file1 != null){
+            file_list.add(file1);
+            token = true;
+        }
+        if(file2 != null){
+            file_list.add(file2);
+            token = true;
+        }
+        if(file3 != null){
+            file_list.add(file3);
+            token = true;
+        }
+        if(file4 != null){
+            file_list.add(file4);
+            token = true;
+        }
+        if(file5 != null){
+            file_list.add(file5);
+            token = true;
+        }
+        int insert_result;
 //        if(token){
 //            insert_result = calvinBoardService.insertBoard(title,board_contents,member_id,file_list,board_type);
 //        }else{
@@ -200,8 +210,8 @@ public class BoardController {
 //            //insert 실패시
 //            result = "redirect:/menu/board";
 //        }
-//        return result;
-//    }
+        return result;
+    }
 
 //    //게시글 삭제
 //    @GetMapping("/menu/board/delete")

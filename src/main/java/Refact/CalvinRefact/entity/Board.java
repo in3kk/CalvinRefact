@@ -33,7 +33,7 @@ public class Board extends BaseEntity {
     @Column(nullable = false,name = "board_type")
     private Board_Type boardType;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board",fetch = FetchType.LAZY)
     private List<File> files;
 
 
