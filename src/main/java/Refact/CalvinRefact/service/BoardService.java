@@ -10,14 +10,18 @@ import Refact.CalvinRefact.repository.MemberDataJpaRepository;
 import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class BoardService {
@@ -29,6 +33,8 @@ public class BoardService {
     MemberDataJpaRepository memberDataJpaRepository;
     @Autowired
     FileService fileService;
+    @Autowired
+    EntityManager em;
 
     //메인 페이지 표시용 공지사항
 //    public List<BoardListDto> SelectNotice6(){
@@ -54,40 +60,40 @@ public class BoardService {
 //        return  result;
 //    }
 
-    public Page<BoardListDto> findAll(Pageable pageable){
+    public Page<BoardListDto> findAll(Pageable pageable) {
         Page<BoardListDto> boardListDtos = Page.empty();
         Page<Board> boardPage;
         boardPage = boardDataJpaRepository.findAll(pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
 
         return boardListDtos;
     }
 
-    public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable){
+    public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable) {
         Page<BoardListDto> boardListDtos = Page.empty();
         Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
     public Page<BoardListDto> findAllByTitle(String title, Pageable pageable) {
         Page<BoardListDto> boardListDtos = Page.empty();
         Page<Board> boardPage = boardDataJpaRepository.findAllByTitleContaining(title, pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
-    public Page<BoardListDto> findAllByTitleAndBoard_type(String title,Board_Type board_type, Pageable pageable) {
+    public Page<BoardListDto> findAllByTitleAndBoard_type(String title, Board_Type board_type, Pageable pageable) {
         Page<BoardListDto> boardListDtos = Page.empty();
-        Page<Board>  boardPage = boardDataJpaRepository.findAllByBoardTypeAndTitleContaining(board_type,title,pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(),board.getMember().getId(),board.getTitle(),board.getCreatedDate(),board.getMember().getName(),board.getBoardType(),board.getFiles().isEmpty()?"-1":board.getFiles().get(0).getSave_name()));
+        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardTypeAndTitleContaining(board_type, title, pageable);
+        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
     public BoardDetailDto findBoardDetailById(Long id) {
         BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(id);
         for (int x = 0; x < 5; x++) {
-            if(boardDetailDto.getFiles().get(x) == null){
+            if (boardDetailDto.getFiles().get(x) == null) {
                 boardDetailDto.getFiles().add(new FileSimpleDto("-1"));
             }
         }
@@ -96,17 +102,39 @@ public class BoardService {
         return boardDetailDto;
     }
 
-    @Transactional
-    public void saveBoard(String email,String title, String contents, Long id, Board_Type boardType, List<FileSimpleDto> files) {
+    //게시글 작성
+    @Transactional(rollbackFor = {Exception.class})
+    public void saveBoard(String email, String title, String contents, Board_Type boardType, List<MultipartFile> files) throws Exception {
+        Pattern p1 = Pattern.compile("<([a-zA-Z]+)(\\s[^>]*)?>(?![\\s\\S]*<\\/\\1>)");
+        Matcher m = p1.matcher(contents);
+        contents = m.replaceAll("");//드래그앤드롭 이미지 입력 방지 코드
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
-        Member member = new Member();
+        Member member;
         if (memberOptional.isPresent()) {
             member = memberOptional.get();
-            Board board = new Board(member,title,contents,boardType);
+            Board board = new Board(member, title, contents, boardType);
             boardDataJpaRepository.save(board);
-            for (FileSimpleDto fileSimpleDto : files) {
-                fileService.saveFile(fileSimpleDto);
+            for (MultipartFile file : files) {
+                fileService.saveFile(board, file);
             }
+        }
+    }
+
+    //게시글 삭제
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteBoard(Long id) throws Exception{
+        Optional<Board> boardOptional = boardDataJpaRepository.findById(id);
+        if (boardOptional.isPresent()) {
+            Board board = boardOptional.get();
+            List<File> files = board.getFiles();
+            for (File file : files) {
+                fileService.deleteFile(file);
+            }
+            boardDataJpaRepository.deleteById(id);
+        } else {
+            /**
+             * 존재하지 않는 게시글 예외 추가
+             */
         }
     }
 }

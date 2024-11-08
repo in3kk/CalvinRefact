@@ -24,7 +24,7 @@ public interface MemberDataJpaRepository extends JpaRepository<Member,Long> {
     //멤버 username 검색
     Page<Member> findByNameContaining(String name, Pageable pageable);
 
-    @Query("select m.id from member m where m.email = :email")
-    Long findIdByEmail(@Param("email")String email);
+//    @Query("select m.id from member m where m.email = :email")
+//    Long findIdByEmail(@Param("email")String email);
 
 }

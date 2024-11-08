@@ -1,5 +1,12 @@
 package Refact.CalvinRefact.controller;
 
+import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
+import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.repository.SubjectDataJpaRepository;
+import Refact.CalvinRefact.repository.SubjectRepository;
+import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
+import Refact.CalvinRefact.service.SubjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,87 +19,90 @@ import java.util.regex.Pattern;
 
 @RestController
 public class SubjectController {
-//    @GetMapping("/menu/subject/list") //강의 리스트 페이지
-//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-//                              @RequestParam(value = "type") String type, Model model){
-//        List<Calvin_subject> subject_list;
-//        if(field.equals("")){
-//            subject_list= calvinSubjectService.SubjectList(type);
-//        }else{
-//            System.out.println("result"+field);
-//            subject_list= calvinSubjectService.SubjectList(field,type);
-//        }
-//        String result = "menu/subject/subject_list";
-//        model.addAttribute("subject_list", subject_list);
-//        model.addAttribute("page_type","2.2");
-//        return  result;
-//    }
-//    //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
-//    @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
-//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-//                              @RequestParam(value = "type") String type,
-//                              @RequestParam(value = "name", required = false, defaultValue = "")String name,Model model){
-//        List<Calvin_subject> subject_list;
-//        if(field.equals("")){
-//            subject_list= calvinSubjectService.SubjectList(type);
-//        }else if(!name.equals("")){
-//            subject_list = calvinSubjectService.SubjectList(field,type,name);
-//            model.addAttribute("subject_name", name);
-//        }else{
-//            subject_list= calvinSubjectService.SubjectList(field,type);
-//        }
-//        String result="";
-//        model.addAttribute("subject_list", subject_list);
-//        if(type.equals("학점은행제")){
-//            result = "menu/subject/subject_list";
-//            model.addAttribute("page_type","2.2");
-//        }else if(type.equals("일반교양")){
-//            result = "menu/liberal_arts/subject_list";
-//            model.addAttribute("page_type","3.1");
-//        }else if(type.equals("자격증/취창업")){
-//            result = "menu/certificate/subject_list";
-//            if(field.equals("전문자격증")){
-//                model.addAttribute("page_type","4.1");
-//            }else if(field.equals("민간자격증")){
-//                model.addAttribute("page_type","4.2");
-//            }else if(field.equals("기술자격증")){
-//                model.addAttribute("page_type","4.3");
-//            }else if(field.equals("취창업")){
-//                model.addAttribute("page_type","4.4");
-//            }
-//        }else if(type.equals("특별교육과정")){
-//            //용인학아카데미, 서현정치경제아카데미, 경기교육아카데미, 사모아카데미, 레이번스축구아카데미, 연예아카데미
-//            result = "menu/special/subject_list";
-//            if(field.equals("용인")){
-//                model.addAttribute("page_type","5.1");
-//            }else if(field.equals("서현정치경제")){
-//                model.addAttribute("page_type","5.2");
-//            }else if(field.equals("경기교육")){
-//                model.addAttribute("page_type","5.3");
-//            }else if(field.equals("사모포럼")){
-//                model.addAttribute("page_type","5.4");
-//                result = "menu/ministry/subject_list";
-//            }else if(field.equals("레이번스축구아카데미")){
-//                model.addAttribute("page_type","5.5");
-//            }else if(field.equals("연예아카데미")){
-//                model.addAttribute("page_type","5.6");
-//                model.addAttribute("page_type","5.6");
-//            }
-//        }else if(type.equals("언어")){
-//            result = "menu/language/subject_list";
-//            if(field.equals("성경고전어")){
-//                model.addAttribute("page_type","6.1");
-//            }else if(field.equals("제2외국어")){
-//                model.addAttribute("page_type","6.2");
-//            }else if(field.equals("한국어")){
-//                model.addAttribute("page_type","6.3");
-//            }
-//        }else if(type.equals("목회")){
-//            result = "menu/ministry/subject_list";
-//            model.addAttribute("page_type","7.1");
-//        }
-//        return  result;
-//    }
+    @Autowired
+    SubjectService subjectService;
+
+    @GetMapping("/menu/subject/list") //강의 리스트 페이지
+    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
+                              @RequestParam(value = "type") Subject_Type type, Model model){
+        List<SubjectListDto> subject_list;
+        if(field.equals("")){
+            subject_list= subjectService.findSubjectList(type);
+        }else{
+            System.out.println("result"+field);
+            subject_list= subjectService.findSubjectList(type,Subject_Field.valueOf(field));
+        }
+        String result = "menu/subject/subject_list";
+        model.addAttribute("subject_list", subject_list);
+        model.addAttribute("page_type","2.2");
+        return  result;
+    }
+    //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
+    @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
+    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
+                              @RequestParam(value = "type") Subject_Type type,
+                              @RequestParam(value = "name", required = false, defaultValue = "")String name,Model model){
+        List<SubjectListDto> subject_list;
+        if(field.equals("")){
+            subject_list= subjectService.findSubjectList(type);
+        }else if(!name.equals("")){
+            subject_list = subjectService.findSubjectList(type,Subject_Field.valueOf(field),name);
+            model.addAttribute("subject_name", name);
+        }else{
+            subject_list= subjectService.findSubjectList(type,Subject_Field.valueOf(field));
+        }
+        String result="";
+        model.addAttribute("subject_list", subject_list);
+        if(type.equals("학점은행제")){
+            result = "menu/subject/subject_list";
+            model.addAttribute("page_type","2.2");
+        }else if(type.equals("일반교양")){
+            result = "menu/liberal_arts/subject_list";
+            model.addAttribute("page_type","3.1");
+        }else if(type.equals("자격증/취창업")){
+            result = "menu/certificate/subject_list";
+            if(field.equals("전문자격증")){
+                model.addAttribute("page_type","4.1");
+            }else if(field.equals("민간자격증")){
+                model.addAttribute("page_type","4.2");
+            }else if(field.equals("기술자격증")){
+                model.addAttribute("page_type","4.3");
+            }else if(field.equals("취창업")){
+                model.addAttribute("page_type","4.4");
+            }
+        }else if(type.equals("특별교육과정")){
+            //용인학아카데미, 서현정치경제아카데미, 경기교육아카데미, 사모아카데미, 레이번스축구아카데미, 연예아카데미
+            result = "menu/special/subject_list";
+            if(field.equals("용인")){
+                model.addAttribute("page_type","5.1");
+            }else if(field.equals("서현정치경제")){
+                model.addAttribute("page_type","5.2");
+            }else if(field.equals("경기교육")){
+                model.addAttribute("page_type","5.3");
+            }else if(field.equals("사모포럼")){
+                model.addAttribute("page_type","5.4");
+                result = "menu/ministry/subject_list";
+            }else if(field.equals("레이번스축구아카데미")){
+                model.addAttribute("page_type","5.5");
+            }else if(field.equals("연예아카데미")){
+                model.addAttribute("page_type","5.6");
+                model.addAttribute("page_type","5.6");
+            }
+        }else if(type.equals("언어")){
+            result = "menu/language/subject_list";
+            if(field.equals("성경고전어")){
+                model.addAttribute("page_type","6.1");
+            }else if(field.equals("제2외국어")){
+                model.addAttribute("page_type","6.2");
+            }else if(field.equals("한국어")){
+                model.addAttribute("page_type","6.3");
+            }
+        }else if(type.equals("목회")){
+            result = "menu/ministry/subject_list";
+            model.addAttribute("page_type","7.1");
+        }
+        return  result;
+    }
 
 //    //수강신청 페이지
 //    @GetMapping({"/menu/subject/apply", "/menu/liberal_arts/apply","/menu/certificate/apply","/menu/language/apply"})

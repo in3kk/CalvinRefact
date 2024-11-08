@@ -15,10 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -167,9 +164,10 @@ public class BoardController {
 
     //게시글 작성
     @PostMapping("/menu/board/write")
+    @ResponseBody
     public String InsertBoard(@RequestParam(value = "title") String title, @RequestParam(value = "contents") String board_contents,
                               @RequestParam(value = "member_id") String member_id,
-                              @RequestParam(value= "board_type") String board_type,
+                              @RequestParam(value= "board_type") Board_Type board_type,
                               @RequestParam(value = "file1", required = false) MultipartFile file1,
                               @RequestParam(value = "file2", required = false) MultipartFile file2,
                               @RequestParam(value = "file3", required = false) MultipartFile file3,
@@ -180,59 +178,54 @@ public class BoardController {
         boolean token = false;
         if(file1 != null){
             file_list.add(file1);
-            token = true;
         }
         if(file2 != null){
             file_list.add(file2);
-            token = true;
         }
         if(file3 != null){
             file_list.add(file3);
-            token = true;
         }
         if(file4 != null){
             file_list.add(file4);
-            token = true;
         }
         if(file5 != null){
             file_list.add(file5);
-            token = true;
         }
-        int insert_result;
-//        if(token){
-//            insert_result = calvinBoardService.insertBoard(title,board_contents,member_id,file_list,board_type);
-//        }else{
-//            insert_result = calvinBoardService.insertBoard(title,board_contents,member_id,board_type);
-//        }
-//        if(insert_result == 1){
-//            result = "redirect:/menu/board";
-//        }else{
-//            //insert 실패시
-//            result = "redirect:/menu/board";
-//        }
+
+        try {
+            boardService.saveBoard(member_id, title, board_contents, board_type, file_list);
+            result= "window.location.href='/menu/board';</script>";
+
+        } catch (Exception e) {
+            result="<script>alert('게시글 작성에 실패했습니다.');window.location.href='/menu/board';</script>";
+        }
+
         return result;
     }
 
-//    //게시글 삭제
-//    @GetMapping("/menu/board/delete")
-//    @ResponseBody
-//    public String boardDelete(@RequestParam(value = "board_code") int board_code, HttpSession httpSession, Model model){
-//        String result;
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            throw new CustomException(ErrorCode.UNAUTHORIZED_USER);
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("ai") || httpSession.getAttribute("member_type").equals("st")){
-//                int dt_result = calvinBoardService.DeleteBoard(board_code);
-//                if(dt_result == 1){
-//                    result = "<script>alert('게시글이 삭제되었습니다.');history.back();</script>";
-//                }else{
-//                    result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
-//                }
-//            }else {
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//
-//        return result;
-//    }
+    //게시글 삭제
+    @GetMapping("/menu/board/delete")
+    @ResponseBody
+    public String boardDelete(@RequestParam(value = "board_code") Long board_code, HttpSession httpSession, Model model){
+        String result="";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("ai") || httpSession.getAttribute("member_type").equals("st")){
+                try {
+                    boardService.deleteBoard(board_code);
+                    result = "<script>alert('게시글이 삭제되었습니다.');history.back();</script>";
+                } catch (Exception e) {
+                    result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
+                }
+            }else {
+                /**
+                 * 권한 부족 예외 추가
+                 */
+                result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
+            }
+        }
+
+        return result;
+    }
 }

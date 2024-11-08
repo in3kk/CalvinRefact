@@ -61,7 +61,7 @@ class BoardDataJpaRepositoryTest {
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
         em.persist(board);
 
-        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
         em.persist(file);
 
 
@@ -96,7 +96,7 @@ class BoardDataJpaRepositoryTest {
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
         em.persist(board);
 
-        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
         em.persist(file);
 
 
@@ -125,7 +125,7 @@ class BoardDataJpaRepositoryTest {
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
         em.persist(board);
 
-        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
         em.persist(file);
 
 
@@ -153,7 +153,7 @@ class BoardDataJpaRepositoryTest {
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
         em.persist(board);
 
-        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
         em.persist(file);
 
 
@@ -185,7 +185,7 @@ class BoardDataJpaRepositoryTest {
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
         em.persist(board);
 
-        File file = new File("123.jpg","123123123",123456, YN.no,board);
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
         em.persist(file);
 
         Subject subject = new Subject();
@@ -237,27 +237,35 @@ class BoardDataJpaRepositoryTest {
 
         Board board = new Board(member, "123", "123", Board_Type.공지사항);
         em.persist(board);
-        File file = new File("1.jpg","1",123456, YN.no,board);
+        File file = new File("1.jpg","1",123456L, YN.no,board);
         em.persist(file);
-        file = new File("2.jpg","2",123456, YN.no,board);
+        file = new File("2.jpg","2",123456L, YN.no,board);
         em.persist(file);
-        file = new File("3.jpg","3",123456, YN.no,board);
+        file = new File("3.jpg","3",123456L, YN.no,board);
         em.persist(file);
-        file = new File("4.jpg","4",123456, YN.no,board);
+        file = new File("4.jpg","4",123456L, YN.no,board);
         em.persist(file);
-        file = new File("5.jpg","5",123456, YN.no,board);
+        file = new File("5.jpg","5",123456L, YN.no,board);
         em.persist(file);
 
 
         em.flush();
         em.clear();
 
-        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(1L);
-        System.out.println("board data : "+boardDetailDto.getBoard_id()+" "+boardDetailDto.getBoardType()+" "+boardDetailDto.getTitle()+" "+boardDetailDto.getContents()+" ");
-
-        List<FileSimpleDto> files = boardDetailDto.getFiles();
-        for (FileSimpleDto file1 : files) {
-            System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
+//        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(1L);
+//        System.out.println("board data : "+boardDetailDto.getBoard_id()+" "+boardDetailDto.getBoardType()+" "+boardDetailDto.getTitle()+" "+boardDetailDto.getContents()+" ");
+//
+//        List<FileSimpleDto> files = boardDetailDto.getFiles();
+//        for (FileSimpleDto file1 : files) {
+//            System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
+//        }
+        Optional<Board> board1 = boardDataJpaRepository.findById(1L);
+        System.out.println(">>>구분선<<<");
+        if (board1.isPresent()) {
+            List<File> files = board1.get().getFiles();
+            for (File file1 : files) {
+                System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
+            }
         }
     }
 }
