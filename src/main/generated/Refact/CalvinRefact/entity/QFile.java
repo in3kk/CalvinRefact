@@ -39,7 +39,7 @@ public class QFile extends EntityPathBase<File> {
 
     public final StringPath save_name = createString("save_name");
 
-    public final NumberPath<Integer> size = createNumber("size", Integer.class);
+    public final NumberPath<Long> size = createNumber("size", Long.class);
 
     public QFile(String variable) {
         this(File.class, forVariable(variable), INITS);

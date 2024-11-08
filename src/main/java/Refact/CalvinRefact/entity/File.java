@@ -27,7 +27,7 @@ public class  File extends BaseEntity {
     private String save_name;
 
     @Column(nullable = false)
-    private int size;
+    private Long size;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -42,7 +42,7 @@ public class  File extends BaseEntity {
     public File() {
     }
 
-    public File(String original_name, String save_name, int size, YN delete_yn, Board board) {
+    public File(String original_name, String save_name, Long size, YN delete_yn, Board board) {
         this.original_name = original_name;
         this.save_name = save_name;
         this.size = size;
@@ -50,10 +50,17 @@ public class  File extends BaseEntity {
         this.board = board;
     }
 
-    public File(Long id, String original_name, String save_name, int size) {
+    public File(Long id, String original_name, String save_name, Long size) {
         this.id = id;
         this.original_name = original_name;
         this.save_name = save_name;
         this.size = size;
+    }
+
+    public File(String original_name, String save_name, Long size, Board board) {
+        this.original_name = original_name;
+        this.save_name = save_name;
+        this.size = size;
+        this.board = board;
     }
 }
