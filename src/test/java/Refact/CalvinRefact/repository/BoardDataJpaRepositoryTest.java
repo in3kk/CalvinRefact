@@ -8,6 +8,7 @@ import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
 import Refact.CalvinRefact.service.BoardService;
+import Refact.CalvinRefact.service.SubjectService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.assertj.core.api.Assertions;
@@ -49,6 +50,8 @@ class BoardDataJpaRepositoryTest {
     Member_SubjectRepository memberSubjectRepository;
     @Autowired
     BoardService boardService;
+    @Autowired
+    SubjectService subjectService;
 
     @PersistenceContext
     EntityManager em;
@@ -266,6 +269,49 @@ class BoardDataJpaRepositoryTest {
             for (File file1 : files) {
                 System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
             }
+        }
+    }
+
+    @Test
+    public void findFileSimpleDtoByBoardIdTest() {
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+
+        Board board = new Board(member, "제목","내용", Board_Type.공지사항);
+        em.persist(board);
+
+        File file = new File("123.jpg","123123123",123456L, YN.no,board);
+        em.persist(file);
+
+        em.flush();
+        em.clear();
+
+        FileSimpleDto fileSimpleDto = fileDataJpaRepository.findSimpleFileByBoardId(1L);
+        System.out.println("result = "+fileSimpleDto.getOriginal_name());
+    }
+    @Test
+    public void applyProTest(){
+        Member member = new Member("shy4792@naver.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+        member = new Member("shy4792", "rlawlstp128", "김진세2", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member);
+        Subject subject = new Subject(member, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        em.persist(subject);
+        em.flush();
+        em.clear();
+
+        subjectService.applyPro("shy4792",1L);
+        em.flush();
+        em.clear();
+
+        Optional<Member> memberOptional = memberDataJpaRepository.findByEmail("shy4792");
+        if (memberOptional.isPresent()) {
+            Member member1 = memberOptional.get();
+            List<Member_Subject> member_subjects = member1.getMember_subjects();
+            for (Member_Subject memberSubject : member_subjects) {
+                System.out.println("result = "+memberSubject.getSubject());
+            }
+
         }
     }
 }

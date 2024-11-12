@@ -4,12 +4,19 @@ import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
 import Refact.CalvinRefact.repository.SubjectDataJpaRepository;
 import Refact.CalvinRefact.repository.SubjectRepository;
+import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
+import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
+import Refact.CalvinRefact.service.CalvinService;
 import Refact.CalvinRefact.service.SubjectService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -21,6 +28,8 @@ import java.util.regex.Pattern;
 public class SubjectController {
     @Autowired
     SubjectService subjectService;
+    @Autowired
+    CalvinService calvinService;
 
     @GetMapping("/menu/subject/list") //강의 리스트 페이지
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
@@ -84,9 +93,10 @@ public class SubjectController {
                 result = "menu/ministry/subject_list";
             }else if(field.equals("레이번스축구아카데미")){
                 model.addAttribute("page_type","5.5");
-            }else if(field.equals("연예아카데미")){
+            }else if(field.equals("연예")){
                 model.addAttribute("page_type","5.6");
-                model.addAttribute("page_type","5.6");
+            } else if (field.equals("미디어")) {
+                model.addAttribute("page_type","5.7");
             }
         }else if(type.equals("언어")){
             result = "menu/language/subject_list";
@@ -104,151 +114,155 @@ public class SubjectController {
         return  result;
     }
 
-//    //수강신청 페이지
-//    @GetMapping({"/menu/subject/apply", "/menu/liberal_arts/apply","/menu/certificate/apply","/menu/language/apply"})
-//    public String ApplyPage(@RequestParam(value = "id", required = false, defaultValue = "-1") int id, Model model){
-//        Calvin_subject subject = calvinSubjectService.SubjectApply(id);
-//        Calvin_file calvinFile;
-//        if(subject.getFile_code() != -1){
-//            calvinFile = calvinFileService.getFileOriginName(subject.getFile_code());
-//            model.addAttribute("file", calvinFile);
+    //수강신청 페이지
+    @GetMapping({"/menu/subject/apply", "/menu/liberal_arts/apply","/menu/certificate/apply","/menu/language/apply"})
+    public String ApplyPage(@RequestParam(value = "id", required = false, defaultValue = "-1") Long id, Model model){
+        SubjectDetailDto subject = subjectService.findSubjectDetail(id);
+        FileSimpleDto fileSimpleDto;
+        if(subject.getFileSimpleDto() != null){
+            fileSimpleDto = subject.getFileSimpleDto();
+            model.addAttribute("file", fileSimpleDto);
+        }
+        model.addAttribute("subject",subject);
+        String result = "";
+        if(subject.getSubject_type().equals("학점은행제")){
+            model.addAttribute("page_type","2.2");
+            result = "menu/subject/apply";
+        }else if(subject.getSubject_type().equals("일반교양")){
+            model.addAttribute("page_type","3.1");
+            result = "menu/liberal_arts/apply";
+        }else if(subject.getSubject_type().equals("자격증/취창업")){
+            result = "menu/certificate/apply";
+            if(subject.getSubject_field().equals("반려동물")){
+                model.addAttribute("page_type","4.1");
+            }else if(subject.getSubject_field().equals("사회복지")){
+                model.addAttribute("page_type","4.2");
+            }else if(subject.getSubject_field().equals("실용음악")){
+                model.addAttribute("page_type","4.3");
+            }else if(subject.getSubject_field().equals("자격증")){
+                model.addAttribute("page_type","4.4");
+            }else if(subject.getSubject_field().equals("취창업")){
+                model.addAttribute("page_type","4.5");
+            }
+        }else if(subject.getSubject_type().equals("특별교육과정")){
+            result = "menu/special/apply";
+            if(subject.getSubject_field().equals("용인")){
+                model.addAttribute("page_type","5.1");
+            }else if(subject.getSubject_field().equals("서현정치경제")){
+                model.addAttribute("page_type","5.2");
+            }else if(subject.getSubject_field().equals("경기교육")){
+                model.addAttribute("page_type","5.3");
+            }else if(subject.getSubject_field().equals("레이번스축구아카데미")){
+                model.addAttribute("page_type","5.5");
+            }else if(subject.getSubject_field().equals("연예")){
+                model.addAttribute("page_type","5.6");
+            } else if (subject.getSubject_field().equals("미디어")) {
+                model.addAttribute("page_type","5.7");
+            }
+        }else if(subject.getSubject_type().equals("언어")){
+            result = "menu/language/apply";
+            if(subject.getSubject_field().equals("히브리어")){
+                model.addAttribute("page_type","6.1");
+            }else if(subject.getSubject_field().equals("헬라어")){
+                model.addAttribute("page_type","6.2");
+            }else if(subject.getSubject_field().equals("라틴어")){
+                model.addAttribute("page_type","6.3");
+            }else if(subject.getSubject_field().equals("독일어")){
+                model.addAttribute("page_type","6.4");
+            }else if(subject.getSubject_field().equals("한국어")){
+                model.addAttribute("page_type","6.5");
+            } else if (subject.getSubject_field().equals("영어")) {
+                model.addAttribute("page_type","6.6");
+            }
+        }
+        return result;
+    }
+
+//    수강신청
+    @GetMapping("/menu/subject/apply/pro")
+    @ResponseBody
+    public String ApplyPro(HttpSession httpSession, @RequestParam(value = "subject_code") Long subject_code){
+        String result = "";
+        if(httpSession.getAttribute("member_id")==null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다..');window.location.href = '/member/login';</script>";
+        }else{
+            String member_id = httpSession.getAttribute("member_id").toString();
+            if(subjectService.applyWhether(member_id,subject_code)){
+                boolean insert_result = subjectService.applyPro(member_id,subject_code);
+                if(insert_result){
+                    result = "<script>alert('수강신청이 완료되었습니다.');window.location.href = '/menu/subject/apply/done';</script>";
+                }else{
+                    result = "<script>alert('수강신청에 실패하였습니다.');history.go(-2);</script>";
+                }
+            }else{
+                result = "<script>alert('이미 신청한 강의 입니다.');window.location.href = document.referrer;</script>";
+            }
+        }
+        return result;
+    }
+    //수강신청 완료
+    @GetMapping("/menu/subject/apply/done")
+    public String ApplyDone(){
+        return "menu/subject/apply_done";
+    }
+    //신청 관리 페이지 9.3
+//    @GetMapping("/mypage/admin/apply")
+//    public String ApplyManagePage(Model model,
+//                                  @PageableDefault(size = 20, sort = {"Member_Subject_id"}) Pageable pageable,
+//                                  @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
+//                                  @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
+//                                  HttpSession httpSession){
+//        if(!search_word.equals("")){
+//            search_word = calvinService.searchWordFilter(search_word);
 //        }
-//        model.addAttribute("subject",subject);
 //        String result = "";
-//        if(subject.getSubject_type().equals("학점은행제")){
-//            model.addAttribute("page_type","2.2");
-//            result = "menu/subject/apply";
-//        }else if(subject.getSubject_type().equals("일반교양")){
-//            model.addAttribute("page_type","3.1");
-//            result = "menu/liberal_arts/apply";
-//        }else if(subject.getSubject_type().equals("자격증/취창업")){
-//            result = "menu/certificate/apply";
-//            if(subject.getSubject_field().equals("반려동물")){
-//                model.addAttribute("page_type","4.1");
-//            }else if(subject.getSubject_field().equals("사회복지")){
-//                model.addAttribute("page_type","4.2");
-//            }else if(subject.getSubject_field().equals("실용음악")){
-//                model.addAttribute("page_type","4.3");
-//            }else if(subject.getSubject_field().equals("자격증")){
-//                model.addAttribute("page_type","4.4");
-//            }else if(subject.getSubject_field().equals("취창업")){
-//                model.addAttribute("page_type","4.5");
-//            }
-//        }else if(subject.getSubject_type().equals("특별교육과정")){
-//            result = "menu/special/apply";
-//            if(subject.getSubject_field().equals("보육교직원보수교육")){
-//                model.addAttribute("page_type","5.1");
-//            }else if(subject.getSubject_field().equals("진로진학상담원양성")){
-//                model.addAttribute("page_type","5.2");
-//            }else if(subject.getSubject_field().equals("용인학")){
-//                model.addAttribute("page_type","5.3");
-//            }
-//        }else if(subject.getSubject_type().equals("언어")){
-//            result = "menu/language/apply";
-//            if(subject.getSubject_field().equals("히브리어")){
-//                model.addAttribute("page_type","6.1");
-//            }else if(subject.getSubject_field().equals("헬라어")){
-//                model.addAttribute("page_type","6.2");
-//            }else if(subject.getSubject_field().equals("라틴어")){
-//                model.addAttribute("page_type","6.3");
-//            }else if(subject.getSubject_field().equals("독일어")){
-//                model.addAttribute("page_type","6.4");
-//            }else if(subject.getSubject_field().equals("한국어")){
-//                model.addAttribute("page_type","6.5");
-//            } else if (subject.getSubject_field().equals("영어")) {
-//                model.addAttribute("page_type","6.6");
+//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+//            result = "redirect:/member/login";
+//        }else{
+//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+//                List<MyPageSubjectView> apply = new ArrayList<>();
+//                int count = 0;
+//                if(search_word.equals("")){
+//                    apply = calvinSubjectService.SelectAllApply(page);
+//                    count = calvinSubjectService.admin_paging_apply();
+//                }else{
+//                    if(search_type == 1){//강의명
+//                        apply = calvinSubjectService.SelectApplyBySubjectName(page, search_word);
+//                        count = calvinSubjectService.admin_paging_apply(1,search_word);
+//                    }else if(search_type == 2){//아이디
+//                        apply = calvinSubjectService.SelectApplyById(page, search_word);
+//                        count = calvinSubjectService.admin_paging_apply(2,search_word);
+//                    }
+//                }
+//                int begin_page;
+//
+//                if(page % 10 == 0){
+//                    begin_page = page-9;
+//                }else{
+//                    begin_page = page/10*10+1;
+//                }
+//                int max_page;
+//                if(count/20 == 0 && count%20 > 0){
+//                    max_page = 1;
+//                }else if(count/20 > 0 && count%20 > 0){
+//                    max_page = count/20 + 1;
+//                }else{
+//                    max_page = count/20;
+//                }
+//                model.addAttribute("search_word", search_word);
+//                model.addAttribute("search_type", search_type);
+//                model.addAttribute("page", page);
+//                model.addAttribute("begin_page",begin_page);
+//                model.addAttribute("max_page", max_page);
+//                model.addAttribute("apply_list" ,apply);
+//                model.addAttribute("page_type","9.3");
+//                result = "menu/mypage/admin_apply";
+//            }else{
+//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
 //            }
 //        }
 //        return result;
 //    }
-
-//수강신청
-//@GetMapping("/menu/subject/apply/pro")
-//@ResponseBody
-//public String ApplyPro(HttpSession httpSession, @RequestParam(value = "subject_code") int subject_code){
-//    String result = "";
-//    if(httpSession.getAttribute("member_id")==null){
-//        result = "<script>alert('로그인이 필요한 서비스 입니다..');window.location.href = '/member/login';</script>";
-//    }else{
-//        String member_id = httpSession.getAttribute("member_id").toString();
-//        if(calvinSubjectService.ApplyWhether(member_id,subject_code)){
-//            int insert_result = calvinSubjectService.ApplyPro(member_id,subject_code);
-//            if(insert_result == 1){
-//                result = "<script>alert('수강신청이 완료되었습니다.');window.location.href = '/menu/subject/apply/done';</script>";
-//            }else{
-//                result = "<script>alert('수강신청에 실패하였습니다.');history.go(-2);</script>";
-//            }
-//        }else{
-//            result = "<script>alert('이미 신청한 강의 입니다.');window.location.href = document.referrer;</script>";
-//        }
-//    }
-//    return result;
-//}
-//    //수강신청 완료
-//    @GetMapping("/menu/subject/apply/done")
-//    public String ApplyDone(){
-//        return "menu/subject/apply_done";
-//    }
-//신청 관리 페이지 9.3
-//@GetMapping("/mypage/admin/apply")
-//public String ApplyManagePage(Model model,
-//                              @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-//                              @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-//                              @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
-//                              HttpSession httpSession){
-//    if(!search_word.equals("")){
-//        Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
-//        Matcher m = RegPattern1.matcher(search_word);
-//        search_word = m.replaceAll(" ");
-//    }
-//    String result = "";
-//    if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//        result = "redirect:/member/login";
-//    }else{
-//        if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//            List<MyPageSubjectView> apply = new ArrayList<>();
-//            int count = 0;
-//            if(search_word.equals("")){
-//                apply = calvinSubjectService.SelectAllApply(page);
-//                count = calvinSubjectService.admin_paging_apply();
-//            }else{
-//                if(search_type == 1){//강의명
-//                    apply = calvinSubjectService.SelectApplyBySubjectName(page, search_word);
-//                    count = calvinSubjectService.admin_paging_apply(1,search_word);
-//                }else if(search_type == 2){//아이디
-//                    apply = calvinSubjectService.SelectApplyById(page, search_word);
-//                    count = calvinSubjectService.admin_paging_apply(2,search_word);
-//                }
-//            }
-//            int begin_page;
-//
-//            if(page % 10 == 0){
-//                begin_page = page-9;
-//            }else{
-//                begin_page = page/10*10+1;
-//            }
-//            int max_page;
-//            if(count/20 == 0 && count%20 > 0){
-//                max_page = 1;
-//            }else if(count/20 > 0 && count%20 > 0){
-//                max_page = count/20 + 1;
-//            }else{
-//                max_page = count/20;
-//            }
-//            model.addAttribute("search_word", search_word);
-//            model.addAttribute("search_type", search_type);
-//            model.addAttribute("page", page);
-//            model.addAttribute("begin_page",begin_page);
-//            model.addAttribute("max_page", max_page);
-//            model.addAttribute("apply_list" ,apply);
-//            model.addAttribute("page_type","9.3");
-//            result = "menu/mypage/admin_apply";
-//        }else{
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//    }
-//    return result;
-//}
 //
 //    //신청 취소
 //    @GetMapping("/mypage/admin/apply/manage")

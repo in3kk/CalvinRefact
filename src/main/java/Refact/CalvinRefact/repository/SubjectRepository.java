@@ -1,8 +1,10 @@
 package Refact.CalvinRefact.repository;
 
+import Refact.CalvinRefact.entity.QMember;
 import Refact.CalvinRefact.entity.QSubject;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static Refact.CalvinRefact.entity.QMember.member;
 import static Refact.CalvinRefact.entity.QSubject.subject;
 
 @Repository
@@ -71,5 +74,24 @@ public class SubjectRepository {
                 .from(subject)
                 .where(subject.subject_type.eq(subjectType).and(subject.subject_field.eq(subjectField).and(subject.subject_name.contains(name))))
                 .fetch();
+    }
+
+    //강의 디테일 id
+    public SubjectDetailDto findSubjectDetailById(Long id) {
+        return queryFactory.select(Projections.fields(SubjectDetailDto.class,
+                        subject.id.as("subject_code"),
+                        subject.subject_name,
+                        subject.subject_field,
+                        subject.subject_type,
+                        subject.subject_stat,
+                        subject.lecture_time,
+                        subject.fee,
+                        subject.period,
+                        subject.personnel,
+                        member.name.as("member_name")
+                ))
+                .from(subject)
+                .join(subject.member, member)
+                .fetchOne();
     }
 }

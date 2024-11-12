@@ -2,6 +2,9 @@ package Refact.CalvinRefact.repository.dto.file;
 
 import lombok.Data;
 
+/**
+ * Calvin_file -> FileSimpleDto
+ */
 @Data
 public class FileSimpleDto {
     private Long id;

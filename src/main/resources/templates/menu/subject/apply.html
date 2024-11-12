@@ -68,6 +68,7 @@
                         </tr>
                         <tr>
                             <th>강의계획서</th>
+<!--                            <td><a th:href="@{/download/document/{original_name}(original_name = ${file.original_name})}" th:text="${file.original_name}"></a></td>-->
                             <td><a th:href="@{/download/{save_name}/{original_name}(save_name = ${file.save_name},original_name = ${file.original_name})}" th:text="${file.original_name}"></a></td>
                         </tr>
                     </table>
