@@ -3,10 +3,11 @@ package Refact.CalvinRefact.entity;
 import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
 import Refact.CalvinRefact.entity.entityEnum.Pay_Stat;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
-@Entity
+@Entity @Getter
 public class Member_Subject extends BaseEntity {
 
     @Id @GeneratedValue

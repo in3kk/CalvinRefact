@@ -5,7 +5,7 @@ import Refact.CalvinRefact.entity.entityEnum.Subject_Stat;
 import lombok.Data;
 
 /**
- * Calvin_Subject -> SubjectListDto 로 세분화
+ * Calvin_Subject -> SubjectListDto, SubjectDetailDto 로 세분화
  */
 @Data
 public class SubjectListDto {

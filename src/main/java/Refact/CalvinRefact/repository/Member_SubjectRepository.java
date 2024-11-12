@@ -49,4 +49,14 @@ public class Member_SubjectRepository {
                 .limit(pageable.getPageSize())
                 .fetch();
     }
+
+    //신청여부 확인
+    public boolean findApplyExistById(String email, Long subjectId) {
+        return queryFactory.selectOne()
+                .from(member_Subject)
+                .join(member_Subject.member,member)
+                .join(member_Subject.subject,subject)
+                .where(member_Subject.member.email.eq(email).and(member_Subject.subject.id.eq(subjectId)))
+                .fetchOne() == null;
+    }
 }
