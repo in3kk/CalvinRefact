@@ -4,6 +4,7 @@ import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
 import Refact.CalvinRefact.repository.SubjectDataJpaRepository;
 import Refact.CalvinRefact.repository.SubjectRepository;
+import Refact.CalvinRefact.repository.dto.Member_Subject.ApplyListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
@@ -11,6 +12,7 @@ import Refact.CalvinRefact.service.CalvinService;
 import Refact.CalvinRefact.service.SubjectService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
@@ -205,125 +207,119 @@ public class SubjectController {
     public String ApplyDone(){
         return "menu/subject/apply_done";
     }
+
     //신청 관리 페이지 9.3
-//    @GetMapping("/mypage/admin/apply")
-//    public String ApplyManagePage(Model model,
-//                                  @PageableDefault(size = 20, sort = {"Member_Subject_id"}) Pageable pageable,
-//                                  @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-//                                  @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
-//                                  HttpSession httpSession){
-//        if(!search_word.equals("")){
-//            search_word = calvinService.searchWordFilter(search_word);
-//        }
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "redirect:/member/login";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                List<MyPageSubjectView> apply = new ArrayList<>();
-//                int count = 0;
-//                if(search_word.equals("")){
-//                    apply = calvinSubjectService.SelectAllApply(page);
-//                    count = calvinSubjectService.admin_paging_apply();
-//                }else{
-//                    if(search_type == 1){//강의명
-//                        apply = calvinSubjectService.SelectApplyBySubjectName(page, search_word);
-//                        count = calvinSubjectService.admin_paging_apply(1,search_word);
-//                    }else if(search_type == 2){//아이디
-//                        apply = calvinSubjectService.SelectApplyById(page, search_word);
-//                        count = calvinSubjectService.admin_paging_apply(2,search_word);
-//                    }
-//                }
-//                int begin_page;
-//
-//                if(page % 10 == 0){
-//                    begin_page = page-9;
-//                }else{
-//                    begin_page = page/10*10+1;
-//                }
-//                int max_page;
-//                if(count/20 == 0 && count%20 > 0){
-//                    max_page = 1;
-//                }else if(count/20 > 0 && count%20 > 0){
-//                    max_page = count/20 + 1;
-//                }else{
-//                    max_page = count/20;
-//                }
-//                model.addAttribute("search_word", search_word);
-//                model.addAttribute("search_type", search_type);
-//                model.addAttribute("page", page);
-//                model.addAttribute("begin_page",begin_page);
-//                model.addAttribute("max_page", max_page);
-//                model.addAttribute("apply_list" ,apply);
-//                model.addAttribute("page_type","9.3");
-//                result = "menu/mypage/admin_apply";
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
-//
-//    //신청 취소
-//    @GetMapping("/mypage/admin/apply/manage")
-//    @ResponseBody
-//    public String ApplyManage(Model model, @RequestParam List<Integer> apply_list,HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
-//            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                int delete_result = calvinSubjectService.ApplyManage(apply_list);
-//                if(apply_list.size() == delete_result){
-//                    result = "<script>alert('수강신청이 정상적으로 취소되었습니다.');window.location.href = document.referrer;</script>";
-//                }else if(apply_list.size() >= delete_result && delete_result > 0) {
-//                    result = "<script>alert('일부 수강신청만 취소되었습니다. 이미 취소된 수강신청이 아닌지 확인해주세요.'); window.location.href = document.referrer;</script>";
-//                }else if(delete_result == 0){
-//                    result = "<script>alert('수강신청 취소에 실패했습니다. 이미 취소된 수강신청이 아닌지 확인해주세요.'); window.location.href = document.referrer;</script>";
-//                }
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
-//    //결제 상태 변경
-//    @GetMapping("/mypage/admin/apply/pay")// 1 : 납부완료, 2 : 납부취소, 3 : 환불
-//    @ResponseBody
-//    public String PayManage(Model model, @RequestParam List<Integer> apply_list, @RequestParam int type,HttpSession httpSession){
-//        String result = "<script>alert('";
-//        String word = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                int payManage_result = calvinSubjectService.PayManage(apply_list,type);
-//                switch (type){
-//                    case 1:
-//                        word = "납부완료 처리";
-//                        break;
-//                    case 2:
-//                        word = "납부취소 처리";
-//                        break;
-//                    case 3:
-//                        word = "환불 처리";
-//                        break;
-//                }
-//                if(apply_list.size() == payManage_result){
-//                    result += "수강신청이 정상적으로 "+word+"되었습니다.";
-//                }else if(apply_list.size() >= payManage_result && payManage_result > 0){
-//                    result += "일부 수강신청만 " + word + "되었습니다.  수강신청 상태를 확인해주세요.";
-//                }else if(payManage_result == 0){
-//                    result += "수강신청이 정상적으로 "+ word + "되지 않았습니다.  수강신청 상태를 확인해주세요.";
-//                }
-//                result += "');window.location.href = document.referrer;</script>";
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//
-//        return result;
-//    }
+    @GetMapping("/mypage/admin/apply")
+    public String ApplyManagePage(Model model,
+                                  @PageableDefault(size = 20,page = 0) Pageable pageable,
+                                  @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
+                                  @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
+                                  HttpSession httpSession){
+        if(!search_word.equals("")){
+            search_word = calvinService.searchWordFilter(search_word);
+        }
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "redirect:/member/login";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                Page<ApplyListDto> apply = Page.empty();
+
+                if(search_word.equals("")){
+                    apply = subjectService.findApplyList(pageable,httpSession.getAttribute("member_id").toString());
+                }else{
+                    if(search_type == 1){//강의명
+                        apply = subjectService.findApplyListBy(pageable,search_type,search_word,httpSession.getAttribute("member_id").toString());
+                    }else if(search_type == 2){//아이디(email
+                        apply = subjectService.findApplyListBy(pageable,search_type,search_word,httpSession.getAttribute("membeR_id").toString());
+                    }
+                }
+                int begin_page;
+
+                int page = pageable.getPageNumber();
+                if(page % 10 == 0){
+                    begin_page = page-9;
+                }else{
+                    begin_page = page/10*10+1;
+                }
+                int max_page = apply.getTotalPages();
+                model.addAttribute("search_word", search_word);
+                model.addAttribute("search_type", search_type);
+                model.addAttribute("page", page);
+                model.addAttribute("begin_page",begin_page);
+                model.addAttribute("max_page", max_page);
+                model.addAttribute("apply_list" ,apply);
+                model.addAttribute("page_type","9.3");
+                result = "menu/mypage/admin_apply";
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+        return result;
+    }
+
+    //신청 취소
+    @GetMapping("/mypage/admin/apply/manage")
+    @ResponseBody
+    public String ApplyManage(Model model, @RequestParam List<Long> apply_list,HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                boolean delete_result = subjectService.deleteApply(apply_list,httpSession.getAttribute("member_id").toString());
+                if(delete_result){
+                    result = "<script>alert('수강신청이 정상적으로 취소되었습니다.');window.location.href = document.referrer;</script>";
+                }else{
+                    result = "<script>alert('수강신청 취소에 실패했습니다. 이미 취소된 수강신청이 아닌지 확인해주세요.'); window.location.href = document.referrer;</script>";
+                }
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+        return result;
+    }
+    //결제 상태 변경
+    @GetMapping("/mypage/admin/apply/pay")// 1 : 납부완료, 2 : 납부취소, 3 : 환불
+    @ResponseBody
+    public String PayManage(Model model, @RequestParam List<Long> apply_list, @RequestParam int type,HttpSession httpSession){
+        String result = "<script>alert('";
+        String word = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                boolean payManage_result = subjectService.updatePayStat(apply_list,type,httpSession.getAttribute("member_id").toString());
+                switch (type){
+                    case 1:
+                        word = "납부완료 처리";
+                        break;
+                    case 2:
+                        word = "납부취소 처리";
+                        break;
+                    case 3:
+                        word = "환불 처리";
+                        break;
+                }
+                if(payManage_result){
+                    result += "수강신청이 정상적으로 "+word+"되었습니다.";
+                }else{
+                    result += "수강신청이 정상적으로 "+ word + "되지 않았습니다.  수강신청 상태를 확인해주세요.";
+                }
+                result += "');window.location.href = document.referrer;</script>";
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+
+        return result;
+    }
 //
 //    //개설 강의 관리
 //    @GetMapping("/mypage/admin/subject")

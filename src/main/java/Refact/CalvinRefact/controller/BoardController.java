@@ -36,8 +36,7 @@ public class BoardController {
 
     //게시판 페이지 search_type = 검색방법 ex) 제목, 내용 admin => 관리자용 페이지
     @GetMapping({"/menu/board","/mypage/admin/board"})
-    public String BoardPage(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                            @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
+    public String BoardPage(@RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
                             @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
                             @RequestParam(value = "board_type",required = false, defaultValue = "") String board_type,
                             @PageableDefault(size = 20,sort = {"board_id"}) Pageable pageable,
@@ -103,6 +102,7 @@ public class BoardController {
         }
 
         int begin_page;
+        int page = pageable.getPageNumber();
         if(page % 10 == 0){
             begin_page = page-9;
         }else{
