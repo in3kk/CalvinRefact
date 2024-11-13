@@ -37,4 +37,12 @@ public class Member_Subject extends BaseEntity {
         this.app_date = app_date;
         this.pay_stat = pay_stat;
     }
+
+    public Member_Subject(Long id, Member member, Subject subject, LocalDate app_date, Pay_Stat pay_stat) {
+        this.id = id;
+        this.member = member;
+        this.subject = subject;
+        this.app_date = app_date;
+        this.pay_stat = pay_stat;
+    }
 }

@@ -7,13 +7,18 @@ import Refact.CalvinRefact.entity.entityEnum.Pay_Stat;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
 import Refact.CalvinRefact.repository.*;
+import Refact.CalvinRefact.repository.dto.Member_Subject.ApplyListDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +36,11 @@ public class SubjectService {
     SubjectDataJpaRepository subjectDataJpaRepository;
     @Autowired
     Member_SubjectDataJpaRepository member_subjectDataJpaRepository;
+    @Autowired
+    MemberService memberService;
+    @Autowired
+    EntityManager em;
+
     public List<SubjectListDto> findSubjectList(Subject_Type subjectType) {
         return subjectRepository.findByType(subjectType);
     }
@@ -65,6 +75,76 @@ public class SubjectService {
             Member_Subject member_subject = new Member_Subject(memberOptional.get(), subjectOptional.get(), LocalDate.now(), Pay_Stat.n);
             member_subjectDataJpaRepository.save(member_subject);
             result = true;
+        }
+        return result;
+    }
+
+    //수강 신청 리스트(어드민)
+    public Page<ApplyListDto> findApplyList(Pageable pageable, String email) {
+        Page<ApplyListDto> result = Page.empty();
+        if (memberService.permissionCheck(email)) {
+            result = memberSubjectRepository.findApplyList(pageable);
+        }
+        return result;
+    }
+
+    //수강 신청 리스트 by subject_name or email(어드민)
+    public Page<ApplyListDto> findApplyListBy(Pageable pageable, int search_type,String search_word, String email) {
+        Page<ApplyListDto> result = Page.empty();
+        if (memberService.permissionCheck(email)) {
+            if(search_type == 1){//subject_name
+                result = memberSubjectRepository.findApplyListBySubject_name(pageable, search_word);
+            } else if (search_type == 2) {//email
+                result = memberSubjectRepository.findApplyListByEmail(pageable, search_word);
+            }
+        }
+        return result;
+    }
+
+    //수강 신청 취소(어드민)
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean deleteApply(List<Long> applyIdList,String email) {
+        boolean result = false;
+        if (memberService.permissionCheck(email)) {
+            for (Long applyId : applyIdList) {
+                member_subjectDataJpaRepository.deleteById(applyId);
+            }
+            em.flush();
+            em.clear();
+            result = true;
+        }else {
+            result = false;
+            /**
+             * 권한 부족 예외 추가
+             */
+        }
+        return result;
+    }
+
+    //Pay_stat 변경
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updatePayStat(List<Long> applyIdList, int type, String email) {
+        boolean result = false;
+        if (memberService.permissionCheck(email)) {
+            Pay_Stat pay_stat = Pay_Stat.n;
+            switch (type) {
+                case 1:
+                    pay_stat = Pay_Stat.y;//yes
+                    break;
+                case 2:
+                    pay_stat = Pay_Stat.n;//no
+                    break;
+                case 3:
+                    pay_stat = Pay_Stat.r;//refund
+                    break;
+            }
+            for (Long applyId : applyIdList) {
+                result = memberSubjectRepository.updatePay_stat(applyId, pay_stat);
+            }
+        }else {
+            /**
+             * 권한 부족 예외 추가
+             */
         }
         return result;
     }
