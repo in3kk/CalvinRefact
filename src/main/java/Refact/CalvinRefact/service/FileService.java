@@ -1,6 +1,7 @@
 package Refact.CalvinRefact.service;
 
 import Refact.CalvinRefact.entity.Board;
+import Refact.CalvinRefact.entity.Subject;
 import Refact.CalvinRefact.entity.entityEnum.YN;
 import Refact.CalvinRefact.repository.FileDataJpaRepository;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
@@ -54,6 +55,28 @@ public class FileService {
             result = true;
         }
         return result;
+    }
+    @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
+    public Refact.CalvinRefact.entity.File saveFile(MultipartFile multipartFile) throws Exception {
+        boolean result = false;
+
+        String path = "F:\\CalvinUploadFiles\\";//로컬
+//        String path = "/iceadmin/CalvinUploadFile/"; //서버
+        //uuid 생성
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid + "_" + multipartFile.getName();
+        File saveFile = new File(path, fileName);
+        multipartFile.transferTo(saveFile);
+        Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
+                multipartFile.getName()
+                , fileName
+                , multipartFile.getSize()
+                );
+        fileDataJpaRepository.save(file);
+        if (em.contains(file)) {
+            result = true;
+        }
+        return file;
     }
 
     //파일 삭제

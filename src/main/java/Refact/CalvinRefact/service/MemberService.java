@@ -5,10 +5,7 @@ import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
 import Refact.CalvinRefact.repository.Member_SubjectRepository;
-import Refact.CalvinRefact.repository.dto.member.JoinMemberDto;
-import Refact.CalvinRefact.repository.dto.member.MemberDetailDto;
-import Refact.CalvinRefact.repository.dto.member.MemberListDto;
-import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
+import Refact.CalvinRefact.repository.dto.member.*;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -225,5 +223,13 @@ public class MemberService {
             }
         }
         return result;
+    }
+
+    public List<MemberEmailDto> findProfessorList(String email) {
+        List<MemberEmailDto> memberEmailDtos = new ArrayList<>();
+        if (permissionCheck(email)) {
+            memberEmailDtos = memberDataJpaRepository.findProfessorByMemberType(Member_Type.professor);
+        }
+        return memberEmailDtos;
     }
 }

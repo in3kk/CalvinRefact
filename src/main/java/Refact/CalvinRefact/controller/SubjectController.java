@@ -6,9 +6,11 @@ import Refact.CalvinRefact.repository.SubjectDataJpaRepository;
 import Refact.CalvinRefact.repository.SubjectRepository;
 import Refact.CalvinRefact.repository.dto.Member_Subject.ApplyListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
+import Refact.CalvinRefact.repository.dto.member.MemberEmailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
 import Refact.CalvinRefact.service.CalvinService;
+import Refact.CalvinRefact.service.MemberService;
 import Refact.CalvinRefact.service.SubjectService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,8 @@ public class SubjectController {
     SubjectService subjectService;
     @Autowired
     CalvinService calvinService;
+    @Autowired
+    MemberService memberService;
 
     @GetMapping("/menu/subject/list") //강의 리스트 페이지
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
@@ -320,170 +322,168 @@ public class SubjectController {
 
         return result;
     }
-//
-//    //개설 강의 관리
-//    @GetMapping("/mypage/admin/subject")
-//    public String SubjectManage(Model model,
-//                                @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
-//                                @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-//                                @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-//                                HttpSession httpSession){
-//        if(!search_word.equals("")){
-//            Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
-//            Matcher m = RegPattern1.matcher(search_word);
-//            search_word = m.replaceAll(" ");
-//        }
-//        String result ="";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
-//            result = "redirect:/member/login";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                List<Calvin_subject> list;
-//                int count = 0;
-//                if(search_word.equals("")){
-//                    list = calvinSubjectService.SelectSubject_admin(page);
-//                    count = calvinSubjectService.admin_paging();
-//                }else{
-//                    if(search_type == 1){
-//                        list = calvinSubjectService.SelectSubjectByName_admin(page,search_word);
-//                        count = calvinSubjectService.admin_paging(1,search_word);
-//                    }else if(search_type == 2){
-//                        list = calvinSubjectService.SelectSubjectByField_admin(page,search_word);
-//                        count = calvinSubjectService.admin_paging(2, search_word);
-//                    }else{//3일때
-//                        list = calvinSubjectService.SelectSubjectByType_admin(page, search_word);
-//                        count = calvinSubjectService.admin_paging(3, search_word);
-//                    }
-//                }
-//                int begin_page;
-//
-//                if(page % 10 == 0){
-//                    begin_page = page-9;
-//                }else{
-//                    begin_page = page/10*10+1;
-//                }
-//                int max_page;
-//                if(count/20 == 0 && count%20 > 0){
-//                    max_page = 1;
-//                }else if(count/20 > 0 && count%20 > 0){
-//                    max_page = count/20 + 1;
-//                }else{
-//                    max_page = count/20;
-//                }
-//                model.addAttribute("search_word", search_word);
-//                model.addAttribute("search_type", search_type);
-//                model.addAttribute("page", page);
-//                model.addAttribute("begin_page",begin_page);
-//                model.addAttribute("max_page", max_page);
-//                model.addAttribute("subject_list",list);
-//                model.addAttribute("page_type", "9.3");
-//                result ="menu/mypage/admin_subject";
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//
-//        }
-//
-//        return result;
-//    }
-//
-//    //강의상태 변경
-//    @GetMapping("/mypage/admin/subject/manage")
-//    @ResponseBody
-//    public String SubjectStatManage(@RequestParam(value = "subject_code")int subject_code,
-//                                    @RequestParam(value = "stat")int stat, HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
-//            result = "<script>alert('로그인이 필요한 서비스 입니다.'); window.location.href = '/member/login';</script>";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                int pro_result = calvinSubjectService.SubjectStatManage(subject_code,stat);
-//
-//                if(pro_result == 1){
-//                    result = "<script>alert('강의상태가 성공적으로 변경되었습니다.'); window.location.href = document.referrer;</script>";
-//                }else{
-//                    result = "<script>alert('강의상태 변경에 실패했습니다.'); window.location.href = document.referrer;</script>";
-//                }
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
-//
-//
-//    //강의 개설 페이지 & 강의 수정
-//    @GetMapping("/menu/subject/write_page")
-//    public String NewSubjectWritePage(Model model,@RequestParam(value = "subject_code", required = false, defaultValue = "-1") int subject_code, HttpSession httpSession){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result ="redirect:/member/login";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                Calvin_subject calvin_subject = new Calvin_subject();
-//                if(subject_code != -1){
-//                    calvin_subject = calvinSubjectService.SubjectApply(subject_code);
-//                    model.addAttribute("subject_code", subject_code);
-//                }
-//                model.addAttribute("subject",calvin_subject);
-//                List<Calvin_Member> list = calvinMemberService.ProfessorList();
-//                model.addAttribute("professor",list);
-//                model.addAttribute("page_type","9.3");
-//                result = "menu/subject/subject_write";
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
-//
-//    @PostMapping("/menu/subject/write")
-//    @ResponseBody
-//    public String NewSubjectWrite(@RequestParam(value = "subject_code", required = false, defaultValue = "-1") int subject_code,
-//                                  @RequestParam(value = "subject_name") String subject_name,
-//                                  @RequestParam(value = "subject_field") String subject_field,
-//                                  @RequestParam(value = "subject_type") String subject_type,
-//                                  @RequestParam(value = "personnel") int personnel,
-//                                  @RequestParam(value = "lecture_time") String lecture_time,
-//                                  @RequestParam(value = "period") int period,
-//                                  @RequestParam(value = "member_code") int member_code,
-//                                  @RequestParam(value = "fee") int fee,
-//                                  @RequestParam(value = "file1", required = false) MultipartFile file,
-//                                  HttpSession httpSession){
-//        int insert_result = 0;
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                if(subject_code != -1){
-//                    if(file != null){
-//                        insert_result = calvinSubjectService.ModifySubject(subject_name,subject_field,subject_type,personnel,lecture_time,period,member_code,fee,file,subject_code);
-//                    }else{
-//                        insert_result = calvinSubjectService.ModifySubject(subject_name,subject_field,subject_type,personnel,lecture_time,period,member_code,fee, subject_code);
-//                    }
-//                }else{
-//                    if(file != null){
-//                        insert_result = calvinSubjectService.InsertSubject(subject_name,subject_field,subject_type,personnel,lecture_time,period,member_code,fee,file);
-//                    }else{
-//                        insert_result = calvinSubjectService.InsertSubject(subject_name,subject_field,subject_type,personnel,lecture_time,period,member_code,fee);
-//                    }
-//                }
-//                if(insert_result == 1){
-//                    if(subject_code != -1){
-//                        result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
-//                    }else{
-//                        result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
-//                    }
-//                }else{
-//                    result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
-//                }
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
+
+    //개설 강의 관리
+    @GetMapping("/mypage/admin/subject")
+    public String SubjectManage(Model model,
+                                @PageableDefault(size = 20) Pageable pageable,
+                                @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
+                                @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
+                                HttpSession httpSession){
+        if(!search_word.equals("")){
+            Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
+            Matcher m = RegPattern1.matcher(search_word);
+            search_word = m.replaceAll(" ");
+        }
+        String result ="";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
+            result = "redirect:/member/login";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                Page<SubjectListDto> list = Page.empty();
+                int count = 0;
+                if(search_word.equals("")){
+                    list = subjectService.findSubjectList(pageable,httpSession.getAttribute("member_id").toString());
+                }else{
+                    if(search_type == 1){
+                        list = subjectService.findSubjectListByName(pageable,search_word,httpSession.getAttribute("member_id").toString());
+                    }else if(search_type == 2){
+                        list = subjectService.findSubjectListByField(pageable,search_word,httpSession.getAttribute("member_id").toString());
+                    }else{//3일때
+                        list = subjectService.findSubjectListByType(pageable,search_word,httpSession.getAttribute("member_id").toString());
+                    }
+                }
+                int begin_page;
+                int page = list.getNumber();
+                count = list.getTotalPages();
+                if(page % 10 == 0){
+                    begin_page = page-9;
+                }else{
+                    begin_page = page/10*10+1;
+                }
+                int max_page;
+                if(count/20 == 0 && count%20 > 0){
+                    max_page = 1;
+                }else if(count/20 > 0 && count%20 > 0){
+                    max_page = count/20 + 1;
+                }else{
+                    max_page = count/20;
+                }
+                model.addAttribute("search_word", search_word);
+                model.addAttribute("search_type", search_type);
+                model.addAttribute("page", page);
+                model.addAttribute("begin_page",begin_page);
+                model.addAttribute("max_page", max_page);
+                model.addAttribute("subject_list",list);
+                model.addAttribute("page_type", "9.3");
+                result ="menu/mypage/admin_subject";
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+
+        }
+
+        return result;
+    }
+
+    //강의상태 변경
+    @GetMapping("/mypage/admin/subject/manage")
+    @ResponseBody
+    public String SubjectStatManage(@RequestParam(value = "subject_code")Long subject_code,
+                                    @RequestParam(value = "stat")int stat, HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
+            result = "<script>alert('로그인이 필요한 서비스 입니다.'); window.location.href = '/member/login';</script>";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                boolean pro_result = subjectService.updateSubjectStat(subject_code,stat,httpSession.getAttribute("member_id").toString());
+                if(pro_result){
+                    result = "<script>alert('강의상태가 성공적으로 변경되었습니다.'); window.location.href = document.referrer;</script>";
+                }else{
+                    result = "<script>alert('강의상태 변경에 실패했습니다.'); window.location.href = document.referrer;</script>";
+                }
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+        return result;
+    }
+
+
+    //강의 개설 페이지 & 강의 수정
+    @GetMapping("/menu/subject/write_page")
+    public String NewSubjectWritePage(Model model,@RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code, HttpSession httpSession){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result ="redirect:/member/login";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                SubjectDetailDto calvin_subject = new SubjectDetailDto();
+                if(subject_code != -1){
+                    calvin_subject = subjectService.findSubjectDetail(subject_code);
+                    model.addAttribute("subject_code", subject_code);
+                }
+                model.addAttribute("subject",calvin_subject);
+                List<MemberEmailDto> list = memberService.findProfessorList(httpSession.getAttribute("member_id").toString());
+                model.addAttribute("professor",list);
+                model.addAttribute("page_type","9.3");
+                result = "menu/subject/subject_write";
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+        return result;
+    }
+
+    @PostMapping("/menu/subject/write")
+    @ResponseBody
+    public String NewSubjectWrite(@RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code,
+                                  @RequestParam(value = "subject_name") String subject_name,
+                                  @RequestParam(value = "subject_field") String subject_field,
+                                  @RequestParam(value = "subject_type") String subject_type,
+                                  @RequestParam(value = "personnel") int personnel,
+                                  @RequestParam(value = "lecture_time") String lecture_time,
+                                  @RequestParam(value = "period") String period,
+                                  @RequestParam(value = "member_code") Long member_code,
+                                  @RequestParam(value = "fee") int fee,
+                                  @RequestParam(value = "file1", required = false) MultipartFile file,
+                                  HttpSession httpSession){
+        boolean insert_result = false;
+        String result = "";
+        try {
+            if (httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null) {
+                result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
+            } else {
+                if (httpSession.getAttribute("member_type").equals("ai") || httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("st")) {
+
+                    insert_result = subjectService.saveSubject(subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
+
+                    if (insert_result) {
+                        if (subject_code != -1) {
+                            result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                        } else {
+                            result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                        }
+                    } else {
+                        result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
+                    }
+                } else {
+                    /**
+                     * 권한 부족 예외 추가
+                     */
+                }
+            }
+        } catch (Exception e) {
+            result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
+        }
+        return result;
+    }
 
 //    //강의 삭제
 //    @GetMapping("/menu/subject/delete")

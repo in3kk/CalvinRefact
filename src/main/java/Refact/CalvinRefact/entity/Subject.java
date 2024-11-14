@@ -6,6 +6,7 @@ import Refact.CalvinRefact.entity.entityEnum.Subject_Stat;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
  * subject_code -> subject_id
  * subject_stat -> ordinal
  */
-@Entity @Getter
+@Entity @Getter @Setter
 public class Subject extends BaseEntity {
 
     @Id @GeneratedValue
@@ -53,6 +54,10 @@ public class Subject extends BaseEntity {
 
     @OneToMany(mappedBy = "subject")
     private List<Member_Subject> member_subjects = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "file_id")
+    private File file;
 
     public Subject() {
     }

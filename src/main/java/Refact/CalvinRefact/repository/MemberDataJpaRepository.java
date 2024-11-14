@@ -1,6 +1,8 @@
 package Refact.CalvinRefact.repository;
 
 import Refact.CalvinRefact.entity.Member;
+import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.repository.dto.member.MemberEmailDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,7 +26,9 @@ public interface MemberDataJpaRepository extends JpaRepository<Member,Long> {
     //멤버 username 검색
     Page<Member> findByNameContaining(String name, Pageable pageable);
 
-//    @Query("select m.id from member m where m.email = :email")
+    //    @Query("select m.id from member m where m.email = :email")
 //    Long findIdByEmail(@Param("email")String email);
+    @Query("select new Refact.CalvinRefact.repository.dto.member.MemberEmailDto(m.email, m.name) from Member m where m.memberType = :memberType")
+    List<MemberEmailDto> findProfessorByMemberType(@Param("memberType") Member_Type memberType);
 
 }
