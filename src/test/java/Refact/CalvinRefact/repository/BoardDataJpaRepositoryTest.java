@@ -6,6 +6,7 @@ import Refact.CalvinRefact.entity.entityEnum.*;
 import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
+import Refact.CalvinRefact.repository.dto.member.MemberEmailDto;
 import Refact.CalvinRefact.repository.dto.member.MemberSubjectListDto;
 import Refact.CalvinRefact.service.BoardService;
 import Refact.CalvinRefact.service.SubjectService;
@@ -312,6 +313,20 @@ class BoardDataJpaRepositoryTest {
                 System.out.println("result = "+memberSubject.getSubject());
             }
 
+        }
+    }
+    @Test
+    public void findProfessorListTest() {
+        Member member;
+        for (int x = 0; x < 100; x++) {
+            member = new Member("shy4792"+x, "rlawlstp128", "김진세"+x, Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+            em.persist(member);
+        }
+        em.flush();
+        em.clear();
+        List<MemberEmailDto> list = memberDataJpaRepository.findProfessorByMemberType(Member_Type.professor);
+        for (MemberEmailDto memberEmailDto : list) {
+            System.out.println("result : "+memberEmailDto.getName()+", "+memberEmailDto.getEmail());
         }
     }
 }

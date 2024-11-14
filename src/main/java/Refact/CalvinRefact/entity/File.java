@@ -63,4 +63,10 @@ public class  File extends BaseEntity {
         this.size = size;
         this.board = board;
     }
+
+    public File(String original_name, String save_name, Long size) {
+        this.original_name = original_name;
+        this.save_name = save_name;
+        this.size = size;
+    }
 }
