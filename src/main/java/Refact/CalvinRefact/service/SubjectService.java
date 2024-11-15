@@ -249,4 +249,20 @@ public class SubjectService {
         }
         return result;
     }
+
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean deleteSubject(Long id,String email) {
+        boolean result = false;
+        if (memberService.permissionCheck(email)) {
+            Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(id);
+            if (subjectOptional.isPresent()) {
+                Subject subject = subjectOptional.get();
+
+                member_subjectDataJpaRepository.deleteAllBySubject(subject);
+                subjectDataJpaRepository.deleteById(id);
+                result = true;
+            }
+        }
+        return result;
+    }
 }

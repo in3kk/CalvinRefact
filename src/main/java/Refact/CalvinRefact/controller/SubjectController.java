@@ -485,26 +485,28 @@ public class SubjectController {
         return result;
     }
 
-//    //강의 삭제
-//    @GetMapping("/menu/subject/delete")
-//    @ResponseBody
-//    public String DeleteSubject(HttpSession httpSession, @RequestParam(value = "subject_code") int subject_code){
-//        String result = "";
-//        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
-//            result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
-//        }else{
-//            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-//                int delete_result = calvinSubjectService.DeleteSubject(subject_code);
-//                if(delete_result == 1) {
-//                    result = "<script>alert('강의가 성공적으로 삭제되었습니다. 해당 창을 닫고 새로고침시 변경사항이 적용됩니다.');window.location.href=history.go(-2);</script>";
-//                }else{
-//                    result = "<script>alert('강의 삭제에 실패했습니다.');window.location.href=document.referrer;</script>";
-//                }
-//            }else{
-//                throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//            }
-//        }
-//        return result;
-//    }
+    //강의 삭제
+    @GetMapping("/menu/subject/delete")
+    @ResponseBody
+    public String DeleteSubject(HttpSession httpSession, @RequestParam(value = "subject_code") Long subject_code){
+        String result = "";
+        if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
+            result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
+        }else{
+            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+                boolean delete_result = subjectService.deleteSubject(subject_code,httpSession.getAttribute("member_id").toString());
+                if(delete_result) {
+                    result = "<script>alert('강의가 성공적으로 삭제되었습니다. 해당 창을 닫고 새로고침시 변경사항이 적용됩니다.');window.location.href=history.go(-2);</script>";
+                }else{
+                    result = "<script>alert('강의 삭제에 실패했습니다.');window.location.href=document.referrer;</script>";
+                }
+            }else{
+                /**
+                 * 권한 부족 예외 추가
+                 */
+            }
+        }
+        return result;
+    }
 
 }
