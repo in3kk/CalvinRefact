@@ -329,4 +329,39 @@ class BoardDataJpaRepositoryTest {
             System.out.println("result : "+memberEmailDto.getName()+", "+memberEmailDto.getEmail());
         }
     }
+
+    @Test
+    public void deleteAllBySubjectTest()  {
+        Member member1 = new Member("shy47921", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        Member member2 = new Member("shy47922", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        Member member3 = new Member("shy47923", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        em.persist(member1);
+        em.persist(member2);
+        em.persist(member3);
+
+        Subject subject = new Subject(member1, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        em.persist(subject);
+
+        Member_Subject member_subject1 = new Member_Subject(member1, subject, LocalDate.now(),Pay_Stat.n);
+        Member_Subject member_subject2 = new Member_Subject(member1, subject, LocalDate.now(),Pay_Stat.n);
+        Member_Subject member_subject3 = new Member_Subject(member1, subject, LocalDate.now(),Pay_Stat.n);
+        em.persist(member_subject1);
+        em.persist(member_subject2);
+        em.persist(member_subject3);
+
+        em.flush();
+        em.clear();
+
+        Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(1L);
+        if (subjectOptional.isPresent()) {
+            List<Member_Subject> list = member_subjectDataJpaRepository.findAll();
+            for (Member_Subject member_subject : list) {
+                System.out.println("before result : "+member_subject.getId());
+            }
+            subject = subjectOptional.get();
+            member_subjectDataJpaRepository.deleteAllBySubject(subject);
+            list = member_subjectDataJpaRepository.findAll();
+            assertThat(list.isEmpty());
+        }
+    }
 }

@@ -29,6 +29,8 @@ public class QSubject extends EntityPathBase<Subject> {
 
     public final NumberPath<Integer> fee = createNumber("fee", Integer.class);
 
+    public final QFile file;
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath lecture_time = createString("lecture_time");
@@ -67,6 +69,7 @@ public class QSubject extends EntityPathBase<Subject> {
 
     public QSubject(Class<? extends Subject> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
+        this.file = inits.isInitialized("file") ? new QFile(forProperty("file"), inits.get("file")) : null;
         this.member = inits.isInitialized("member") ? new QMember(forProperty("member"), inits.get("member")) : null;
     }
 

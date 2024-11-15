@@ -58,7 +58,6 @@ public class FileService {
     }
     @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
     public Refact.CalvinRefact.entity.File saveFile(MultipartFile multipartFile) throws Exception {
-        boolean result = false;
 
         String path = "F:\\CalvinUploadFiles\\";//로컬
 //        String path = "/iceadmin/CalvinUploadFile/"; //서버
@@ -73,9 +72,7 @@ public class FileService {
                 , multipartFile.getSize()
                 );
         fileDataJpaRepository.save(file);
-        if (em.contains(file)) {
-            result = true;
-        }
+
         return file;
     }
 
