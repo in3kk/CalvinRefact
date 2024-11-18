@@ -1,6 +1,7 @@
 package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.BoardRepository;
 import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
@@ -17,6 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,7 @@ public class BoardController {
                             @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
                             @RequestParam(value = "board_type",required = false, defaultValue = "") String board_type,
                             @PageableDefault(size = 20,sort = {"board_id"}) Pageable pageable,
-                            HttpSession httpSession, Model model){
+                            HttpSession httpSession, Model model, RedirectAttributes redirectAttributes){
         if(!search_word.equals("")){
             search_word = calvinService.searchWordFilter(search_word);
         }
@@ -48,77 +50,72 @@ public class BoardController {
         Page<BoardListDto> board_list = Page.empty();
         String result = "";
         String page_type = "8.5";
-        if(search_word.equals("")){
-            if(board_type.equals("")){
-                if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-                    if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
+        try {
+            if (search_word.equals("")) {
+                if (board_type.equals("")) {
+                    memberService.permissionCheck(httpSession.getAttribute("member_id").toString());
+                    if (httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("st") || httpSession.getAttribute("member_type").equals("ai")) {
                         board_list = boardService.findAll(pageable);
                         result = "menu/mypage/admin_board";
                         page_type = "9.3";
                     }
-                }else{
-                    /**
-                     * 권한 부족 예외 추가
-                     */
+                } else if (board_type.equals("공지사항")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.공지사항, pageable);
+                    result = "menu/board/board01";
+                    page_type = "8.5";
+                } else if (board_type.equals("사진자료실")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.사진자료실, pageable);
+                    result = "menu/info2/gallery";
+                    page_type = "8.6";
+                } else if (board_type.equals("서식자료실")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.서식자료실, pageable);
+                    result = "menu/info2/format";
+                    page_type = "8.7";
                 }
-
-            }else if(board_type.equals("공지사항")){
-                board_list = boardService.findAllByBoard_type(Board_Type.공지사항,pageable);
-                result = "menu/board/board01";
-                page_type = "8.5";
-            }else if(board_type.equals("사진자료실")){
-                board_list = boardService.findAllByBoard_type(Board_Type.사진자료실,pageable);
-                result = "menu/info2/gallery";
-                page_type = "8.6";
-            }else if(board_type.equals("서식자료실")){
-                board_list = boardService.findAllByBoard_type(Board_Type.서식자료실,pageable);
-                result = "menu/info2/format";
-                page_type = "8.7";
-            }
-        }else{
-            if(board_type.equals("")){
-                if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")){
-                    board_list = boardService.findAllByTitle(search_word,pageable);
+            } else {
+                if (board_type.equals("")) {
+                    memberService.permissionCheck(httpSession.getAttribute("member_id").toString());
+                    board_list = boardService.findAllByTitle(search_word, pageable);
                     result = "menu/mypage/admin_board";
                     page_type = "9.3";
-                }else{
-                    /**
-                     * 권한 부족 예외 추가
-                     */
+
+                } else if (board_type.equals("공지사항")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.공지사항, pageable);
+                    result = "menu/board/board01";
+                    page_type = "8.5";
+                } else if (board_type.equals("사진자료실")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.사진자료실, pageable);
+                    result = "menu/info2/gallery";
+                    page_type = "8.6";
+                } else if (board_type.equals("서식자료실")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.서식자료실, pageable);
+                    result = "menu/info2/format";
+                    page_type = "8.7";
                 }
-            }else if(board_type.equals("공지사항")){
-                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.공지사항,pageable);
-                result = "menu/board/board01";
-                page_type = "8.5";
-            }else if(board_type.equals("사진자료실")){
-                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.사진자료실,pageable);
-                result = "menu/info2/gallery";
-                page_type = "8.6";
-            }else if(board_type.equals("서식자료실")){
-                board_list = boardService.findAllByTitleAndBoard_type(search_word,Board_Type.서식자료실,pageable);
-                result = "menu/info2/format";
-                page_type = "8.7";
             }
+
+            int begin_page;
+            int page = pageable.getPageNumber();
+            if (page % 10 == 0) {
+                begin_page = page - 9;
+            } else {
+                begin_page = page / 10 * 10 + 1;
+            }
+
+            int max_page = board_list.getTotalPages();
+            model.addAttribute("search_word", search_word);
+            model.addAttribute("search_type", search_type);
+            model.addAttribute("page", page);
+            model.addAttribute("begin_page", begin_page);
+            model.addAttribute("max_page", max_page);
+            model.addAttribute("board_list", board_list);
+            model.addAttribute("page_type", page_type);
+            model.addAttribute("board_type", board_type);
+
+        } catch (InvalidPermissionException e) {
+            redirectAttributes.addFlashAttribute("msg", e.getMessage());
+            result = "redirect:/";
         }
-
-        int begin_page;
-        int page = pageable.getPageNumber();
-        if(page % 10 == 0){
-            begin_page = page-9;
-        }else{
-            begin_page = page/10*10+1;
-        }
-
-        int max_page = board_list.getTotalPages();
-        model.addAttribute("search_word", search_word);
-        model.addAttribute("search_type", search_type);
-        model.addAttribute("page", page);
-        model.addAttribute("begin_page",begin_page);
-        model.addAttribute("max_page", max_page);
-        model.addAttribute("board_list",board_list);
-
-        model.addAttribute("page_type",page_type);
-        model.addAttribute("board_type", board_type);
         return result;
     }
 
@@ -149,12 +146,11 @@ public class BoardController {
     public String BoardWrite(HttpSession httpSession){
         String result ="<script>window.location.href='/';</script>";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-            if(memberService.permissionCheck(httpSession.getAttribute("id").toString())) {
-                result ="<script>window.location.href='/menu/board/board_write';</script>";
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            try {
+                memberService.permissionCheck(httpSession.getAttribute("id").toString());
+                result = "<script>window.location.href='/menu/board/board_write';</script>";
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('"+e.getMessage()+"');history.back();;</script>";
             }
         }else {
             result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
@@ -211,21 +207,15 @@ public class BoardController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
         }else{
-            if(httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("ai") || httpSession.getAttribute("member_type").equals("st")){
-                try {
-                    boardService.deleteBoard(board_code);
-                    result = "<script>alert('게시글이 삭제되었습니다.');history.back();</script>";
-                } catch (Exception e) {
-                    result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
-                }
-            }else {
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            try {
+                boardService.deleteBoard(board_code);
+                result = "<script>alert('게시글이 삭제되었습니다.');history.back();</script>";
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
+            } catch (Exception e) {
                 result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
             }
         }
-
         return result;
     }
 }
