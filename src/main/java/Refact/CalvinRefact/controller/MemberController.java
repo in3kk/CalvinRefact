@@ -2,6 +2,7 @@ package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.dto.member.*;
 import Refact.CalvinRefact.service.MemberService;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +14,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -112,20 +114,17 @@ public class MemberController {
                                    HttpSession httpSession){
         String result = "";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-                boolean grant_result = memberService.memberGrant(member_code,httpSession.getAttribute("member_type").toString(),member_type);
-                if(grant_result){
-                    result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
-                }else{
-                    result = "<script>alert('권한변경에 실패했습니다.');history.back();</script>";
-                }
-            }else {
-                System.out.println("에러 : "+httpSession.getAttribute("member_type"));
+            try {
+                memberService.memberGrant(httpSession.getAttribute("member_id").toString(),member_code, httpSession.getAttribute("member_type").toString(), member_type);
+                result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
+
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('" + e.getMessage() + "');window.location.href='/';</script>";
+            } catch (Exception e) {
+                result = "<script>alert('권한변경에 실패했습니다.');history.back();</script>";
             }
         } else{
-            /**
-             * 권한 부족 예외 추가
-             */
+            result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
         }
         return result;
     }
@@ -140,31 +139,27 @@ public class MemberController {
         String result = "";
         String member_type = httpSession.getAttribute("member_type").toString();
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-            if(httpSession.getAttribute("member_type").equals("dd")||
-                    httpSession.getAttribute("member_type").equals("st")||
-                    httpSession.getAttribute("member_type").equals("ai")) {
-                boolean delete_result = memberService.deleteMember(member_code,member_type);
-                if(delete_result){
-                    result = "<script>alert('회원 정보가 삭제되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
-
-                }else{
-                    result = "<script>alert('회원 정보 삭제에 실패했습니다.');history.back();</script>";
-                }
+            try {
+                memberService.deleteMember(httpSession.getAttribute("member_id").toString(), member_code, member_type);
+                result = "<script>alert('회원 정보가 삭제되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
+            } catch (Exception e) {
+                result = "<script>alert('회원 정보 삭제에 실패했습니다.');history.back();</script>";
             }
         }else{
-            /**
-             * 권한 부족 예외 추가
-             */
+            result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
         }
 
         return result;
     }
     //어드민 회원 관리 페이지
     @GetMapping("/mypage/admin/member")
+    @ResponseBody
     public String adminMember2(@PageableDefault(size = 20,sort = {"member_id"})Pageable pageable,
                                @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
                                @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-                               Model model, HttpSession httpSession
+                               Model model, HttpSession httpSession, RedirectAttributes redirectAttributes
                                ){
         String result = "menu/mypage/admin_member";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
@@ -172,15 +167,23 @@ public class MemberController {
                     httpSession.getAttribute("member_type").equals("st")||
                     httpSession.getAttribute("member_type").equals("ai")) {
                 Page<MemberListDto> member_list = Page.empty();
-                if(search_word.equals("")){
-                    member_list = memberService.findAll(httpSession.getAttribute("member_id").toString(),pageable);
-                }else{
-                    if(search_type == 1){//아이디
-                        member_list = memberService.findAllByEmail(httpSession.getAttribute("member_id").toString(),search_word,pageable);
-                    }else{// 2 일때 이름
-                        member_list = memberService.findAllByUsername(httpSession.getAttribute("member_id").toString(),search_word,pageable);
+                try {
+                    if (search_word.equals("")) {
+                        member_list = memberService.findAll(httpSession.getAttribute("member_id").toString(), pageable);
+                    } else {
+                        if (search_type == 1) {//아이디
+                            member_list = memberService.findAllByEmail(httpSession.getAttribute("member_id").toString(), search_word, pageable);
+                        } else {// 2 일때 이름
+                            member_list = memberService.findAllByUsername(httpSession.getAttribute("member_id").toString(), search_word, pageable);
+                        }
                     }
+                } catch (InvalidPermissionException e) {
+                    redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                    result = "redirect:/";
+                } catch (Exception e) {
+
                 }
+
                 int page = member_list.getNumber();
                 int begin_page;
                 if(page % 10 == 0){
@@ -200,9 +203,8 @@ public class MemberController {
                 model.addAttribute("page_type","9.3");
             }
         }else{
-            /**
-             * 권한 부족 예외 추가
-             */
+            redirectAttributes.addFlashAttribute("msg","권한이 부족합니다.");
+            result = "redirect:/";
         }
         return result;
 
@@ -267,20 +269,29 @@ public class MemberController {
 
     //회원정보 열람
     @GetMapping("/mypage/admin/member/view")
-    public String AdminMemberView(Model model, @RequestParam(value = "member_code") Long member_code,HttpSession httpSession){
+    public String AdminMemberView(Model model, @RequestParam(value = "member_code") Long member_code,HttpSession httpSession,RedirectAttributes redirectAttributes){
+        String result = "";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
             if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-                MemberDetailDto memberDetailDto = memberService.findMemberDetail(httpSession.getAttribute("member_id").toString(),member_code);
-                model.addAttribute("member", memberDetailDto);
-                model.addAttribute("page_type","9.3");
+                try {
+                    MemberDetailDto memberDetailDto = memberService.findMemberDetail(httpSession.getAttribute("member_id").toString(), member_code);
+                    model.addAttribute("member", memberDetailDto);
+                    model.addAttribute("page_type", "9.3");
+                    result = "menu/mypage/admin_member_view";
+                } catch (InvalidPermissionException e) {
+                    redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                    result = "redirect:/";
+                } catch (Exception e) {
+
+                }
+
             }
         }else{
-            /**
-             * 권한 부족 예외 추가
-             */
+            redirectAttributes.addFlashAttribute("msg", "권한이 부족합니다.");
+            result = "redirect:/";
         }
 
-        return "menu/mypage/admin_member_view";
+        return result;
     }
 
     //내 강의 9.1

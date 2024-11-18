@@ -2,6 +2,7 @@ package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.SubjectDataJpaRepository;
 import Refact.CalvinRefact.repository.SubjectRepository;
 import Refact.CalvinRefact.repository.dto.Member_Subject.ApplyListDto;
@@ -20,6 +21,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +218,7 @@ public class SubjectController {
                                   @PageableDefault(size = 20,page = 0) Pageable pageable,
                                   @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
                                   @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
-                                  HttpSession httpSession){
+                                  HttpSession httpSession, RedirectAttributes redirectAttributes){
         if(!search_word.equals("")){
             search_word = calvinService.searchWordFilter(search_word);
         }
@@ -224,40 +226,42 @@ public class SubjectController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result = "redirect:/member/login";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+            try {
                 Page<ApplyListDto> apply = Page.empty();
 
-                if(search_word.equals("")){
-                    apply = subjectService.findApplyList(pageable,httpSession.getAttribute("member_id").toString());
-                }else{
-                    if(search_type == 1){//강의명
-                        apply = subjectService.findApplyListBy(pageable,search_type,search_word,httpSession.getAttribute("member_id").toString());
-                    }else if(search_type == 2){//아이디(email
-                        apply = subjectService.findApplyListBy(pageable,search_type,search_word,httpSession.getAttribute("membeR_id").toString());
+                if (search_word.equals("")) {
+                    apply = subjectService.findApplyList(pageable, httpSession.getAttribute("member_id").toString());
+                } else {
+                    if (search_type == 1) {//강의명
+                        apply = subjectService.findApplyListBy(pageable, search_type, search_word, httpSession.getAttribute("member_id").toString());
+                    } else if (search_type == 2) {//아이디(email
+                        apply = subjectService.findApplyListBy(pageable, search_type, search_word, httpSession.getAttribute("membeR_id").toString());
                     }
                 }
                 int begin_page;
 
                 int page = pageable.getPageNumber();
-                if(page % 10 == 0){
-                    begin_page = page-9;
-                }else{
-                    begin_page = page/10*10+1;
+                if (page % 10 == 0) {
+                    begin_page = page - 9;
+                } else {
+                    begin_page = page / 10 * 10 + 1;
                 }
                 int max_page = apply.getTotalPages();
                 model.addAttribute("search_word", search_word);
                 model.addAttribute("search_type", search_type);
                 model.addAttribute("page", page);
-                model.addAttribute("begin_page",begin_page);
+                model.addAttribute("begin_page", begin_page);
                 model.addAttribute("max_page", max_page);
-                model.addAttribute("apply_list" ,apply);
-                model.addAttribute("page_type","9.3");
+                model.addAttribute("apply_list", apply);
+                model.addAttribute("page_type", "9.3");
                 result = "menu/mypage/admin_apply";
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            } catch (InvalidPermissionException e) {
+                redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                result = "redirect:/";
+            } catch (Exception e) {
+
             }
+
         }
         return result;
     }
@@ -270,17 +274,13 @@ public class SubjectController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
             result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-                boolean delete_result = subjectService.deleteApply(apply_list,httpSession.getAttribute("member_id").toString());
-                if(delete_result){
-                    result = "<script>alert('수강신청이 정상적으로 취소되었습니다.');window.location.href = document.referrer;</script>";
-                }else{
-                    result = "<script>alert('수강신청 취소에 실패했습니다. 이미 취소된 수강신청이 아닌지 확인해주세요.'); window.location.href = document.referrer;</script>";
-                }
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            try {
+                subjectService.deleteApply(apply_list, httpSession.getAttribute("member_id").toString());
+                result = "<script>alert('수강신청이 정상적으로 취소되었습니다.');window.location.href = document.referrer;</script>";
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('"+e.getMessage()+"'); window.location.href = '/';</script>";
+            } catch (Exception e) {
+                result = "<script>alert('수강신청 취소에 실패했습니다. 이미 취소된 수강신청이 아닌지 확인해주세요.'); window.location.href = document.referrer;</script>";
             }
         }
         return result;
@@ -294,9 +294,9 @@ public class SubjectController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href = '/member/login';</script>";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-                boolean payManage_result = subjectService.updatePayStat(apply_list,type,httpSession.getAttribute("member_id").toString());
-                switch (type){
+            try {
+                subjectService.updatePayStat(apply_list, type, httpSession.getAttribute("member_id").toString());
+                switch (type) {
                     case 1:
                         word = "납부완료 처리";
                         break;
@@ -307,17 +307,13 @@ public class SubjectController {
                         word = "환불 처리";
                         break;
                 }
-                if(payManage_result){
-                    result += "수강신청이 정상적으로 "+word+"되었습니다.";
-                }else{
-                    result += "수강신청이 정상적으로 "+ word + "되지 않았습니다.  수강신청 상태를 확인해주세요.";
-                }
-                result += "');window.location.href = document.referrer;</script>";
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+                result += "수강신청이 정상적으로 " + word + "되었습니다.";
+            } catch (InvalidPermissionException e) {
+                result += e.getMessage();
+            } catch (Exception e) {
+                result += "수강신청이 정상적으로 "+ word + "되지 않았습니다.  수강신청 상태를 확인해주세요.";
             }
+            result += "');window.location.href = document.referrer;</script>";
         }
 
         return result;
@@ -329,7 +325,7 @@ public class SubjectController {
                                 @PageableDefault(size = 20) Pageable pageable,
                                 @RequestParam(value = "search_word", required = false, defaultValue = "")String search_word,
                                 @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-                                HttpSession httpSession){
+                                HttpSession httpSession, RedirectAttributes redirectAttributes){
         if(!search_word.equals("")){
             Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,)]/");
             Matcher m = RegPattern1.matcher(search_word);
@@ -339,50 +335,50 @@ public class SubjectController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
             result = "redirect:/member/login";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+            try {
                 Page<SubjectListDto> list = Page.empty();
                 int count = 0;
-                if(search_word.equals("")){
-                    list = subjectService.findSubjectList(pageable,httpSession.getAttribute("member_id").toString());
-                }else{
-                    if(search_type == 1){
-                        list = subjectService.findSubjectListByName(pageable,search_word,httpSession.getAttribute("member_id").toString());
-                    }else if(search_type == 2){
-                        list = subjectService.findSubjectListByField(pageable,search_word,httpSession.getAttribute("member_id").toString());
-                    }else{//3일때
-                        list = subjectService.findSubjectListByType(pageable,search_word,httpSession.getAttribute("member_id").toString());
+                if (search_word.equals("")) {
+                    list = subjectService.findSubjectList(pageable, httpSession.getAttribute("member_id").toString());
+                } else {
+                    if (search_type == 1) {
+                        list = subjectService.findSubjectListByName(pageable, search_word, httpSession.getAttribute("member_id").toString());
+                    } else if (search_type == 2) {
+                        list = subjectService.findSubjectListByField(pageable, search_word, httpSession.getAttribute("member_id").toString());
+                    } else {//3일때
+                        list = subjectService.findSubjectListByType(pageable, search_word, httpSession.getAttribute("member_id").toString());
                     }
                 }
                 int begin_page;
                 int page = list.getNumber();
                 count = list.getTotalPages();
-                if(page % 10 == 0){
-                    begin_page = page-9;
-                }else{
-                    begin_page = page/10*10+1;
+                if (page % 10 == 0) {
+                    begin_page = page - 9;
+                } else {
+                    begin_page = page / 10 * 10 + 1;
                 }
                 int max_page;
-                if(count/20 == 0 && count%20 > 0){
+                if (count / 20 == 0 && count % 20 > 0) {
                     max_page = 1;
-                }else if(count/20 > 0 && count%20 > 0){
-                    max_page = count/20 + 1;
-                }else{
-                    max_page = count/20;
+                } else if (count / 20 > 0 && count % 20 > 0) {
+                    max_page = count / 20 + 1;
+                } else {
+                    max_page = count / 20;
                 }
                 model.addAttribute("search_word", search_word);
                 model.addAttribute("search_type", search_type);
                 model.addAttribute("page", page);
-                model.addAttribute("begin_page",begin_page);
+                model.addAttribute("begin_page", begin_page);
                 model.addAttribute("max_page", max_page);
-                model.addAttribute("subject_list",list);
+                model.addAttribute("subject_list", list);
                 model.addAttribute("page_type", "9.3");
-                result ="menu/mypage/admin_subject";
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
-            }
+                result = "menu/mypage/admin_subject";
+            } catch (InvalidPermissionException e) {
+                redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                result = "redirect:/";
+            } catch (Exception e) {
 
+            }
         }
 
         return result;
@@ -392,23 +388,21 @@ public class SubjectController {
     @GetMapping("/mypage/admin/subject/manage")
     @ResponseBody
     public String SubjectStatManage(@RequestParam(value = "subject_code")Long subject_code,
-                                    @RequestParam(value = "stat")int stat, HttpSession httpSession){
+                                    @RequestParam(value = "stat")int stat, HttpSession httpSession,
+                                    RedirectAttributes redirectAttributes){
         String result = "";
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type")==null){
             result = "<script>alert('로그인이 필요한 서비스 입니다.'); window.location.href = '/member/login';</script>";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-                boolean pro_result = subjectService.updateSubjectStat(subject_code,stat,httpSession.getAttribute("member_id").toString());
-                if(pro_result){
-                    result = "<script>alert('강의상태가 성공적으로 변경되었습니다.'); window.location.href = document.referrer;</script>";
-                }else{
-                    result = "<script>alert('강의상태 변경에 실패했습니다.'); window.location.href = document.referrer;</script>";
-                }
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            try {
+                subjectService.updateSubjectStat(subject_code, stat, httpSession.getAttribute("member_id").toString());
+                result = "<script>alert('강의상태가 성공적으로 변경되었습니다.'); window.location.href = document.referrer;</script>";
+            } catch (InvalidPermissionException e) {
+                redirectAttributes.addFlashAttribute("msg", e.getMessage());
+            } catch (Exception e) {
+                result = "<script>alert('강의상태 변경에 실패했습니다.'); window.location.href = document.referrer;</script>";
             }
+
         }
         return result;
     }
@@ -416,26 +410,27 @@ public class SubjectController {
 
     //강의 개설 페이지 & 강의 수정
     @GetMapping("/menu/subject/write_page")
-    public String NewSubjectWritePage(Model model,@RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code, HttpSession httpSession){
+    public String NewSubjectWritePage(Model model, @RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code, HttpSession httpSession, RedirectAttributes redirectAttributes){
         String result = "";
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result ="redirect:/member/login";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
+            try {
                 SubjectDetailDto calvin_subject = new SubjectDetailDto();
-                if(subject_code != -1){
+                if (subject_code != -1) {
                     calvin_subject = subjectService.findSubjectDetail(subject_code);
                     model.addAttribute("subject_code", subject_code);
                 }
-                model.addAttribute("subject",calvin_subject);
+                model.addAttribute("subject", calvin_subject);
                 List<MemberEmailDto> list = memberService.findProfessorList(httpSession.getAttribute("member_id").toString());
-                model.addAttribute("professor",list);
-                model.addAttribute("page_type","9.3");
+                model.addAttribute("professor", list);
+                model.addAttribute("page_type", "9.3");
                 result = "menu/subject/subject_write";
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            } catch (InvalidPermissionException e) {
+                redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                result = "redirect:/";
+            } catch (Exception e) {
+
             }
         }
         return result;
@@ -460,10 +455,8 @@ public class SubjectController {
             if (httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null) {
                 result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
             } else {
-                if (httpSession.getAttribute("member_type").equals("ai") || httpSession.getAttribute("member_type").equals("dd") || httpSession.getAttribute("member_type").equals("st")) {
-
-                    insert_result = subjectService.saveSubject(subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
-
+                try {
+                    insert_result = subjectService.saveSubject(httpSession.getAttribute("member_id").toString(),subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
                     if (insert_result) {
                         if (subject_code != -1) {
                             result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
@@ -473,11 +466,12 @@ public class SubjectController {
                     } else {
                         result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                     }
-                } else {
-                    /**
-                     * 권한 부족 예외 추가
-                     */
+                } catch (InvalidPermissionException e) {
+                    result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
+                } catch (Exception e) {
+                    result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                 }
+
             }
         } catch (Exception e) {
             result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
@@ -493,17 +487,13 @@ public class SubjectController {
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
         }else{
-            if(httpSession.getAttribute("member_type").equals("ai")||httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")){
-                boolean delete_result = subjectService.deleteSubject(subject_code,httpSession.getAttribute("member_id").toString());
-                if(delete_result) {
-                    result = "<script>alert('강의가 성공적으로 삭제되었습니다. 해당 창을 닫고 새로고침시 변경사항이 적용됩니다.');window.location.href=history.go(-2);</script>";
-                }else{
-                    result = "<script>alert('강의 삭제에 실패했습니다.');window.location.href=document.referrer;</script>";
-                }
-            }else{
-                /**
-                 * 권한 부족 예외 추가
-                 */
+            try {
+                subjectService.deleteSubject(subject_code, httpSession.getAttribute("member_id").toString());
+                result = "<script>alert('강의가 성공적으로 삭제되었습니다. 해당 창을 닫고 새로고침시 변경사항이 적용됩니다.');window.location.href=history.go(-2);</script>";
+            } catch (InvalidPermissionException e) {
+                result = "<script>alert('"+e.getMessage()+"');window.location.href=document.referrer;</script>";
+            } catch (Exception e) {
+                result = "<script>alert('강의 삭제에 실패했습니다.');window.location.href=document.referrer;</script>";
             }
         }
         return result;

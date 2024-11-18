@@ -3,6 +3,7 @@ package Refact.CalvinRefact.service;
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
 import Refact.CalvinRefact.repository.Member_SubjectRepository;
 import Refact.CalvinRefact.repository.dto.member.*;
@@ -34,7 +35,7 @@ public class MemberService {
     Member_SubjectRepository memberSubjectRepository;
 
     //권한 유효성 검사
-    public boolean permissionCheck(Long id){
+    public void permissionCheck(Long id){
         boolean result = false;
         Optional<Member> memberOptional = memberDataJpaRepository.findById(id);
         if (memberOptional.isPresent()) {
@@ -43,9 +44,11 @@ public class MemberService {
                 result = true;
             }
         }
-        return result;
+        if (!result) {
+            throw new InvalidPermissionException("권한이 부족합니다.");
+        }
     }
-    public boolean permissionCheck(String email){
+    public void permissionCheck(String email){
         boolean result = false;
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
         if (memberOptional.isPresent()) {
@@ -54,8 +57,11 @@ public class MemberService {
                 result = true;
             }
         }
-        return result;
+        if (!result) {
+            throw new InvalidPermissionException("권한이 부족합니다.");
+        }
     }
+
 
     //회원가입 유효성 검사 메소드
     @Transactional
@@ -108,78 +114,74 @@ public class MemberService {
         return memberDataJpaRepository.findByEmailAndPwd(id,pwd);
     }
 
-    //회원 권한 변경
-    @Transactional
-    public boolean memberGrant(Long id, String member_type,Member_Type target_member_type){
-        boolean result = false;
-        if (member_type.equals("dd") || member_type.equals("st") || member_type.equals("ai")) {
-            Optional<Member> findResult = memberDataJpaRepository.findById(id);
-            if(findResult.isPresent()){
-                Member member = findResult.get();
-                member.setMemberType(target_member_type);
-                result = true;
-            }
+    //회원 권한 변경 Exception
+    @Transactional(rollbackFor = Exception.class)
+    public void memberGrant(String email, Long id, String member_type,Member_Type target_member_type) throws Exception{
+        permissionCheck(email);
+        Optional<Member> findResult = memberDataJpaRepository.findById(id);
+        if(findResult.isPresent()){
+            Member member = findResult.get();
+            member.setMemberType(target_member_type);
         }
-        return result;
     }
 
-    //회원 삭제 메소드
-    @Transactional
-    public boolean deleteMember(Long id,String member_type) {
-        boolean result = false;
-        if (member_type.equals("dd") || member_type.equals("st") || member_type.equals("ai")) {
-            memberDataJpaRepository.deleteById(id);
-            result = true;
-        }
-        return result;
+    //회원 삭제 메소드 Exception
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteMember(String email,Long id,String member_type) throws Exception{
+        permissionCheck(email);
+        memberDataJpaRepository.deleteById(id);
     }
 
 
     //회원 리스트
-    public Page<MemberListDto> findAll(String email, Pageable pageable){
+    public Page<MemberListDto> findAll(String email, Pageable pageable) throws Exception{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
-        if(permissionCheck(email)){
-            members = memberDataJpaRepository.findAll(pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
-        }
+        permissionCheck(email);
+
+        members = memberDataJpaRepository.findAll(pageable);
+        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+
         return memberListDtos;
     }
 
     //회원 리스트 by email
-    public Page<MemberListDto> findAllByEmail(String email, String search_word, Pageable pageable) {
+    public Page<MemberListDto> findAllByEmail(String email, String search_word, Pageable pageable) throws Exception{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
-        if(permissionCheck(email)){
-            members = memberDataJpaRepository.findByEmailContaining(search_word, pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
-        }
+        permissionCheck(email);
+
+        members = memberDataJpaRepository.findByEmailContaining(search_word, pageable);
+        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+
         return memberListDtos;
     }
 
     //회원 리스트 by username
-    public Page<MemberListDto> findAllByUsername(String email, String search_word, Pageable pageable) {
+    public Page<MemberListDto> findAllByUsername(String email, String search_word, Pageable pageable) throws Exception{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
-        if(permissionCheck(email)){
-            members = memberDataJpaRepository.findByNameContaining(search_word,pageable);
-            memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
-        }
+        permissionCheck(email);
+
+        members = memberDataJpaRepository.findByNameContaining(search_word,pageable);
+        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+
         return memberListDtos;
     }
 
     //회원 정보 보기
-    public MemberDetailDto findMemberDetail(String email, Long id){
+    public MemberDetailDto findMemberDetail(String email, Long id) throws Exception{
         MemberDetailDto memberDetailDto = new MemberDetailDto();
-        if(permissionCheck(email)){
-            Optional<Member> memberOptional = memberDataJpaRepository.findById(id);
-            if (memberOptional.isPresent()) {
-                Member member = memberOptional.get();
-                memberDetailDto = new MemberDetailDto(member.getId(),member.getName(),member.getEmail(),
-                        member.getPhone_number(),member.getAddress(),member.getBirth(),
-                        member.getCreatedDate(),member.getMemberType());
-            }
+        permissionCheck(email);
+
+        Optional<Member> memberOptional = memberDataJpaRepository.findById(id);
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+            memberDetailDto = new MemberDetailDto(member.getId(),member.getName(),member.getEmail(),
+                    member.getPhone_number(),member.getAddress(),member.getBirth(),
+                    member.getCreatedDate(),member.getMemberType());
         }
+
         return memberDetailDto;
     }
     //내 정보 보기
@@ -225,11 +227,12 @@ public class MemberService {
         return result;
     }
 
-    public List<MemberEmailDto> findProfessorList(String email) {
+    public List<MemberEmailDto> findProfessorList(String email) throws Exception{
         List<MemberEmailDto> memberEmailDtos = new ArrayList<>();
-        if (permissionCheck(email)) {
-            memberEmailDtos = memberDataJpaRepository.findProfessorByMemberType(Member_Type.professor);
-        }
+        permissionCheck(email);
+
+        memberEmailDtos = memberDataJpaRepository.findProfessorByMemberType(Member_Type.professor);
+
         return memberEmailDtos;
     }
 }

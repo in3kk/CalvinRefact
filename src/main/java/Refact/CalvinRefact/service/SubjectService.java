@@ -46,35 +46,39 @@ public class SubjectService {
     @Autowired
     EntityManager em;
 
-    public Page<SubjectListDto> findSubjectList(Pageable pageable, String email) {
+    public Page<SubjectListDto> findSubjectList(Pageable pageable, String email) throws Exception{
         Page<SubjectListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            result = subjectRepository.findAllSubjectList(pageable);
-        }
+        memberService.permissionCheck(email);
+
+        result = subjectRepository.findAllSubjectList(pageable);
+
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByName(Pageable pageable, String search_word, String email) {
+    public Page<SubjectListDto> findSubjectListByName(Pageable pageable, String search_word, String email) throws Exception{
         Page<SubjectListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            result = subjectRepository.findSubjectListByName(pageable, search_word);
-        }
+        memberService.permissionCheck(email);
+
+        result = subjectRepository.findSubjectListByName(pageable, search_word);
+
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByField(Pageable pageable, String search_word, String email) {
+    public Page<SubjectListDto> findSubjectListByField(Pageable pageable, String search_word, String email) throws Exception{
         Page<SubjectListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            result = subjectRepository.findSubjectListByField(pageable, search_word);
-        }
+        memberService.permissionCheck(email);
+
+        result = subjectRepository.findSubjectListByField(pageable, search_word);
+
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByType(Pageable pageable, String search_word, String email) {
+    public Page<SubjectListDto> findSubjectListByType(Pageable pageable, String search_word, String email) throws Exception{
         Page<SubjectListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            result = subjectRepository.findSubjectListByType(pageable, search_word);
-        }
+        memberService.permissionCheck(email);
+
+        result = subjectRepository.findSubjectListByType(pageable, search_word);
+
         return result;
     }
 
@@ -117,104 +121,93 @@ public class SubjectService {
     }
 
     //수강 신청 리스트(어드민)
-    public Page<ApplyListDto> findApplyList(Pageable pageable, String email) {
+    public Page<ApplyListDto> findApplyList(Pageable pageable, String email) throws Exception{
         Page<ApplyListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            result = memberSubjectRepository.findApplyList(pageable);
-        }
+        memberService.permissionCheck(email);
+
+        result = memberSubjectRepository.findApplyList(pageable);
+
         return result;
     }
 
     //수강 신청 리스트 by subject_name or email(어드민)
-    public Page<ApplyListDto> findApplyListBy(Pageable pageable, int search_type, String search_word, String email) {
+    public Page<ApplyListDto> findApplyListBy(Pageable pageable, int search_type, String search_word, String email) throws Exception{
         Page<ApplyListDto> result = Page.empty();
-        if (memberService.permissionCheck(email)) {
-            if (search_type == 1) {//subject_name
-                result = memberSubjectRepository.findApplyListBySubject_name(pageable, search_word);
-            } else if (search_type == 2) {//email
-                result = memberSubjectRepository.findApplyListByEmail(pageable, search_word);
-            }
+        memberService.permissionCheck(email);
+
+        if (search_type == 1) {//subject_name
+            result = memberSubjectRepository.findApplyListBySubject_name(pageable, search_word);
+        } else if (search_type == 2) {//email
+            result = memberSubjectRepository.findApplyListByEmail(pageable, search_word);
         }
+
         return result;
     }
 
-    //수강 신청 취소(어드민)
+    //수강 신청 취소(어드민) Exception
     @Transactional(rollbackFor = {Exception.class})
-    public boolean deleteApply(List<Long> applyIdList, String email) {
-        boolean result = false;
-        if (memberService.permissionCheck(email)) {
-            for (Long applyId : applyIdList) {
-                member_subjectDataJpaRepository.deleteById(applyId);
-            }
-            em.flush();
-            em.clear();
-            result = true;
-        } else {
-            result = false;
-            /**
-             * 권한 부족 예외 추가
-             */
+    public void deleteApply(List<Long> applyIdList, String email) throws Exception{
+
+        memberService.permissionCheck(email);
+
+        for (Long applyId : applyIdList) {
+            member_subjectDataJpaRepository.deleteById(applyId);
         }
-        return result;
+        em.flush();
+        em.clear();
     }
 
-    //Pay_stat 변경
+    //Pay_stat 변경 Exception
     @Transactional(rollbackFor = {Exception.class})
-    public boolean updatePayStat(List<Long> applyIdList, int type, String email) {
-        boolean result = false;
-        if (memberService.permissionCheck(email)) {
-            Pay_Stat pay_stat = Pay_Stat.n;
-            switch (type) {
+    public void updatePayStat(List<Long> applyIdList, int type, String email) throws Exception{
+
+        memberService.permissionCheck(email);
+        Pay_Stat pay_stat = Pay_Stat.n;
+        switch (type) {
+            case 1:
+                pay_stat = Pay_Stat.y;//yes
+                break;
+            case 2:
+                pay_stat = Pay_Stat.n;//no
+                break;
+            case 3:
+                pay_stat = Pay_Stat.r;//refund
+                break;
+        }
+        for (Long applyId : applyIdList) {
+            memberSubjectRepository.updatePay_stat(applyId, pay_stat);
+        }
+    }
+    //강의 상태 변경 Exception
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateSubjectStat(Long id, int stat,String email) throws Exception{
+
+        memberService.permissionCheck(email);
+
+        Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(id);
+        if (subjectOptional.isPresent()) {
+            Subject subject = subjectOptional.get();
+            Subject_Stat subject_stat = Subject_Stat.임시;
+            switch (stat) {
                 case 1:
-                    pay_stat = Pay_Stat.y;//yes
+                    subject_stat = Subject_Stat.접수중;
                     break;
                 case 2:
-                    pay_stat = Pay_Stat.n;//no
+                    subject_stat = Subject_Stat.마감;
                     break;
                 case 3:
-                    pay_stat = Pay_Stat.r;//refund
+                    subject_stat = Subject_Stat.폐강;
                     break;
             }
-            for (Long applyId : applyIdList) {
-                result = memberSubjectRepository.updatePay_stat(applyId, pay_stat);
-            }
-        } else {
-            /**
-             * 권한 부족 예외 추가
-             */
-        }
-        return result;
-    }
+            subject.setSubject_stat(subject_stat);
+            subjectDataJpaRepository.save(subject);
 
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean updateSubjectStat(Long id, int stat,String email) {
-        boolean result = false;
-        if (memberService.permissionCheck(email)) {
-            Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(id);
-            if (subjectOptional.isPresent()) {
-                Subject subject = subjectOptional.get();
-                Subject_Stat subject_stat = Subject_Stat.임시;
-                switch (stat) {
-                    case 1:
-                        subject_stat = Subject_Stat.접수중;
-                        break;
-                    case 2:
-                        subject_stat = Subject_Stat.마감;
-                        break;
-                    case 3:
-                        subject_stat = Subject_Stat.폐강;
-                        break;
-                }
-                subject.setSubject_stat(subject_stat);
-                subjectDataJpaRepository.save(subject);
-                result = true;
-            }
         }
-        return result;
     }
-
+    //신규 강의 생성 Exception
     @Transactional(rollbackFor = {Exception.class})
-    public boolean saveSubject(String subject_name, Subject_Field subject_field, Subject_Type subject_type, int personnel, String lecture_time, String period, Long member_code, int fee, Long subject_code,MultipartFile file) throws Exception{
+    public boolean saveSubject(String email,String subject_name, Subject_Field subject_field, Subject_Type subject_type, int personnel, String lecture_time, String period, Long member_code, int fee, Long subject_code,MultipartFile file) throws Exception{
+        memberService.permissionCheck(email);
         boolean result = false;
         Subject subject = new Subject();
         Optional<Member> memberOptional = memberDataJpaRepository.findById(member_code);
@@ -251,18 +244,15 @@ public class SubjectService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
-    public boolean deleteSubject(Long id,String email) {
-        boolean result = false;
-        if (memberService.permissionCheck(email)) {
-            Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(id);
-            if (subjectOptional.isPresent()) {
-                Subject subject = subjectOptional.get();
+    public void deleteSubject(Long id,String email) throws Exception{
+        memberService.permissionCheck(email);
 
-                member_subjectDataJpaRepository.deleteAllBySubject(subject);
-                subjectDataJpaRepository.deleteById(id);
-                result = true;
-            }
+        Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(id);
+        if (subjectOptional.isPresent()) {
+            Subject subject = subjectOptional.get();
+
+            member_subjectDataJpaRepository.deleteAllBySubject(subject);
+            subjectDataJpaRepository.deleteById(id);
         }
-        return result;
     }
 }
