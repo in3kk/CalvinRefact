@@ -180,8 +180,6 @@ public class MemberController {
                 } catch (InvalidPermissionException e) {
                     redirectAttributes.addFlashAttribute("msg", e.getMessage());
                     result = "redirect:/";
-                } catch (Exception e) {
-
                 }
 
                 int page = member_list.getNumber();
@@ -281,8 +279,6 @@ public class MemberController {
                 } catch (InvalidPermissionException e) {
                     redirectAttributes.addFlashAttribute("msg", e.getMessage());
                     result = "redirect:/";
-                } catch (Exception e) {
-
                 }
 
             }

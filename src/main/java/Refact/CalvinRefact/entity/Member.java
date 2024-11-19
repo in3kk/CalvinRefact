@@ -45,13 +45,13 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private Address address;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY)
     private List<Board> boards = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY)
     private List<Member_Subject> member_subjects = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member",fetch = FetchType.LAZY)
     private List<Subject> subjects = new ArrayList<>();
 
     public Member() {

@@ -72,6 +72,7 @@ public class BoardService {
     public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable) {
         Page<BoardListDto> boardListDtos = Page.empty();
         Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
+//        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
         boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
@@ -102,7 +103,7 @@ public class BoardService {
         return boardDetailDto;
     }
 
-    //게시글 작성
+    //게시글 작성 Exception
     @Transactional(rollbackFor = {Exception.class})
     public void saveBoard(String email, String title, String contents, Board_Type boardType, List<MultipartFile> files) throws Exception {
         Pattern p1 = Pattern.compile("<([a-zA-Z]+)(\\s[^>]*)?>(?![\\s\\S]*<\\/\\1>)");
@@ -120,7 +121,7 @@ public class BoardService {
         }
     }
 
-    //게시글 삭제
+    //게시글 삭제 Exception
     @Transactional(rollbackFor = {Exception.class})
     public void deleteBoard(Long id) throws Exception{
         Optional<Board> boardOptional = boardDataJpaRepository.findById(id);

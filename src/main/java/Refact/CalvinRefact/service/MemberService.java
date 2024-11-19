@@ -48,7 +48,7 @@ public class MemberService {
             throw new InvalidPermissionException("권한이 부족합니다.");
         }
     }
-    public void permissionCheck(String email){
+    public void permissionCheck(String email) throws InvalidPermissionException{
         boolean result = false;
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
         if (memberOptional.isPresent()) {
@@ -134,7 +134,7 @@ public class MemberService {
 
 
     //회원 리스트
-    public Page<MemberListDto> findAll(String email, Pageable pageable) throws Exception{
+    public Page<MemberListDto> findAll(String email, Pageable pageable) throws InvalidPermissionException{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
         permissionCheck(email);
@@ -146,7 +146,7 @@ public class MemberService {
     }
 
     //회원 리스트 by email
-    public Page<MemberListDto> findAllByEmail(String email, String search_word, Pageable pageable) throws Exception{
+    public Page<MemberListDto> findAllByEmail(String email, String search_word, Pageable pageable) throws InvalidPermissionException{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
         permissionCheck(email);
@@ -158,7 +158,7 @@ public class MemberService {
     }
 
     //회원 리스트 by username
-    public Page<MemberListDto> findAllByUsername(String email, String search_word, Pageable pageable) throws Exception{
+    public Page<MemberListDto> findAllByUsername(String email, String search_word, Pageable pageable) throws InvalidPermissionException{
         Page<MemberListDto> memberListDtos = Page.empty();
         Page<Member> members;
         permissionCheck(email);
@@ -170,7 +170,7 @@ public class MemberService {
     }
 
     //회원 정보 보기
-    public MemberDetailDto findMemberDetail(String email, Long id) throws Exception{
+    public MemberDetailDto findMemberDetail(String email, Long id) throws InvalidPermissionException{
         MemberDetailDto memberDetailDto = new MemberDetailDto();
         permissionCheck(email);
 
@@ -227,7 +227,7 @@ public class MemberService {
         return result;
     }
 
-    public List<MemberEmailDto> findProfessorList(String email) throws Exception{
+    public List<MemberEmailDto> findProfessorList(String email) throws InvalidPermissionException{
         List<MemberEmailDto> memberEmailDtos = new ArrayList<>();
         permissionCheck(email);
 

@@ -19,6 +19,8 @@ public interface MemberDataJpaRepository extends JpaRepository<Member,Long> {
     Long countByEmail(String email);
 
     Optional<Member> findByEmail(String email);
+    @Query("select m from Member m join fetch m.subjects where m.email = :email")
+    Optional<Member> findFetchByEmail(@Param("email") String email);
 
     //멤버 email 검색
     Page<Member> findByEmailContaining(String email, Pageable pageable);

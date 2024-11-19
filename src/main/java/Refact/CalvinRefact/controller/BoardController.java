@@ -191,7 +191,6 @@ public class BoardController {
         try {
             boardService.saveBoard(member_id, title, board_contents, board_type, file_list);
             result= "window.location.href='/menu/board';</script>";
-
         } catch (Exception e) {
             result="<script>alert('게시글 작성에 실패했습니다.');window.location.href='/menu/board';</script>";
         }

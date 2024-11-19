@@ -8,6 +8,7 @@ import Refact.CalvinRefact.entity.entityEnum.Pay_Stat;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Stat;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.*;
 import Refact.CalvinRefact.repository.dto.Member_Subject.ApplyListDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectDetailDto;
@@ -46,7 +47,7 @@ public class SubjectService {
     @Autowired
     EntityManager em;
 
-    public Page<SubjectListDto> findSubjectList(Pageable pageable, String email) throws Exception{
+    public Page<SubjectListDto> findSubjectList(Pageable pageable, String email) throws InvalidPermissionException{
         Page<SubjectListDto> result = Page.empty();
         memberService.permissionCheck(email);
 
@@ -55,7 +56,7 @@ public class SubjectService {
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByName(Pageable pageable, String search_word, String email) throws Exception{
+    public Page<SubjectListDto> findSubjectListByName(Pageable pageable, String search_word, String email) throws InvalidPermissionException{
         Page<SubjectListDto> result = Page.empty();
         memberService.permissionCheck(email);
 
@@ -64,7 +65,7 @@ public class SubjectService {
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByField(Pageable pageable, String search_word, String email) throws Exception{
+    public Page<SubjectListDto> findSubjectListByField(Pageable pageable, String search_word, String email) throws InvalidPermissionException{
         Page<SubjectListDto> result = Page.empty();
         memberService.permissionCheck(email);
 
@@ -73,7 +74,7 @@ public class SubjectService {
         return result;
     }
 
-    public Page<SubjectListDto> findSubjectListByType(Pageable pageable, String search_word, String email) throws Exception{
+    public Page<SubjectListDto> findSubjectListByType(Pageable pageable, String search_word, String email) throws InvalidPermissionException{
         Page<SubjectListDto> result = Page.empty();
         memberService.permissionCheck(email);
 
@@ -121,7 +122,7 @@ public class SubjectService {
     }
 
     //수강 신청 리스트(어드민)
-    public Page<ApplyListDto> findApplyList(Pageable pageable, String email) throws Exception{
+    public Page<ApplyListDto> findApplyList(Pageable pageable, String email) throws InvalidPermissionException{
         Page<ApplyListDto> result = Page.empty();
         memberService.permissionCheck(email);
 
@@ -131,7 +132,7 @@ public class SubjectService {
     }
 
     //수강 신청 리스트 by subject_name or email(어드민)
-    public Page<ApplyListDto> findApplyListBy(Pageable pageable, int search_type, String search_word, String email) throws Exception{
+    public Page<ApplyListDto> findApplyListBy(Pageable pageable, int search_type, String search_word, String email) throws InvalidPermissionException {
         Page<ApplyListDto> result = Page.empty();
         memberService.permissionCheck(email);
 

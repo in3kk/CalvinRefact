@@ -258,10 +258,7 @@ public class SubjectController {
             } catch (InvalidPermissionException e) {
                 redirectAttributes.addFlashAttribute("msg", e.getMessage());
                 result = "redirect:/";
-            } catch (Exception e) {
-
             }
-
         }
         return result;
     }
@@ -376,8 +373,6 @@ public class SubjectController {
             } catch (InvalidPermissionException e) {
                 redirectAttributes.addFlashAttribute("msg", e.getMessage());
                 result = "redirect:/";
-            } catch (Exception e) {
-
             }
         }
 
@@ -429,8 +424,6 @@ public class SubjectController {
             } catch (InvalidPermissionException e) {
                 redirectAttributes.addFlashAttribute("msg", e.getMessage());
                 result = "redirect:/";
-            } catch (Exception e) {
-
             }
         }
         return result;
