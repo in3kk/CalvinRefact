@@ -30,7 +30,7 @@ public interface MemberDataJpaRepository extends JpaRepository<Member,Long> {
 
     //    @Query("select m.id from member m where m.email = :email")
 //    Long findIdByEmail(@Param("email")String email);
-    @Query("select new Refact.CalvinRefact.repository.dto.member.MemberEmailDto(m.email, m.name) from Member m where m.memberType = :memberType")
+    @Query("select new Refact.CalvinRefact.repository.dto.member.MemberEmailDto(m.email, m.name,m.id) from Member m where m.memberType = :memberType")
     List<MemberEmailDto> findProfessorByMemberType(@Param("memberType") Member_Type memberType);
 
 }

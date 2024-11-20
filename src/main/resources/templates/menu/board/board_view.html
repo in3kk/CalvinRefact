@@ -57,11 +57,11 @@
                         <tr>
                             <th >첨부파일</th>
                             <td colspan="3">
-                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file1.original_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file1.save_name},original_name = ${file1.original_name})}" th:text="${file1.original_name}"></a>
-                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file2.original_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file2.save_name},original_name = ${file2.original_name})}" th:text="${file2.original_name}"></a>
-                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file3.original_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file3.save_name},original_name = ${file3.original_name})}" th:text="${file3.original_name}"></a>
-                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file4.original_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file4.save_name},original_name = ${file4.original_name})}" th:text="${file4.original_name}"></a>
-                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file5.original_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file5.save_name},original_name = ${file5.original_name})}" th:text="${file5.original_name}"></a>
+                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file1.save_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file1.save_name},original_name = ${file1.original_name})}" th:text="${file1.original_name}"></a>
+                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file2.save_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file2.save_name},original_name = ${file2.original_name})}" th:text="${file2.original_name}"></a>
+                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file3.save_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file3.save_name},original_name = ${file3.original_name})}" th:text="${file3.original_name}"></a>
+                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file4.save_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file4.save_name},original_name = ${file4.original_name})}" th:text="${file4.original_name}"></a>
+                                <a style="text-decoration:underline;color:gray;font-weight: bold;display:block;" th:if="${file5.save_name != '-1'}" th:href="@{/download/{save_name}/{original_name}(save_name = ${file5.save_name},original_name = ${file5.original_name})}" th:text="${file5.original_name}"></a>
                             </td>
                         </tr>
                         <tr>

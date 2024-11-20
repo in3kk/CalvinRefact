@@ -38,16 +38,16 @@
         <div class="contentsArea">
 
             <form action="/member/mypage/auth" method="get">
-                <input type="hidden" name="member_id" th:value="${session.member_id}">
+                <input type="hidden" name="member_id" th:value="${info.id}">
                 <div class="bbsView">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <th width="20%" >아이디</th>
-                            <td width="50%" th:text="${info.id}"></td>
+                            <td width="50%" th:text="${info.email}"></td>
                         </tr>
                         <tr>
                             <th>이름</th>
-                            <td th:text="${info.name}"></td>
+                            <td th:text="${info.username}"></td>
                         </tr>
                         <tr>
                             <th>생년월일</th>

@@ -130,7 +130,6 @@ public class BoardController {
         model.addAttribute("file3",boardDetailDto.getFiles().get(2));
         model.addAttribute("file4",boardDetailDto.getFiles().get(3));
         model.addAttribute("file5",boardDetailDto.getFiles().get(4));
-        model.addAttribute("page_type", "8.5");
         Board_Type board_type = boardDetailDto.getBoardType();
         if(board_type.equals(Board_Type.공지사항)){
             model.addAttribute("page_type", "8.5");

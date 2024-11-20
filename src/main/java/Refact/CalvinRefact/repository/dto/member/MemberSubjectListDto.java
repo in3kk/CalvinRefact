@@ -2,6 +2,7 @@ package Refact.CalvinRefact.repository.dto.member;
 
 import Refact.CalvinRefact.entity.entityEnum.Pay_Stat;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
+import Refact.CalvinRefact.entity.entityEnum.Subject_Stat;
 import lombok.Data;
 
 @Data
@@ -15,6 +16,6 @@ public class MemberSubjectListDto {
     private Long member_subject_id;
     private Long member_id;
     private Pay_Stat pay_stat;
-
+    private Subject_Stat subject_stat;
 
 }

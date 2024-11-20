@@ -43,6 +43,7 @@ public class Member_SubjectRepository {
                 subject.subject_name,
                 subject.subject_field,
                 subject.fee,
+                subject.subject_stat,
                 member_Subject.id.as("member_subject_id"),
                 member_Subject.pay_stat,
                 member.id.as("member_id")
