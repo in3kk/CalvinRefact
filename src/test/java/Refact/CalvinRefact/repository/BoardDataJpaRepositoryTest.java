@@ -225,8 +225,10 @@ class BoardDataJpaRepositoryTest {
         em.clear();
 
         Pageable pageable = PageRequest.of(0,20);
-        Page<BoardListDto> boardListDtos = boardService.findAllByTitleAndBoard_type("2",Board_Type.공지사항,pageable);
+//        Page<BoardListDto> boardListDtos = boardService.findAllByTitleAndBoard_type("2",Board_Type.공지사항,pageable);
 //        Page<BoardListDto> boardListDtos = boardService.findAllByBoard_type(Board_Type.공지사항,pageable);
+        Page<BoardListDto> boardListDtos = boardService.findAllByTitle("2",pageable);
+
 
         for (BoardListDto boardListDto : boardListDtos) {
             System.out.println("result : "+boardListDto.getBoard_type()+" "+boardListDto.getBoard_code()+" "+boardListDto.getTitle());
@@ -256,21 +258,21 @@ class BoardDataJpaRepositoryTest {
         em.flush();
         em.clear();
 
-//        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(1L);
-//        System.out.println("board data : "+boardDetailDto.getBoard_id()+" "+boardDetailDto.getBoardType()+" "+boardDetailDto.getTitle()+" "+boardDetailDto.getContents()+" ");
-//
-//        List<FileSimpleDto> files = boardDetailDto.getFiles();
-//        for (FileSimpleDto file1 : files) {
-//            System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
-//        }
-        Optional<Board> board1 = boardDataJpaRepository.findById(1L);
-        System.out.println(">>>구분선<<<");
-        if (board1.isPresent()) {
-            List<File> files = board1.get().getFiles();
-            for (File file1 : files) {
-                System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
-            }
+        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(1L);
+        System.out.println("board data : "+boardDetailDto.getBoard_id()+" "+boardDetailDto.getBoardType()+" "+boardDetailDto.getTitle()+" "+boardDetailDto.getContents()+" ");
+
+        List<FileSimpleDto> files = boardDetailDto.getFiles();
+        for (FileSimpleDto file1 : files) {
+            System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
         }
+//        Optional<Board> board1 = boardDataJpaRepository.findById(1L);
+//        System.out.println(">>>구분선<<<");
+//        if (board1.isPresent()) {
+//            List<File> files = board1.get().getFiles();
+//            for (File file1 : files) {
+//                System.out.println("file data : "+file1.getSave_name()+" "+file1.getId()+" "+file1.getOriginal_name()+" "+file1.getSize());
+//            }
+//        }
     }
 
     @Test

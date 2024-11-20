@@ -23,6 +23,7 @@ public class SubjectDetailDto {
     private int fee;
     private String period;
     private int personnel;
+    private Long member_code;
 
     public SubjectDetailDto(Long subject_code, FileSimpleDto fileSimpleDto, String subject_name, String member_name, Subject_Field subject_field, Subject_Type subject_type, Subject_Stat subject_stat, String lecture_time, int fee, String period, int personnel) {
         this.subject_code = subject_code;
@@ -51,6 +52,22 @@ public class SubjectDetailDto {
         this.personnel = personnel;
     }
 
+    public SubjectDetailDto(Long subject_code, FileSimpleDto fileSimpleDto, String subject_name, String member_name, Subject_Field subject_field, Subject_Type subject_type, Subject_Stat subject_stat, String lecture_time, int fee, String period, int personnel, Long member_code) {
+        this.subject_code = subject_code;
+        this.fileSimpleDto = fileSimpleDto;
+        this.subject_name = subject_name;
+        this.member_name = member_name;
+        this.subject_field = subject_field;
+        this.subject_type = subject_type;
+        this.subject_stat = subject_stat;
+        this.lecture_time = lecture_time;
+        this.fee = fee;
+        this.period = period;
+        this.personnel = personnel;
+        this.member_code = member_code;
+    }
+
     public SubjectDetailDto() {
     }
+
 }

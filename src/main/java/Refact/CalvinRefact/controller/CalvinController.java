@@ -31,7 +31,10 @@ public class CalvinController {
     public String home(Model model){
         List<BoardListDto> notice = boardRepository.findTop6ByBoard_type(Board_Type.공지사항);
         model.addAttribute("notice", notice);
-
+        String msg = model.getAttribute("msg").toString();
+        if (msg != null) {
+            model.addAttribute("msg",msg);
+        }
         return "index2";
     }
 

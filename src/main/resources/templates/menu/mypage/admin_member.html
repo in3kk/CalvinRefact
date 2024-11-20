@@ -88,13 +88,13 @@
                     <tbody>
 
                     <tr th:each = "member : ${member_list}"><!--bgcolor="#fef8f9" -->
-                        <td th:text="${member.member_code}"></td><!--번호 -->
+                        <td th:text="${member.id}"></td><!--번호 -->
                         <td class="subject_tal txpink" ><!--아이디 -->
-                            <b><a th:href="@{/mypage/admin/member/view(member_code = ${member.member_code})}" th:text="${member.id}" ></a></b>
+                            <b><a th:href="@{/mypage/admin/member/view(member_code = ${member.id})}" th:text="${member.email}" ></a></b>
                         </td>
                         <td  th:text="${member.name}"><!--이름 -->
                         </td>
-                        <td th:text="${member.phone_number}"><!--전화번호 -->
+                        <td th:text="${member.phone_num}"><!--전화번호 -->
                         </td>
                         <td th:text="${member.member_type}"></td><!--궈한-->
                     </tr>

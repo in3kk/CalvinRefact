@@ -63,10 +63,10 @@
                         <th width="10%">상태</th>
                     </tr>
                     <tr th:each = "subject :${subject_list}">
-                        <td th:text="${subject.subject_code}"></td>
+                        <td th:text="${subject.id}"></td>
                         <td th:text="${subject.subject_field}"></td>
                         <td>
-                            <a th:href="@{/menu/subject/apply(id = ${subject.subject_code})}" th:text="${subject.subject_name}" target="_blank"></a>
+                            <a th:href="@{/menu/subject/apply(id = ${subject.id})}" th:text="${subject.subject_name}" target="_blank"></a>
                         </td>
                         <td th:text="${subject.fee}+'원'"></td>
                         <td th:text="${subject.subject_type}"></td>

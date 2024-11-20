@@ -93,7 +93,8 @@ public class SubjectRepository {
                         subject.fee,
                         subject.period,
                         subject.personnel,
-                        member.name.as("member_name")
+                        member.name.as("member_name"),
+                        member.id
                 ))
                 .from(subject)
                 .join(subject.member, member)

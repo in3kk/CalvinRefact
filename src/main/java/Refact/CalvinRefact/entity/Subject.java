@@ -52,7 +52,7 @@ public class Subject extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Subject_Type subject_type;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject",fetch = FetchType.LAZY)
     private List<Member_Subject> member_subjects = new ArrayList<>();
 
     @OneToOne

@@ -51,11 +51,12 @@
                     <tr th:each = "subject :${subject_list}">
                         <td th:text="${subject.subject_field}"></td>
                         <td>
-                            <a th:href="@{/menu/subject/apply(id = ${subject.subject_code})}" th:text="${subject.subject_name}"></a>
+                            <a th:href="@{/menu/subject/apply(id = ${subject.subject_id})}" th:text="${subject.subject_name}"></a>
                         </td>
                         <td th:text="${subject.fee}+'원'"></td>
                         <td th:if="${subject.pay_stat == 'y'}" style="background:lightblue;">납부완료</td>
                         <td th:if="${subject.pay_stat == 'n'}" style="background:yellow;">납부전</td>
+                        <td th:if="${subject.pay_stat == 'r'}" style="background:lightgray;">환불</td>
                         <td th:if="${subject.subject_stat == 1}" style="background:orange;">접수중</td>
                         <td th:if="${subject.subject_stat == 2}" style="background:red;color:white;">마감</td>
                         <td th:if="${subject.subject_stat == 3}" style="background:gray;color:white;">폐강</td>

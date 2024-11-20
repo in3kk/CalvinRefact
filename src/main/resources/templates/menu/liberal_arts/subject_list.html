@@ -49,7 +49,7 @@
                     <tr th:each = "subject :${subject_list}">
                         <td th:text="${subject.subject_field}"></td>
                         <td>
-                            <a th:href="@{/menu/liberal_arts/apply(id = ${subject.subject_code})}" th:text="${subject.subject_name}"></a>
+                            <a th:href="@{/menu/liberal_arts/apply(id = ${subject.id})}" th:text="${subject.subject_name}"></a>
                         </td>
                         <td th:text="${subject.lecture_time}"></td>
                         <td th:text="${subject.period}"></td>
