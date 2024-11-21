@@ -1,5 +1,6 @@
 package Refact.CalvinRefact.controller;
 
+import Refact.CalvinRefact.controller.form.MemberJoinForm;
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import Refact.CalvinRefact.exception.InvalidPermissionException;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -41,18 +43,51 @@ public class MemberController {
         return "member/join";
     }
 
+    @GetMapping("/member/join2")
+    public String joinPage2(Model model, HttpSession httpSession) {
+        JoinMemberDto jm = new JoinMemberDto();
+        model.addAttribute("member",jm);
+        httpSession.removeAttribute("member_id");
+        httpSession.removeAttribute("member_type");
+        model.addAttribute("joinMemberForm", new MemberJoinForm());
+        return "member/joinFormMapping";
+    }
+
+    @PostMapping("/member/join2")
+    public String memberJoin2(@Valid @ModelAttribute("joinMemberForm") MemberJoinForm joinForm, BindingResult result) {
+        if (result.hasErrors()) {
+            return "member/joinFormMapping";
+        }
+        JoinMemberDto memberDto = new JoinMemberDto();
+        memberDto.setId(joinForm.getId());
+        memberDto.setId2(joinForm.getId2());
+        memberDto.setPwd(joinForm.getPwd());
+        memberDto.setName(joinForm.getName());
+        memberDto.setBirth(joinForm.getBirth());
+        memberDto.setPhone_number(joinForm.getPhone_number());
+        memberDto.setAddress(joinForm.getAddress());
+        memberDto.setAddress2(joinForm.getAddress2());
+
+        boolean joinResult = memberService.saveMember(memberDto);
+        if (joinResult) {
+            return "redirect:/";
+        } else {
+            return "member/joinFormMapping";
+        }
+    }
+
     //회원가입
     @PostMapping(value = "/member/join")
     @ResponseBody
-    public String memberJoin(JoinMemberDto member, Model model){
+    public String memberJoin(JoinMemberDto member, Model model) {
         String result = "";
 
         boolean joinResult = memberService.saveMember(member);
 
-        if(joinResult){
+        if (joinResult) {
             result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='/member/login'</script>";
 //            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='http://localhost:8080/member/login'</script>";
-        }else{
+        } else {
             result = "<script>alert('회원가입에 실패했습니다.');history.back();</script>";
         }
         return result;

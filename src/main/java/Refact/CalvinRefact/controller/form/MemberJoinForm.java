@@ -1,4 +1,4 @@
-package Refact.CalvinRefact.repository.dto.member;
+package Refact.CalvinRefact.controller.form;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -7,8 +7,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class JoinMemberDto {
-
+public class MemberJoinForm {
     @NotEmpty(message = "아이디를 입력해주세요")
     private String id;
     @NotEmpty(message = "아이디를 입력해주세요")
