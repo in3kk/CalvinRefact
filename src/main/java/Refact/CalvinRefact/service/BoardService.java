@@ -61,11 +61,11 @@ public class BoardService {
 //    }
 
     public Page<BoardListDto> findAll(Pageable pageable) {
-        Page<BoardListDto> boardListDtos = Page.empty();
+        Page<BoardListDto> boardListDtos;
         Page<Board> boardPage;
         boardPage = boardDataJpaRepository.findAll(pageable);
         boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
-
+//변경해야 함
         return boardListDtos;
     }
 

@@ -8,9 +8,13 @@ import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +22,7 @@ import java.util.List;
 import static Refact.CalvinRefact.entity.QBoard.board;
 import static Refact.CalvinRefact.entity.QFile.file;
 import static Refact.CalvinRefact.entity.QMember.member;
+import static Refact.CalvinRefact.entity.QMember_Subject.member_Subject;
 
 @Repository
 public class BoardRepository {
@@ -75,4 +80,31 @@ public class BoardRepository {
         return boardDetailDto;
     }
 
+    public Page<BoardListDto> findAll(Pageable pageable) {
+        List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
+                        board.id.as("board_code"),
+                        member.id.as("member_code"),
+                        board.title,
+                        board.createdDate.as("created_date"),
+                        member.name,
+                        board.boardType.as("board_type"),
+                        board.files.get(0).id.as("board_thumbnail")
+                        ))
+                .from(board)
+                .join(board.member, member)
+                .join(board.files,file)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        for (BoardListDto boardListDto : result) {
+            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+                boardListDto.setBoard_thumbnail("-1");
+            }
+        }
+        JPAQuery<Board> countQuery = queryFactory.select(board)
+                .from(board);
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+
+    }
 }

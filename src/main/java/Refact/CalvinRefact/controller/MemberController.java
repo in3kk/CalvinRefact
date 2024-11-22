@@ -115,6 +115,7 @@ public class MemberController {
 //            result = "<script>window.location.href='http://localhost:8080/'</script>";//
             result = "<script>window.location.href='/'</script>";//서버
             Member_Type member_type = member.get().getMemberType();
+            System.out.println(member_type.toString());
             if(member_type.equals(Member_Type.member)){
                 httpSession.setAttribute("member_type", "mb");
             }else if(member_type.equals(Member_Type.developer)){
@@ -144,13 +145,13 @@ public class MemberController {
     //회원 권한 변경
     @PostMapping("/mypage/admin/member/grant")
     @ResponseBody
-    public String AdminMemberGrant(@RequestParam(value = "member_type") Member_Type member_type,
+    public String AdminMemberGrant(@RequestParam(value = "member_type") String member_type,
                                    @RequestParam(value = "member_code") Long member_code,
                                    HttpSession httpSession){
         String result = "";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
             try {
-                memberService.memberGrant(httpSession.getAttribute("member_id").toString(),member_code, httpSession.getAttribute("member_type").toString(), member_type);
+                memberService.memberGrant(httpSession.getAttribute("member_id").toString(),member_code, httpSession.getAttribute("member_type").toString(), Member_Type.valueOf(member_type));
                 result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
 
             } catch (InvalidPermissionException e) {
