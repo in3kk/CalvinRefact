@@ -107,4 +107,85 @@ public class BoardRepository {
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
 
     }
+
+    public Page<BoardListDto> findAllByBoard_Type(Board_Type boardType, Pageable pageable) {
+        List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
+                        board.id.as("board_code"),
+                        member.id.as("member_code"),
+                        board.title,
+                        board.createdDate.as("created_date"),
+                        member.name,
+                        board.boardType.as("board_type"),
+                        board.files.get(0).id.as("board_thumbnail")
+                ))
+                .from(board)
+                .join(board.member, member)
+                .join(board.files,file)
+                .where(board.boardType.eq(boardType))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        for (BoardListDto boardListDto : result) {
+            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+                boardListDto.setBoard_thumbnail("-1");
+            }
+        }
+        JPAQuery<Board> countQuery = queryFactory.select(board)
+                .from(board).where(board.boardType.eq(boardType));
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+    }
+
+    public Page<BoardListDto> findAllByTitle(String title, Pageable pageable) {
+        List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
+                        board.id.as("board_code"),
+                        member.id.as("member_code"),
+                        board.title,
+                        board.createdDate.as("created_date"),
+                        member.name,
+                        board.boardType.as("board_type"),
+                        board.files.get(0).id.as("board_thumbnail")
+                ))
+                .from(board)
+                .join(board.member, member)
+                .join(board.files,file)
+                .where(board.title.like(title))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        for (BoardListDto boardListDto : result) {
+            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+                boardListDto.setBoard_thumbnail("-1");
+            }
+        }
+        JPAQuery<Board> countQuery = queryFactory.select(board)
+                .from(board).where(board.title.like(title));
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+    }
+
+    public Page<BoardListDto> findAllByBoard_TypeAndTitle(Board_Type boardType, String title, Pageable pageable) {
+        List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
+                        board.id.as("board_code"),
+                        member.id.as("member_code"),
+                        board.title,
+                        board.createdDate.as("created_date"),
+                        member.name,
+                        board.boardType.as("board_type"),
+                        board.files.get(0).id.as("board_thumbnail")
+                ))
+                .from(board)
+                .join(board.member, member)
+                .join(board.files,file)
+                .where(board.boardType.eq(boardType).and(board.title.like(title)))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+        for (BoardListDto boardListDto : result) {
+            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+                boardListDto.setBoard_thumbnail("-1");
+            }
+        }
+        JPAQuery<Board> countQuery = queryFactory.select(board)
+                .from(board).where(board.boardType.eq(boardType).and(board.title.like(title)));
+        return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
+    }
 }
