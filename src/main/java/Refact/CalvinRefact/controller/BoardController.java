@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RestController
+@Controller
 public class BoardController {
 
     @Autowired
@@ -162,7 +163,7 @@ public class BoardController {
     @ResponseBody
     public String InsertBoard(@RequestParam(value = "title") String title, @RequestParam(value = "contents") String board_contents,
                               @RequestParam(value = "member_id") String member_id,
-                              @RequestParam(value= "board_type") Board_Type board_type,
+                              @RequestParam(value= "board_type") String board_type,
                               @RequestParam(value = "file1", required = false) MultipartFile file1,
                               @RequestParam(value = "file2", required = false) MultipartFile file2,
                               @RequestParam(value = "file3", required = false) MultipartFile file3,
@@ -188,7 +189,7 @@ public class BoardController {
         }
 
         try {
-            boardService.saveBoard(member_id, title, board_contents, board_type, file_list);
+            boardService.saveBoard(member_id, title, board_contents, Board_Type.valueOf(board_type), file_list);
             result= "window.location.href='/menu/board';</script>";
         } catch (Exception e) {
             result="<script>alert('게시글 작성에 실패했습니다.');window.location.href='/menu/board';</script>";

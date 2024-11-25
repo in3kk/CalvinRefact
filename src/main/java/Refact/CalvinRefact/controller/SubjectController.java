@@ -39,13 +39,13 @@ public class SubjectController {
 
     @GetMapping("/menu/subject/list") //강의 리스트 페이지
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-                              @RequestParam(value = "type") Subject_Type type, Model model){
+                              @RequestParam(value = "type") String type, Model model){
         List<SubjectListDto> subject_list;
         if(field.equals("")){
-            subject_list= subjectService.findSubjectList(type);
+            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type));
         }else{
             System.out.println("result"+field);
-            subject_list= subjectService.findSubjectList(type,Subject_Field.valueOf(field));
+            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field));
         }
         String result = "menu/subject/subject_list";
         model.addAttribute("subject_list", subject_list);
@@ -55,16 +55,16 @@ public class SubjectController {
     //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
     @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-                              @RequestParam(value = "type") Subject_Type type,
+                              @RequestParam(value = "type") String type,
                               @RequestParam(value = "name", required = false, defaultValue = "")String name,Model model){
         List<SubjectListDto> subject_list;
         if(field.equals("")){
-            subject_list= subjectService.findSubjectList(type);
+            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type));
         }else if(!name.equals("")){
-            subject_list = subjectService.findSubjectList(type,Subject_Field.valueOf(field),name);
+            subject_list = subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field),name);
             model.addAttribute("subject_name", name);
         }else{
-            subject_list= subjectService.findSubjectList(type,Subject_Field.valueOf(field));
+            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field));
         }
         String result="";
         model.addAttribute("subject_list", subject_list);

@@ -61,33 +61,32 @@ public class BoardService {
 //    }
 
     public Page<BoardListDto> findAll(Pageable pageable) {
-        Page<BoardListDto> boardListDtos = Page.empty();
-        Page<Board> boardPage;
-        boardPage = boardDataJpaRepository.findAll(pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
+        Page<BoardListDto> boardListDtos = boardRepository.findAll(pageable);
+//        Page<Board> boardPage;
+//        boardPage = boardDataJpaRepository.findAll(pageable);
+//        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
 
         return boardListDtos;
     }
 
     public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable) {
-        Page<BoardListDto> boardListDtos = Page.empty();
-        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
+        Page<BoardListDto> boardListDtos = boardRepository.findAllByBoard_Type(board_type,pageable);
 //        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
+//        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
     public Page<BoardListDto> findAllByTitle(String title, Pageable pageable) {
-        Page<BoardListDto> boardListDtos = Page.empty();
-        Page<Board> boardPage = boardDataJpaRepository.findAllByTitleContaining(title, pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
+        Page<BoardListDto> boardListDtos = boardRepository.findAllByTitle(title,pageable);
+//        Page<Board> boardPage = boardDataJpaRepository.findAllByTitleContaining(title, pageable);
+//        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
     public Page<BoardListDto> findAllByTitleAndBoard_type(String title, Board_Type board_type, Pageable pageable) {
-        Page<BoardListDto> boardListDtos = Page.empty();
-        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardTypeAndTitleContaining(board_type, title, pageable);
-        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
+        Page<BoardListDto> boardListDtos = boardRepository.findAllByBoard_TypeAndTitle(board_type,title,pageable);
+//        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardTypeAndTitleContaining(board_type, title, pageable);
+//        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
         return boardListDtos;
     }
 
