@@ -191,7 +191,6 @@ public class MemberController {
     }
     //어드민 회원 관리 페이지
     @GetMapping("/mypage/admin/member")
-    @ResponseBody
     public String adminMember2(@PageableDefault(size = 20,sort = {"member_id"})Pageable pageable,
                                @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
                                @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
@@ -218,7 +217,7 @@ public class MemberController {
                     result = "redirect:/";
                 }
 
-                int page = member_list.getNumber();
+                int page = member_list.getNumber()+1;
                 int begin_page;
                 if(page % 10 == 0){
                     begin_page = page-9;

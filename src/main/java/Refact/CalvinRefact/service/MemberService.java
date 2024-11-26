@@ -5,6 +5,7 @@ import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
+import Refact.CalvinRefact.repository.MemberRepository;
 import Refact.CalvinRefact.repository.Member_SubjectRepository;
 import Refact.CalvinRefact.repository.dto.member.*;
 import jakarta.persistence.EntityManager;
@@ -33,6 +34,8 @@ public class MemberService {
     MemberDataJpaRepository memberDataJpaRepository;
     @Autowired
     Member_SubjectRepository memberSubjectRepository;
+    @Autowired
+    MemberRepository memberRepository;
 
     //권한 유효성 검사
     public void permissionCheck(Long id){
@@ -135,36 +138,24 @@ public class MemberService {
 
     //회원 리스트
     public Page<MemberListDto> findAll(String email, Pageable pageable) throws InvalidPermissionException{
-        Page<MemberListDto> memberListDtos = Page.empty();
-        Page<Member> members;
         permissionCheck(email);
-
-        members = memberDataJpaRepository.findAll(pageable);
-        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+        Page<MemberListDto> memberListDtos = memberRepository.findAll(pageable);
 
         return memberListDtos;
     }
 
     //회원 리스트 by email
     public Page<MemberListDto> findAllByEmail(String email, String search_word, Pageable pageable) throws InvalidPermissionException{
-        Page<MemberListDto> memberListDtos = Page.empty();
-        Page<Member> members;
         permissionCheck(email);
-
-        members = memberDataJpaRepository.findByEmailContaining(search_word, pageable);
-        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+        Page<MemberListDto> memberListDtos = memberRepository.findAllByEmail(search_word, pageable);
 
         return memberListDtos;
     }
 
     //회원 리스트 by username
     public Page<MemberListDto> findAllByUsername(String email, String search_word, Pageable pageable) throws InvalidPermissionException{
-        Page<MemberListDto> memberListDtos = Page.empty();
-        Page<Member> members;
         permissionCheck(email);
-
-        members = memberDataJpaRepository.findByNameContaining(search_word,pageable);
-        memberListDtos = members.map(member -> new MemberListDto(member.getId(),member.getEmail(),member.getName(),member.getPhone_number(),member.getMemberType()));
+        Page<MemberListDto> memberListDtos = memberRepository.findAllByUsername(search_word,pageable);
 
         return memberListDtos;
     }

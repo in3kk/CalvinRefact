@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public interface MemberDataJpaRepository extends JpaRepository<Member,Long> {
 
+    Page<Member> findAllBy(Pageable pageable);
     Optional<Member> findByEmailAndPwd(String email, String pwd);
 
     Long countByEmail(String email);
