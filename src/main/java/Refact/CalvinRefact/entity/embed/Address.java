@@ -16,4 +16,9 @@ public class Address {
 
     public Address() {
     }
+
+    @Override
+    public String toString(){
+        return this.address+" "+this.address_detail;
+    }
 }

@@ -96,7 +96,7 @@ public class BoardController {
             }
 
             int begin_page;
-            int page = pageable.getPageNumber();
+            int page = pageable.getPageNumber()+1;
             if (page % 10 == 0) {
                 begin_page = page - 9;
             } else {

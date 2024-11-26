@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RestController
+@Controller
 public class SubjectController {
     @Autowired
     SubjectService subjectService;
@@ -240,7 +241,7 @@ public class SubjectController {
                 }
                 int begin_page;
 
-                int page = pageable.getPageNumber();
+                int page = pageable.getPageNumber()+1;
                 if (page % 10 == 0) {
                     begin_page = page - 9;
                 } else {
@@ -347,7 +348,7 @@ public class SubjectController {
                     }
                 }
                 int begin_page;
-                int page = list.getNumber();
+                int page = list.getNumber()+1;
                 count = list.getTotalPages();
                 if (page % 10 == 0) {
                     begin_page = page - 9;

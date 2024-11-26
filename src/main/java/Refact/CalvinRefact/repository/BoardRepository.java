@@ -81,6 +81,7 @@ public class BoardRepository {
     }
 
     public Page<BoardListDto> findAll(Pageable pageable) {
+        QFile fileSub = new QFile("fileSub");
         List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
                         board.id.as("board_code"),
                         member.id.as("member_code"),
@@ -88,7 +89,12 @@ public class BoardRepository {
                         board.createdDate.as("created_date"),
                         member.name,
                         board.boardType.as("board_type"),
-                        board.files.get(0).id.as("board_thumbnail")
+                        ExpressionUtils.as(
+                        JPAExpressions.select(fileSub.save_name)
+                                    .from(fileSub)
+                                    .where(fileSub.board.eq(board))
+                                    .orderBy(fileSub.id.asc())
+                                    .limit(1),"board_thumbnail")
                         ))
                 .from(board)
                 .join(board.member, member)
@@ -99,7 +105,9 @@ public class BoardRepository {
 
         for (BoardListDto boardListDto : result) {
             if (boardListDto.getBoard_thumbnail().isEmpty()) {
-                boardListDto.setBoard_thumbnail("-1");
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+            }else{
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -109,6 +117,7 @@ public class BoardRepository {
     }
 
     public Page<BoardListDto> findAllByBoard_Type(Board_Type boardType, Pageable pageable) {
+        QFile fileSub = new QFile("fileSub");
         List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
                         board.id.as("board_code"),
                         member.id.as("member_code"),
@@ -116,7 +125,12 @@ public class BoardRepository {
                         board.createdDate.as("created_date"),
                         member.name,
                         board.boardType.as("board_type"),
-                        board.files.get(0).id.as("board_thumbnail")
+                        ExpressionUtils.as(
+                                JPAExpressions.select(fileSub.save_name)
+                                        .from(fileSub)
+                                        .where(fileSub.board.eq(board))
+                                        .orderBy(fileSub.id.asc())
+                                        .limit(1),"board_thumbnail")
                 ))
                 .from(board)
                 .join(board.member, member)
@@ -127,7 +141,9 @@ public class BoardRepository {
                 .fetch();
         for (BoardListDto boardListDto : result) {
             if (boardListDto.getBoard_thumbnail().isEmpty()) {
-                boardListDto.setBoard_thumbnail("-1");
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+            }else{
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -136,6 +152,7 @@ public class BoardRepository {
     }
 
     public Page<BoardListDto> findAllByTitle(String title, Pageable pageable) {
+        QFile fileSub = new QFile("fileSub");
         List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
                         board.id.as("board_code"),
                         member.id.as("member_code"),
@@ -143,7 +160,12 @@ public class BoardRepository {
                         board.createdDate.as("created_date"),
                         member.name,
                         board.boardType.as("board_type"),
-                        board.files.get(0).id.as("board_thumbnail")
+                        ExpressionUtils.as(
+                                JPAExpressions.select(fileSub.save_name)
+                                        .from(fileSub)
+                                        .where(fileSub.board.eq(board))
+                                        .orderBy(fileSub.id.asc())
+                                        .limit(1),"board_thumbnail")
                 ))
                 .from(board)
                 .join(board.member, member)
@@ -154,7 +176,9 @@ public class BoardRepository {
                 .fetch();
         for (BoardListDto boardListDto : result) {
             if (boardListDto.getBoard_thumbnail().isEmpty()) {
-                boardListDto.setBoard_thumbnail("-1");
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+            }else{
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -163,6 +187,7 @@ public class BoardRepository {
     }
 
     public Page<BoardListDto> findAllByBoard_TypeAndTitle(Board_Type boardType, String title, Pageable pageable) {
+        QFile fileSub = new QFile("fileSub");
         List<BoardListDto> result = queryFactory.select(Projections.fields(BoardListDto.class,
                         board.id.as("board_code"),
                         member.id.as("member_code"),
@@ -170,7 +195,12 @@ public class BoardRepository {
                         board.createdDate.as("created_date"),
                         member.name,
                         board.boardType.as("board_type"),
-                        board.files.get(0).id.as("board_thumbnail")
+                        ExpressionUtils.as(
+                                JPAExpressions.select(fileSub.save_name)
+                                        .from(fileSub)
+                                        .where(fileSub.board.eq(board))
+                                        .orderBy(fileSub.id.asc())
+                                        .limit(1),"board_thumbnail")
                 ))
                 .from(board)
                 .join(board.member, member)
@@ -181,7 +211,9 @@ public class BoardRepository {
                 .fetch();
         for (BoardListDto boardListDto : result) {
             if (boardListDto.getBoard_thumbnail().isEmpty()) {
-                boardListDto.setBoard_thumbnail("-1");
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+            }else{
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
