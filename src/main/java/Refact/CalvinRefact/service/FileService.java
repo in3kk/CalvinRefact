@@ -49,6 +49,7 @@ public class FileService {
                 multipartFile.getName()
                 , fileName
                 , multipartFile.getSize()
+                , YN.no
                 , board);
         fileDataJpaRepository.save(file);
         if (em.contains(file)) {
@@ -70,6 +71,7 @@ public class FileService {
                 multipartFile.getName()
                 , fileName
                 , multipartFile.getSize()
+                , YN.no
                 );
         fileDataJpaRepository.save(file);
 

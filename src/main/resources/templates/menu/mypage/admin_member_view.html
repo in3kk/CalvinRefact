@@ -58,14 +58,14 @@
               <th >권한</th>
               <td>
                 <select name="member_type">
-                  <option th:if="${member.member_type == 'member'}" value="m" selected>일반 멤버</option>
-                  <option th:if="${member.member_type != 'member'}" value="m">일반 멤버</option>
-                  <option th:if="${member.member_type == 'admin'}" value="a" selected>관리자</option>
-                  <option th:if="${member.member_type != 'admin'}" value="a">관리자</option>
-                  <option th:if="${member.member_type == 'professor'}" value="p" selected>교.강사</option>
-                  <option th:if="${member.member_type != 'professor'}" value="p">교.강사</option>
-                  <option th:if="${member.member_type == 'developer'}" value="d" selected>개발자</option>
-                  <option th:if="${member.member_type != 'developer'}" value="d">개발자</option>
+                  <option th:if="${memberType == 'member'}" value="m" selected>일반 멤버</option>
+                  <option th:if="${memberType != 'member'}" value="m">일반 멤버</option>
+                  <option th:if="${memberType == 'admin'}" value="a" selected>관리자</option>
+                  <option th:if="${memberType != 'admin'}" value="a">관리자</option>
+                  <option th:if="${memberType == 'professor'}" value="p" selected>교.강사</option>
+                  <option th:if="${memberType != 'professor'}" value="p">교.강사</option>
+                  <option th:if="${memberType == 'developer'}" value="d" selected>개발자</option>
+                  <option th:if="${memberType != 'developer'}" value="d">개발자</option>
                 </select>
               </td>
             </tr>
@@ -75,7 +75,7 @@
             </tr>
           </table>
       </div>
-        <input type="hidden" name="id" th:value="${member.id}">
+        <input type="hidden" name="member_code" th:value="${member.id}">
       <div class="btnArea">
         <input type="submit" class="btn btn-primary btn-sm"  value="권한 변경"/><input type="button" class="btn btn-primary btn-sm" value="회원 삭제" style="background:red;" th:onclick="'delete_member_btn('+${member.id}+')'"/>
       </div>

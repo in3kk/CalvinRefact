@@ -143,17 +143,18 @@ public class BoardController {
     }
     //게시글 작성 페이지
     @GetMapping("/menu/board/write")
-    public String BoardWrite(HttpSession httpSession){
+    public String BoardWrite(HttpSession httpSession, RedirectAttributes redirectAttributes){
         String result ="<script>window.location.href='/';</script>";
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
             try {
-                memberService.permissionCheck(httpSession.getAttribute("id").toString());
-                result = "<script>window.location.href='/menu/board/board_write';</script>";
+                memberService.permissionCheck(httpSession.getAttribute("member_id").toString());
+                result = "/menu/board/board_write";
             } catch (InvalidPermissionException e) {
-                result = "<script>alert('"+e.getMessage()+"');history.back();;</script>";
+                redirectAttributes.addFlashAttribute("msg", e.getMessage());
+                result = "redirect:/";
             }
         }else {
-            result="<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/member/login';</script>";
+            result="redirect:/member/login";
         }
         return result;
     }
@@ -190,7 +191,7 @@ public class BoardController {
 
         try {
             boardService.saveBoard(member_id, title, board_contents, Board_Type.valueOf(board_type), file_list);
-            result= "window.location.href='/menu/board';</script>";
+            result= "<script>window.location.href='/menu/board';</script>";
         } catch (Exception e) {
             result="<script>alert('게시글 작성에 실패했습니다.');window.location.href='/menu/board';</script>";
         }
