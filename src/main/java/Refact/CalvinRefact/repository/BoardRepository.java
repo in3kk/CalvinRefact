@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.io.File;
 import java.util.List;
 
 import static Refact.CalvinRefact.entity.QBoard.board;
@@ -57,7 +58,8 @@ public class BoardRepository {
                         member.name,
                         board.title,
                         board.contents,
-                        board.boardType
+                        board.boardType,
+                        board.createdDate.as("created_date")
                 ))
                 .from(board)
                 .join(board.member, member)
@@ -88,26 +90,25 @@ public class BoardRepository {
                         board.title,
                         board.createdDate.as("created_date"),
                         member.name,
-                        board.boardType.as("board_type"),
-                        ExpressionUtils.as(
-                        JPAExpressions.select(fileSub.save_name)
-                                    .from(fileSub)
-                                    .where(fileSub.board.eq(board))
-                                    .orderBy(fileSub.id.asc())
-                                    .limit(1),"board_thumbnail")
+                        board.boardType.as("board_type")
                         ))
                 .from(board)
                 .join(board.member, member)
-                .join(board.files,file)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         for (BoardListDto boardListDto : result) {
-            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+            List<FileSimpleDto> Files = queryFactory.select(Projections.fields(FileSimpleDto.class,
+                            file.save_name
+                    ))
+                    .from(file)
+                    .where(file.board.id.eq(boardListDto.getBoard_code()))
+                    .fetch();
+            if (Files.isEmpty()) {
                 boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -124,26 +125,25 @@ public class BoardRepository {
                         board.title,
                         board.createdDate.as("created_date"),
                         member.name,
-                        board.boardType.as("board_type"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(fileSub.save_name)
-                                        .from(fileSub)
-                                        .where(fileSub.board.eq(board))
-                                        .orderBy(fileSub.id.asc())
-                                        .limit(1),"board_thumbnail")
+                        board.boardType.as("board_type")
                 ))
                 .from(board)
                 .join(board.member, member)
-                .join(board.files,file)
                 .where(board.boardType.eq(boardType))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         for (BoardListDto boardListDto : result) {
-            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+            List<FileSimpleDto> Files = queryFactory.select(Projections.fields(FileSimpleDto.class,
+                            file.save_name
+                    ))
+                    .from(file)
+                    .where(file.board.id.eq(boardListDto.getBoard_code()))
+                    .fetch();
+            if (Files.isEmpty()) {
                 boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -159,26 +159,25 @@ public class BoardRepository {
                         board.title,
                         board.createdDate.as("created_date"),
                         member.name,
-                        board.boardType.as("board_type"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(fileSub.save_name)
-                                        .from(fileSub)
-                                        .where(fileSub.board.eq(board))
-                                        .orderBy(fileSub.id.asc())
-                                        .limit(1),"board_thumbnail")
+                        board.boardType.as("board_type")
                 ))
                 .from(board)
                 .join(board.member, member)
-                .join(board.files,file)
                 .where(board.title.like(title))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         for (BoardListDto boardListDto : result) {
-            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+            List<FileSimpleDto> Files = queryFactory.select(Projections.fields(FileSimpleDto.class,
+                            file.save_name
+                    ))
+                    .from(file)
+                    .where(file.board.id.eq(boardListDto.getBoard_code()))
+                    .fetch();
+            if (Files.isEmpty()) {
                 boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -194,26 +193,25 @@ public class BoardRepository {
                         board.title,
                         board.createdDate.as("created_date"),
                         member.name,
-                        board.boardType.as("board_type"),
-                        ExpressionUtils.as(
-                                JPAExpressions.select(fileSub.save_name)
-                                        .from(fileSub)
-                                        .where(fileSub.board.eq(board))
-                                        .orderBy(fileSub.id.asc())
-                                        .limit(1),"board_thumbnail")
+                        board.boardType.as("board_type")
                 ))
                 .from(board)
                 .join(board.member, member)
-                .join(board.files,file)
                 .where(board.boardType.eq(boardType).and(board.title.like(title)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
         for (BoardListDto boardListDto : result) {
-            if (boardListDto.getBoard_thumbnail().isEmpty()) {
+            List<FileSimpleDto> Files = queryFactory.select(Projections.fields(FileSimpleDto.class,
+                            file.save_name
+                    ))
+                    .from(file)
+                    .where(file.board.id.eq(boardListDto.getBoard_code()))
+                    .fetch();
+            if (Files.isEmpty()) {
                 boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+boardListDto.getBoard_thumbnail());
+                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)

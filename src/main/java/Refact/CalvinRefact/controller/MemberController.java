@@ -100,6 +100,13 @@ public class MemberController {
         model.addAttribute("member", memberLoginDto);
         httpSession.removeAttribute("member_id");
         httpSession.removeAttribute("member_type");
+        try {
+            String msg = model.getAttribute("msg").toString();
+            model.addAttribute("msg", msg);
+        } catch (Exception e) {
+
+        }
+
         return "member/login";
     }
 
@@ -149,9 +156,17 @@ public class MemberController {
                                    @RequestParam(value = "member_code") Long member_code,
                                    HttpSession httpSession){
         String result = "";
+        Member_Type memberType = Member_Type.member;
+        if (member_type.equals("a")) {
+            memberType = Member_Type.admin;
+        } else if (member_type.equals("p")) {
+            memberType = Member_Type.professor;
+        } else if (member_type.equals("d")) {
+            memberType = Member_Type.developer;
+        }
         if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
             try {
-                memberService.memberGrant(httpSession.getAttribute("member_id").toString(),member_code, httpSession.getAttribute("member_type").toString(), Member_Type.valueOf(member_type));
+                memberService.memberGrant(httpSession.getAttribute("member_id").toString(),member_code, httpSession.getAttribute("member_type").toString(), memberType);
                 result = "<script>alert('권한이 성공적으로 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-1);</script>";
 
             } catch (InvalidPermissionException e) {
@@ -310,6 +325,15 @@ public class MemberController {
                     MemberDetailDto memberDetailDto = memberService.findMemberDetail(httpSession.getAttribute("member_id").toString(), member_code);
                     model.addAttribute("member", memberDetailDto);
                     model.addAttribute("page_type", "9.3");
+                    String memberType = "member";
+                    if (memberDetailDto.getMember_type().equals(Member_Type.professor)) {
+                        memberType = "professor";
+                    } else if (memberDetailDto.getMember_type().equals(Member_Type.developer)) {
+                        memberType = "developer";
+                    } else if (memberDetailDto.getMember_type().equals(Member_Type.admin)) {
+                        memberType = "admin";
+                    }
+                    model.addAttribute("memberType",memberType);
                     result = "menu/mypage/admin_member_view";
                 } catch (InvalidPermissionException e) {
                     redirectAttributes.addFlashAttribute("msg", e.getMessage());

@@ -112,6 +112,7 @@ public class BoardService {
         Member member;
         if (memberOptional.isPresent()) {
             member = memberOptional.get();
+            //이미지 입력 추가
             Board board = new Board(member, title, contents, boardType);
             boardDataJpaRepository.save(board);
             for (MultipartFile file : files) {

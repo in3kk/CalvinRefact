@@ -73,7 +73,7 @@
             </div>
             <div class="btnArea">
                 <button type="button" class="btn btn-primary btn-sm" style="background:#082996"onclick="history_back()">이전</button>
-                <button th:if="${session.member_type == 'ai' or session.member_type == 'dd'}"class="btn btn-primary btn-sm" style="" th:onclick="'delete_open('+${boardView.board_code}+')'">게시글 삭제</button>
+                <button th:if="${session.member_type == 'ai' or session.member_type == 'dd'}"class="btn btn-primary btn-sm" style="" th:onclick="'delete_open('+${boardView.board_id}+')'">게시글 삭제</button>
             </div>
             <script>
                 function delete_open(board_code){
