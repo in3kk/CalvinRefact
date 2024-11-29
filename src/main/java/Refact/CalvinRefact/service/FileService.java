@@ -35,27 +35,25 @@ public class FileService {
 
     //파일 저장
     @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
-    public boolean saveFile(Board board, MultipartFile multipartFile) throws Exception {
-        boolean result = false;
+    public String saveFile(Board board, MultipartFile multipartFile) throws Exception {
+
 
         String path = "F:\\CalvinUploadFiles\\";//로컬
 //        String path = "/iceadmin/CalvinUploadFile/"; //서버
         //uuid 생성
         UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "_" + multipartFile.getName();
+        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
         File saveFile = new File(path, fileName);
         multipartFile.transferTo(saveFile);
         Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
-                multipartFile.getName()
+                multipartFile.getOriginalFilename()
                 , fileName
                 , multipartFile.getSize()
                 , YN.no
                 , board);
         fileDataJpaRepository.save(file);
-        if (em.contains(file)) {
-            result = true;
-        }
-        return result;
+
+        return fileName;
     }
     @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
     public Refact.CalvinRefact.entity.File saveFile(MultipartFile multipartFile) throws Exception {
@@ -90,6 +88,7 @@ public class FileService {
             Files.delete(filePath);
             file.setDeleted_date(LocalDateTime.now());
             file.setDelete_yn(YN.yes);
+            file.setBoard(null);
             em.flush();
         }
     }

@@ -52,10 +52,10 @@ public class MemberRepository {
                         member.memberType.as("member_type")
                 ))
                 .from(member)
-                .where(member.email.eq(email))
+                .where(member.email.contains(email))
                 .fetch();
         JPAQuery<Member> countQuery = queryFactory.select(member)
-                .from(member).where(member.email.eq(email));
+                .from(member).where(member.email.contains(email));
         return PageableExecutionUtils.getPage(result,pageable,()->countQuery.fetch().size());
     }
 
@@ -68,10 +68,10 @@ public class MemberRepository {
                         member.memberType.as("member_type")
                 ))
                 .from(member)
-                .where(member.name.eq(name))
+                .where(member.name.contains(name))
                 .fetch();
         JPAQuery<Member> countQuery = queryFactory.select(member)
-                .from(member).where(member.name.eq(name));
+                .from(member).where(member.name.contains(name));
         return PageableExecutionUtils.getPage(result,pageable,()->countQuery.fetch().size());
     }
 }
