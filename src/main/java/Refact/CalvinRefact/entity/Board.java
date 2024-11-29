@@ -4,6 +4,7 @@ import Refact.CalvinRefact.entity.baseEntity.BaseEntity;
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * board_code -> board_id
  * writed_date -> createdDate
  */
-@Entity @Getter
+@Entity @Getter @Setter
 public class Board extends BaseEntity {
 
     @Id @GeneratedValue

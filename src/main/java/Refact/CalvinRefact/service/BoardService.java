@@ -92,10 +92,13 @@ public class BoardService {
 
     public BoardDetailDto findBoardDetailById(Long id) {
         BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(id);
-        for (int x = 0; x < 5; x++) {
+        for (int x = 0; x < boardDetailDto.getFiles().size(); x++) {
             if (boardDetailDto.getFiles().get(x) == null) {
                 boardDetailDto.getFiles().add(new FileSimpleDto("-1"));
             }
+        }
+        for (int x = boardDetailDto.getFiles().size(); x < 5; x++) {
+            boardDetailDto.getFiles().add(new FileSimpleDto("-1"));
         }
         boardDetailDto.setThumbnail(boardDetailDto.getFiles().get(0).getSave_name());
 
@@ -114,10 +117,16 @@ public class BoardService {
             member = memberOptional.get();
             //이미지 입력 추가
             Board board = new Board(member, title, contents, boardType);
-            boardDataJpaRepository.save(board);
+            int current_code = 1;
             for (MultipartFile file : files) {
-                fileService.saveFile(board, file);
+                if (!file.isEmpty()) {
+                    String fileName = fileService.saveFile(board, file);
+                    contents = contents.replace("&lt;&lt;&lt;"+current_code+"&gt;&gt;&gt;","<img src=\"/imgPath/"+fileName+"\" width=\"100%\" height=\"auto\"/>");
+                    current_code++;
+                }
             }
+            board.setContents(contents);
+            boardDataJpaRepository.save(board);
         }
     }
 

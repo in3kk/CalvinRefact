@@ -131,7 +131,7 @@ public class SubjectRepository {
                         subject.subject_stat
                 ))
                 .from(subject)
-                .where(subject.subject_name.like(search_word))
+                .where(subject.subject_name.contains(search_word))
                 .orderBy(subject.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -139,7 +139,7 @@ public class SubjectRepository {
 
         JPAQuery<Subject> countQuery = queryFactory.select(subject)
                 .from(subject)
-                .where(subject.subject_name.like(search_word));
+                .where(subject.subject_name.contains(search_word));
 
         return PageableExecutionUtils.getPage(queryResult,pageable,() -> countQuery.fetch().size());
     }

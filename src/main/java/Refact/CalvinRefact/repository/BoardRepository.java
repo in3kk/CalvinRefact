@@ -106,9 +106,9 @@ public class BoardRepository {
                     .where(file.board.id.eq(boardListDto.getBoard_code()))
                     .fetch();
             if (Files.isEmpty()) {
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+                boardListDto.setBoard_thumbnail("/imgPath/white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
+                boardListDto.setBoard_thumbnail("/imgPath/"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -141,9 +141,9 @@ public class BoardRepository {
                     .where(file.board.id.eq(boardListDto.getBoard_code()))
                     .fetch();
             if (Files.isEmpty()) {
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+                boardListDto.setBoard_thumbnail("/imgPath/white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
+                boardListDto.setBoard_thumbnail("/imgPath/"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
@@ -163,7 +163,7 @@ public class BoardRepository {
                 ))
                 .from(board)
                 .join(board.member, member)
-                .where(board.title.like(title))
+                .where(board.title.contains(title))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -175,13 +175,13 @@ public class BoardRepository {
                     .where(file.board.id.eq(boardListDto.getBoard_code()))
                     .fetch();
             if (Files.isEmpty()) {
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+                boardListDto.setBoard_thumbnail("/imgPath/white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
+                boardListDto.setBoard_thumbnail("/imgPath/"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
-                .from(board).where(board.title.like(title));
+                .from(board).where(board.title.contains(title));
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
     }
 
@@ -197,7 +197,7 @@ public class BoardRepository {
                 ))
                 .from(board)
                 .join(board.member, member)
-                .where(board.boardType.eq(boardType).and(board.title.like(title)))
+                .where(board.boardType.eq(boardType).and(board.title.contains(title)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -209,13 +209,13 @@ public class BoardRepository {
                     .where(file.board.id.eq(boardListDto.getBoard_code()))
                     .fetch();
             if (Files.isEmpty()) {
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\white.png");
+                boardListDto.setBoard_thumbnail("/imgPath/white.png");
             }else{
-                boardListDto.setBoard_thumbnail("F:\\CalvinUploadFiles\\"+Files.get(0).getSave_name());
+                boardListDto.setBoard_thumbnail("/imgPath/"+Files.get(0).getSave_name());
             }
         }
         JPAQuery<Board> countQuery = queryFactory.select(board)
-                .from(board).where(board.boardType.eq(boardType).and(board.title.like(title)));
+                .from(board).where(board.boardType.eq(boardType).and(board.title.contains(title)));
         return PageableExecutionUtils.getPage(result, pageable, () -> countQuery.fetch().size());
     }
 }
