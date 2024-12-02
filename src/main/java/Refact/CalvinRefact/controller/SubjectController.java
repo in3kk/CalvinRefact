@@ -463,11 +463,13 @@ public class SubjectController {
                 } catch (InvalidPermissionException e) {
                     result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
                 } catch (Exception e) {
+                    System.out.println("컨트롤러 오류 2 : "+ e.getMessage());
                     result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                 }
 
             }
         } catch (Exception e) {
+            System.out.println("컨트롤러 오류1");
             result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
         }
         return result;

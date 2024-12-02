@@ -3,6 +3,7 @@ package Refact.CalvinRefact.service;
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.embed.Address;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.exception.InvalidMemberDataException;
 import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
 import Refact.CalvinRefact.repository.MemberRepository;
@@ -68,7 +69,7 @@ public class MemberService {
 
     //회원가입 유효성 검사 메소드
     @Transactional
-    public boolean saveMember(JoinMemberDto joinMemberDto){
+    public boolean saveMember(JoinMemberDto joinMemberDto) throws InvalidMemberDataException{
 
         String id1 = joinMemberDto.getId();
         String id2 = joinMemberDto.getId2();
@@ -99,12 +100,26 @@ public class MemberService {
 
         boolean result = false;
         if (result1 && result2 && result3 && result4 && result6 && result7 && result8) {
-            Address address = new Address(address1,address2);
-            Member member = new Member(id1+"@"+id2, pwd, name, Member_Type.member, birth, pnum, address);
+            Address address = new Address(address1, address2);
+            Member member = new Member(id1 + "@" + id2, pwd, name, Member_Type.member, birth, pnum, address);
             memberDataJpaRepository.save(member);
-            if(em.contains(member)){
+            if (em.contains(member)) {
                 result = true;
             }
+        } else {
+            String message = "";
+            if (!result1||!result2) {
+                message = "올바르지 않은 이메일 형식입니다.";
+            } else if (!result3) {
+                message = "올바르지 않은 비밀번호 형식입니다.";
+            } else if (!result4) {
+                message = "올바르지 않은 이름 형식입니다.";
+            } else if (!result6) {
+                message = "올바르지 않은 전화번호 형식입니다.";
+            } else if (!result7||!result8) {
+                message = "올바르지 않은 주소 형식입니다.";
+            }
+            throw new InvalidMemberDataException(message);
         }
 
         return result;
