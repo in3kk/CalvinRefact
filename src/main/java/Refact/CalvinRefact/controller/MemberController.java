@@ -3,6 +3,7 @@ package Refact.CalvinRefact.controller;
 import Refact.CalvinRefact.controller.form.MemberJoinForm;
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.entityEnum.Member_Type;
+import Refact.CalvinRefact.exception.InvalidMemberDataException;
 import Refact.CalvinRefact.exception.InvalidPermissionException;
 import Refact.CalvinRefact.repository.dto.member.*;
 import Refact.CalvinRefact.service.MemberService;
@@ -67,8 +68,12 @@ public class MemberController {
         memberDto.setPhone_number(joinForm.getPhone_number());
         memberDto.setAddress(joinForm.getAddress());
         memberDto.setAddress2(joinForm.getAddress2());
-
-        boolean joinResult = memberService.saveMember(memberDto);
+        boolean joinResult = false;
+        try {
+            joinResult = memberService.saveMember(memberDto);
+        } catch (InvalidMemberDataException e) {
+            
+        }
         if (joinResult) {
             return "redirect:/";
         } else {
@@ -81,14 +86,19 @@ public class MemberController {
     @ResponseBody
     public String memberJoin(JoinMemberDto member, Model model) {
         String result = "";
-
-        boolean joinResult = memberService.saveMember(member);
+        String msg = "";
+        boolean joinResult = false;
+        try {
+            joinResult = memberService.saveMember(member);
+        } catch (InvalidMemberDataException e) {
+            msg = e.getMessage();
+        }
 
         if (joinResult) {
             result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='/member/login'</script>";
 //            result = "<script>alert('회원가입이 완료되었습니다.');window.location.href='http://localhost:8080/member/login'</script>";
         } else {
-            result = "<script>alert('회원가입에 실패했습니다.');history.back();</script>";
+            result = "<script>alert('회원가입에 실패했습니다. "+msg+"');history.back();</script>";
         }
         return result;
     }

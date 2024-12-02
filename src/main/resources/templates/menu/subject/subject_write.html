@@ -100,8 +100,8 @@
                             <td>
                                 <select name="member_code" th:each="pro : ${professor}" style="width:60%;">
                                     <option th:if="${subject.member_code == null}" value="0" style="display:none;" selected >교강사를 선택해 주세요</option>
-                                    <option th:if="${pro.member_code == subject.member_code}" th:value="${pro.member_code}"th:text="${pro.name}+'/'+${pro.id}" selected></option>
-                                    <option th:if="${pro.member_code != subject.member_code}" th:value="${pro.member_code}"th:text="${pro.name}+'/'+${pro.id}" ></option>
+                                    <option th:if="${pro.member_code == subject.member_code}" th:value="${pro.member_code}"th:text="${pro.name}+'/'+${pro.email}" selected></option>
+                                    <option th:if="${pro.member_code != subject.member_code}" th:value="${pro.member_code}"th:text="${pro.name}+'/'+${pro.email}" ></option>
                                 </select>
                             </td>
                         </tr>
