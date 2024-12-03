@@ -18,8 +18,8 @@ public class FileController {
         return fileService.FileDownload(save_name,original_name);
     }
 
-    @GetMapping("/download/document/{original_name}")
-    public ResponseEntity DownloadDoc(@PathVariable String original_name){
-        return fileService.FileDownload(original_name);
+    @GetMapping("/download/document/{save_name}/{original_name}")
+    public ResponseEntity DownloadDoc(@PathVariable String save_name,@PathVariable String original_name){
+        return fileService.DocumentFileDownload(save_name,original_name);
     }
 }
