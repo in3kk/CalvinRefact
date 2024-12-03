@@ -98,6 +98,7 @@ public class SubjectRepository {
                 ))
                 .from(subject)
                 .join(subject.member, member)
+                .where(subject.id.eq(id))
                 .fetchOne();
     }
 

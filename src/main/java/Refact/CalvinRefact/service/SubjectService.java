@@ -45,6 +45,8 @@ public class SubjectService {
     @Autowired
     FileService fileService;
     @Autowired
+    FileRepository fileRepository;
+    @Autowired
     EntityManager em;
 
     public Page<SubjectListDto> findSubjectList(Pageable pageable, String email) throws InvalidPermissionException{
@@ -98,7 +100,8 @@ public class SubjectService {
     //강의 디테일
     public SubjectDetailDto findSubjectDetail(Long id) {
         SubjectDetailDto subjectDetailDto = subjectRepository.findSubjectDetailById(id);
-        subjectDetailDto.setFileSimpleDto(fileDataJpaRepository.findSimpleFileByBoardId(subjectDetailDto.getSubject_code()));
+        subjectDetailDto.setFileSimpleDto(fileRepository.findFileSimpleById(subjectDetailDto.getSubject_code()));
+        System.out.println("파일 : "+subjectDetailDto.getFileSimpleDto().getOriginal_name());
         return subjectDetailDto;
     }
 
@@ -218,7 +221,7 @@ public class SubjectService {
             member = memberOptional.get();
         }
         System.out.println("여기2");
-        if (subject_code != -1) {
+        if (subject_code == -1) {
             subject = new Subject(member,fee,subject_name,subject_field,Subject_Stat.임시,lecture_time,period,personnel,subject_type);
             System.out.println("여기3");
         }else{

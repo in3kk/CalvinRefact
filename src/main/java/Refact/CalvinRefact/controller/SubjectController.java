@@ -125,60 +125,60 @@ public class SubjectController {
     @GetMapping({"/menu/subject/apply", "/menu/liberal_arts/apply","/menu/certificate/apply","/menu/language/apply"})
     public String ApplyPage(@RequestParam(value = "id", required = false, defaultValue = "-1") Long id, Model model){
         SubjectDetailDto subject = subjectService.findSubjectDetail(id);
-        FileSimpleDto fileSimpleDto;
+        FileSimpleDto fileSimpleDto = new FileSimpleDto();
         if(subject.getFileSimpleDto() != null){
             fileSimpleDto = subject.getFileSimpleDto();
             model.addAttribute("file", fileSimpleDto);
         }
         model.addAttribute("subject",subject);
         String result = "";
-        if(subject.getSubject_type().equals("학점은행제")){
+        if(subject.getSubject_type().equals(Subject_Type.학점은행제)){
             model.addAttribute("page_type","2.2");
             result = "menu/subject/apply";
-        }else if(subject.getSubject_type().equals("일반교양")){
+        }else if(subject.getSubject_type().equals(Subject_Type.일반교양)){
             model.addAttribute("page_type","3.1");
             result = "menu/liberal_arts/apply";
-        }else if(subject.getSubject_type().equals("자격증/취창업")){
+        }else if(subject.getSubject_type().equals(Subject_Type.자격증취창업)){
             result = "menu/certificate/apply";
-            if(subject.getSubject_field().equals("반려동물")){
+            if(subject.getSubject_field().equals(Subject_Field.반려동물)){
                 model.addAttribute("page_type","4.1");
-            }else if(subject.getSubject_field().equals("사회복지")){
+            }else if(subject.getSubject_field().equals(Subject_Field.사회복지)){
                 model.addAttribute("page_type","4.2");
-            }else if(subject.getSubject_field().equals("실용음악")){
+            }else if(subject.getSubject_field().equals(Subject_Field.실용음악)){
                 model.addAttribute("page_type","4.3");
-            }else if(subject.getSubject_field().equals("자격증")){
+            }else if(subject.getSubject_field().equals(Subject_Field.자격증)){
                 model.addAttribute("page_type","4.4");
-            }else if(subject.getSubject_field().equals("취창업")){
+            }else if(subject.getSubject_field().equals(Subject_Field.취창업)){
                 model.addAttribute("page_type","4.5");
             }
-        }else if(subject.getSubject_type().equals("특별교육과정")){
+        }else if(subject.getSubject_type().equals(Subject_Type.특별교육과정)){
             result = "menu/special/apply";
-            if(subject.getSubject_field().equals("용인")){
+            if(subject.getSubject_field().equals(Subject_Field.용인)){
                 model.addAttribute("page_type","5.1");
-            }else if(subject.getSubject_field().equals("서현정치경제")){
+            }else if(subject.getSubject_field().equals(Subject_Field.서현정치경제)){
                 model.addAttribute("page_type","5.2");
-            }else if(subject.getSubject_field().equals("경기교육")){
+            }else if(subject.getSubject_field().equals(Subject_Field.경기교육)){
                 model.addAttribute("page_type","5.3");
-            }else if(subject.getSubject_field().equals("레이번스축구아카데미")){
+            }else if(subject.getSubject_field().equals(Subject_Field.레이번스축구아카데미)){
                 model.addAttribute("page_type","5.5");
-            }else if(subject.getSubject_field().equals("연예")){
+            }else if(subject.getSubject_field().equals(Subject_Field.연예)){
                 model.addAttribute("page_type","5.6");
-            } else if (subject.getSubject_field().equals("미디어")) {
+            } else if (subject.getSubject_field().equals(Subject_Field.미디어)) {
                 model.addAttribute("page_type","5.7");
             }
-        }else if(subject.getSubject_type().equals("언어")){
+        }else if(subject.getSubject_type().equals(Subject_Type.언어)){
             result = "menu/language/apply";
-            if(subject.getSubject_field().equals("히브리어")){
+            if(subject.getSubject_field().equals(Subject_Field.히브리어)){
                 model.addAttribute("page_type","6.1");
-            }else if(subject.getSubject_field().equals("헬라어")){
+            }else if(subject.getSubject_field().equals(Subject_Field.헬라어)){
                 model.addAttribute("page_type","6.2");
-            }else if(subject.getSubject_field().equals("라틴어")){
+            }else if(subject.getSubject_field().equals(Subject_Field.라틴어)){
                 model.addAttribute("page_type","6.3");
-            }else if(subject.getSubject_field().equals("독일어")){
+            }else if(subject.getSubject_field().equals(Subject_Field.독일어)){
                 model.addAttribute("page_type","6.4");
-            }else if(subject.getSubject_field().equals("한국어")){
+            }else if(subject.getSubject_field().equals(Subject_Field.한국어)){
                 model.addAttribute("page_type","6.5");
-            } else if (subject.getSubject_field().equals("영어")) {
+            } else if (subject.getSubject_field().equals(Subject_Field.영어)) {
                 model.addAttribute("page_type","6.6");
             }
         }

@@ -58,15 +58,15 @@ public class FileService {
     @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
     public Refact.CalvinRefact.entity.File saveFile(MultipartFile multipartFile) throws Exception {
 
-        String path = "F:\\CalvinUploadFiles\\";//로컬
+        String path = "F:\\DocumentFile\\refact\\";//로컬
 //        String path = "/iceadmin/CalvinUploadFile/"; //서버
         //uuid 생성
         UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "_" + multipartFile.getName();
+        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
         File saveFile = new File(path, fileName);
         multipartFile.transferTo(saveFile);
         Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
-                multipartFile.getName()
+                multipartFile.getOriginalFilename()
                 , fileName
                 , multipartFile.getSize()
                 , YN.no
@@ -110,8 +110,8 @@ public class FileService {
                     .body("파일 다운로드 중 오류가 발생했습니다.");
         }
     }
-    public ResponseEntity FileDownload(String original_name){
-        String path = "F:\\DocumentFile\\"+original_name; //로컬
+    public ResponseEntity DocumentFileDownload(String save_name,String original_name){
+        String path = "F:\\DocumentFile\\refact\\"+save_name; //로컬
 //        String path = "/iceadmin/DocumentFile/"+original_name;//서버
         try{
             UrlResource urlResource = new UrlResource("file:"+path);

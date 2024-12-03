@@ -70,6 +70,7 @@
                         </td>
                         <td th:text="${subject.fee}+'원'"></td>
                         <td th:text="${subject.subject_type}"></td>
+                        <td th:if="${subject.subject_stat == 0}" style="background:green;">임시</td>
                         <td th:if="${subject.subject_stat == 1}" style="background:orange;">접수중</td>
                         <td th:if="${subject.subject_stat == 2}" style="background:red;color:white;">마감</td>
                         <td th:if="${subject.subject_stat == 3}" style="background:gray;color:white;">폐강</td>
