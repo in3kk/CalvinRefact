@@ -132,7 +132,7 @@ public class MemberController {
 //            result = "<script>window.location.href='http://localhost:8080/'</script>";//
             result = "<script>window.location.href='/'</script>";//서버
             Member_Type member_type = member.get().getMemberType();
-            System.out.println(member_type.toString());
+//            System.out.println(member_type.toString());
             if(member_type.equals(Member_Type.member)){
                 httpSession.setAttribute("member_type", "mb");
             }else if(member_type.equals(Member_Type.developer)){
