@@ -57,9 +57,10 @@
                         <td th:text="${subject.lecture_time}"></td>
                         <td th:text="${subject.period}+'주'"></td>
                         <td th:text="${subject.fee}+'원'"></td>
-                        <td th:if="${subject.subject_stat == 1}">접수중</td>
-                        <td th:if="${subject.subject_stat == 2}">마감</td>
-                        <td th:if="${subject.subject_stat == 3}">폐강</td>
+                        <td th:if="${subject.subject_stat.name() == '임시'}" style="background:lightgreen;">임시</td>
+                        <td th:if="${subject.subject_stat.name() == '접수중'}" style="background:orange;">접수중</td>
+                        <td th:if="${subject.subject_stat.name() == '마감'}" style="background:red;color:white;">마감</td>
+                        <td th:if="${subject.subject_stat.name() == '폐강'}" style="background:gray;color:white;">폐강</td>
                     </tr>
                 </table>
             </div>

@@ -54,12 +54,13 @@
                             <a th:href="@{/menu/subject/apply(id = ${subject.subject_id})}" th:text="${subject.subject_name}"></a>
                         </td>
                         <td th:text="${subject.fee}+'원'"></td>
-                        <td th:if="${subject.pay_stat == 'y'}" style="background:lightblue;">납부완료</td>
-                        <td th:if="${subject.pay_stat == 'n'}" style="background:yellow;">납부전</td>
-                        <td th:if="${subject.pay_stat == 'r'}" style="background:lightgray;">환불</td>
-                        <td th:if="${subject.subject_stat == 1}" style="background:orange;">접수중</td>
-                        <td th:if="${subject.subject_stat == 2}" style="background:red;color:white;">마감</td>
-                        <td th:if="${subject.subject_stat == 3}" style="background:gray;color:white;">폐강</td>
+                        <td th:if="${subject.pay_stat.name() == 'y'}" style="background:lightblue;">납부완료</td>
+                        <td th:if="${subject.pay_stat.name() == 'n'}" style="background:yellow;">납부전</td>
+                        <td th:if="${subject.pay_stat.name() == 'r'}" style="background:lightgray;">환불</td>
+                        <td th:if="${subject.subject_stat.name() == '임시'}" style="background:lightgreen;">임시</td>
+                        <td th:if="${subject.subject_stat.name() == '접수중'}" style="background:orange;">접수중</td>
+                        <td th:if="${subject.subject_stat.name() == '마감'}" style="background:red;color:white;">마감</td>
+                        <td th:if="${subject.subject_stat.name() == '폐강'}" style="background:gray;color:white;">폐강</td>
                     </tr>
                 </table>
             </div>

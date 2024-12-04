@@ -38,21 +38,21 @@ public class SubjectController {
     @Autowired
     MemberService memberService;
 
-    @GetMapping("/menu/subject/list") //강의 리스트 페이지
-    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-                              @RequestParam(value = "type") String type, Model model){
-        List<SubjectListDto> subject_list;
-        if(field.equals("")){
-            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type));
-        }else{
-            System.out.println("result"+field);
-            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field));
-        }
-        String result = "menu/subject/subject_list";
-        model.addAttribute("subject_list", subject_list);
-        model.addAttribute("page_type","2.2");
-        return  result;
-    }
+//    @GetMapping("/menu/subject/list") //강의 리스트 페이지
+//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
+//                              @RequestParam(value = "type") String type, Model model){
+//        List<SubjectListDto> subject_list;
+//        if(field.equals("")){
+//            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type));
+//        }else{
+////            System.out.println("result"+field);
+//            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field));
+//        }
+//        String result = "menu/subject/subject_list";
+//        model.addAttribute("subject_list", subject_list);
+//        model.addAttribute("page_type","2.2");
+//        return  result;
+//    }
     //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
     @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
@@ -463,13 +463,13 @@ public class SubjectController {
                 } catch (InvalidPermissionException e) {
                     result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
                 } catch (Exception e) {
-                    System.out.println("컨트롤러 오류 2 : "+ e.getMessage());
+//                    System.out.println("컨트롤러 오류 2 : "+ e.getMessage());
                     result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                 }
 
             }
         } catch (Exception e) {
-            System.out.println("컨트롤러 오류1");
+//            System.out.println("컨트롤러 오류1");
             result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
         }
         return result;
