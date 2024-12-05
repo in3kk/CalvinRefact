@@ -261,4 +261,30 @@ public class SubjectService {
             subjectDataJpaRepository.deleteById(id);
         }
     }
+
+    public boolean applyCheck(String email, Long subject_id) {
+        boolean token = true;
+        Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
+        Member member = new Member();
+        if (memberOptional.isPresent()) {
+            member = memberOptional.get();
+        }else {
+            token = false;
+        }
+        Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(subject_id);
+        Subject subject = new Subject();
+        if (subjectOptional.isPresent()) {
+            subject = subjectOptional.get();
+        } else {
+            token = false;
+        }
+        Long findResult;
+        if (token) {
+            findResult = member_subjectDataJpaRepository.countFirstByMemberAndSubject(member,subject);
+            if (findResult <= 0) {
+                token = false;
+            }
+        }
+        return token;
+    }
 }

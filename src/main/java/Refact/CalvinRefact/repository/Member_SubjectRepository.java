@@ -139,8 +139,7 @@ public class Member_SubjectRepository {
         Optional<Member_Subject> member_subjectOptional = member_subjectDataJpaRepository.findById(apply_id);
         if (member_subjectOptional.isPresent()) {
             Member_Subject member_subject = member_subjectOptional.get();
-
-            member_subjectDataJpaRepository.save(new Member_Subject(member_subject.getMember(),member_subject.getSubject(),member_subject.getApp_date(),pay_stat));
+            member_subjectDataJpaRepository.save(new Member_Subject(member_subject.getId(),member_subject.getMember(),member_subject.getSubject(),member_subject.getApp_date(),pay_stat));
             result = true;
         }
         return result;
