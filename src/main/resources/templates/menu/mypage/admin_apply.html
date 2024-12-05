@@ -97,9 +97,9 @@
             <td th:text="${apply.subject_field}"></td><!--과정 -->
             <td th:text="${apply.name}"></td><!--신청자명 -->
             <td th:text="${apply.email}"></td><!--아이디-->
-            <td th:if="${apply.pay_stat == 'y'}">납부 완료</td><!--납부 여부-->
-            <td th:if="${apply.pay_stat == 'n'}">납부전</td><!--납부 여부-->
-            <td th:if="${apply.pay_stat == 'r'}">환불</td><!--납부 여부-->
+            <td th:if="${apply.pay_stat.name() == 'y'}" style="background:lightblue;">납부 완료</td><!--납부 여부-->
+            <td th:if="${apply.pay_stat.name() == 'n'}" style="background:yellow;">납부전</td><!--납부 여부-->
+            <td th:if="${apply.pay_stat.name() == 'r'}" style="background:lightgray;">환불</td><!--납부 여부-->
           </tr>
           </tbody>
         </table>

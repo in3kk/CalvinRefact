@@ -123,13 +123,15 @@ public class SubjectController {
 
     //수강신청 페이지
     @GetMapping({"/menu/subject/apply", "/menu/liberal_arts/apply","/menu/certificate/apply","/menu/language/apply"})
-    public String ApplyPage(@RequestParam(value = "id", required = false, defaultValue = "-1") Long id, Model model){
+    public String ApplyPage(@RequestParam(value = "id", required = false, defaultValue = "-1") Long id, Model model,HttpSession httpSession){
         SubjectDetailDto subject = subjectService.findSubjectDetail(id);
         FileSimpleDto fileSimpleDto = new FileSimpleDto();
         if(subject.getFileSimpleDto() != null){
             fileSimpleDto = subject.getFileSimpleDto();
             model.addAttribute("file", fileSimpleDto);
         }
+        boolean token = subjectService.applyCheck(httpSession.getAttribute("member_id").toString(), id);
+        model.addAttribute("applyCheck", token);
         model.addAttribute("subject",subject);
         String result = "";
         if(subject.getSubject_type().equals(Subject_Type.학점은행제)){
@@ -168,19 +170,20 @@ public class SubjectController {
             }
         }else if(subject.getSubject_type().equals(Subject_Type.언어)){
             result = "menu/language/apply";
-            if(subject.getSubject_field().equals(Subject_Field.히브리어)){
+            if(subject.getSubject_field().equals(Subject_Field.성경고전어)){
                 model.addAttribute("page_type","6.1");
-            }else if(subject.getSubject_field().equals(Subject_Field.헬라어)){
+            }else if(subject.getSubject_field().equals(Subject_Field.제2외국어)){
                 model.addAttribute("page_type","6.2");
-            }else if(subject.getSubject_field().equals(Subject_Field.라틴어)){
-                model.addAttribute("page_type","6.3");
-            }else if(subject.getSubject_field().equals(Subject_Field.독일어)){
-                model.addAttribute("page_type","6.4");
             }else if(subject.getSubject_field().equals(Subject_Field.한국어)){
-                model.addAttribute("page_type","6.5");
-            } else if (subject.getSubject_field().equals(Subject_Field.영어)) {
-                model.addAttribute("page_type","6.6");
+                model.addAttribute("page_type","6.3");
             }
+//            else if(subject.getSubject_field().equals(Subject_Field.독일어)){
+//                model.addAttribute("page_type","6.4");
+//            }else if(subject.getSubject_field().equals(Subject_Field.한국어)){
+//                model.addAttribute("page_type","6.5");
+//            } else if (subject.getSubject_field().equals(Subject_Field.영어)) {
+//                model.addAttribute("page_type","6.6");
+//            }
         }
         return result;
     }
