@@ -75,7 +75,7 @@ public class SubjectController {
         }else if(type.equals("일반교양")){
             result = "menu/liberal_arts/subject_list";
             model.addAttribute("page_type","3.1");
-        }else if(type.equals("자격증/취창업")){
+        }else if(type.equals("자격증취창업")){
             result = "menu/certificate/subject_list";
             if(field.equals("전문자격증")){
                 model.addAttribute("page_type","4.1");
@@ -142,16 +142,14 @@ public class SubjectController {
             result = "menu/liberal_arts/apply";
         }else if(subject.getSubject_type().equals(Subject_Type.자격증취창업)){
             result = "menu/certificate/apply";
-            if(subject.getSubject_field().equals(Subject_Field.반려동물)){
+            if(subject.getSubject_field().equals(Subject_Field.전문자격증)){
                 model.addAttribute("page_type","4.1");
-            }else if(subject.getSubject_field().equals(Subject_Field.사회복지)){
+            }else if(subject.getSubject_field().equals(Subject_Field.민간자격증)){
                 model.addAttribute("page_type","4.2");
-            }else if(subject.getSubject_field().equals(Subject_Field.실용음악)){
+            }else if(subject.getSubject_field().equals(Subject_Field.기술자격증)){
                 model.addAttribute("page_type","4.3");
-            }else if(subject.getSubject_field().equals(Subject_Field.자격증)){
-                model.addAttribute("page_type","4.4");
             }else if(subject.getSubject_field().equals(Subject_Field.취창업)){
-                model.addAttribute("page_type","4.5");
+                model.addAttribute("page_type","4.4");
             }
         }else if(subject.getSubject_type().equals(Subject_Type.특별교육과정)){
             result = "menu/special/apply";
