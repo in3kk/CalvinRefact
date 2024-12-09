@@ -122,8 +122,8 @@ public class BoardService {
                 if (!file.isEmpty()) {
                     String fileName = fileService.saveFile(board, file);
                     contents = contents.replace("&lt;&lt;&lt;"+current_code+"&gt;&gt;&gt;","<img src=\"/imgPath/"+fileName+"\" width=\"100%\" height=\"auto\"/>");
-                    current_code++;
                 }
+                current_code++;
             }
             board.setContents(contents);
             boardDataJpaRepository.save(board);
