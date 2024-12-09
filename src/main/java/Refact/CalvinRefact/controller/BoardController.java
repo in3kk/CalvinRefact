@@ -11,6 +11,7 @@ import Refact.CalvinRefact.service.CalvinService;
 import Refact.CalvinRefact.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ssl.SslProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -188,6 +189,7 @@ public class BoardController {
         if(file5 != null){
             file_list.add(file5);
         }
+
 
         try {
             boardService.saveBoard(member_id, title, board_contents, Board_Type.valueOf(board_type), file_list);
