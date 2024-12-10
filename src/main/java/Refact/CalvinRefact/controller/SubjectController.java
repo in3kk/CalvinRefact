@@ -69,52 +69,62 @@ public class SubjectController {
         }
         String result="";
         model.addAttribute("subject_list", subject_list);
-        if(type.equals("학점은행제")){
+        if(type.equals(Subject_Type.학점은행제.toString())){
             result = "menu/subject/subject_list";
             model.addAttribute("page_type","2.2");
-        }else if(type.equals("일반교양")){
+        }else if(type.equals(Subject_Type.일반교양.toString())){
             result = "menu/liberal_arts/subject_list";
-            model.addAttribute("page_type","3.1");
-        }else if(type.equals("자격증취창업")){
+            if (field.equals(Subject_Field.논술강좌.toString())) {
+                model.addAttribute("page_type","3.1");
+            } else if (field.equals(Subject_Field.자기계발.toString())) {
+                model.addAttribute("page_type","3.2");
+            } else if (field.equals(Subject_Field.생활건강.toString())) {
+                model.addAttribute("page_type","3.3");
+            } else if (field.equals(Subject_Field.생활교양.toString())) {
+                model.addAttribute("page_type","3.4");
+            } else if (field.equals(Subject_Field.생활예술.toString())) {
+                model.addAttribute("page_type","3.5");
+            }
+        }else if(type.equals(Subject_Type.자격증취창업.toString())){
             result = "menu/certificate/subject_list";
-            if(field.equals("전문자격증")){
+            if(field.equals(Subject_Field.전문자격증.toString())){
                 model.addAttribute("page_type","4.1");
-            }else if(field.equals("민간자격증")){
+            }else if(field.equals(Subject_Field.민간자격증.toString())){
                 model.addAttribute("page_type","4.2");
-            }else if(field.equals("기술자격증")){
+            }else if(field.equals(Subject_Field.기술자격증.toString())){
                 model.addAttribute("page_type","4.3");
-            }else if(field.equals("취창업")){
+            }else if(field.equals(Subject_Field.취창업.toString())){
                 model.addAttribute("page_type","4.4");
             }
-        }else if(type.equals("특별교육과정")){
+        }else if(type.equals(Subject_Type.특별교육과정.toString())){
             //용인학아카데미, 서현정치경제아카데미, 경기교육아카데미, 사모아카데미, 레이번스축구아카데미, 연예아카데미
             result = "menu/special/subject_list";
-            if(field.equals("용인")){
+            if(field.equals(Subject_Field.용인.toString())){
                 model.addAttribute("page_type","5.1");
-            }else if(field.equals("서현정치경제")){
+            }else if(field.equals(Subject_Field.서현정치경제.toString())){
                 model.addAttribute("page_type","5.2");
-            }else if(field.equals("경기교육")){
+            }else if(field.equals(Subject_Field.경기교육.toString())){
                 model.addAttribute("page_type","5.3");
-            }else if(field.equals("사모포럼")){
+            }else if(field.equals(Subject_Field.사모포럼.toString())){
                 model.addAttribute("page_type","5.4");
                 result = "menu/ministry/subject_list";
-            }else if(field.equals("레이번스축구아카데미")){
+            }else if(field.equals(Subject_Field.레이번스축구아카데미.toString())){
                 model.addAttribute("page_type","5.5");
-            }else if(field.equals("연예")){
+            }else if(field.equals(Subject_Field.연예.toString())){
                 model.addAttribute("page_type","5.6");
-            } else if (field.equals("미디어")) {
+            } else if (field.equals(Subject_Field.미디어.toString())) {
                 model.addAttribute("page_type","5.7");
             }
-        }else if(type.equals("언어")){
+        }else if(type.equals(Subject_Type.언어.toString())){
             result = "menu/language/subject_list";
-            if(field.equals("성경고전어")){
+            if(field.equals(Subject_Field.성경고전어.toString())){
                 model.addAttribute("page_type","6.1");
-            }else if(field.equals("제2외국어")){
+            }else if(field.equals(Subject_Field.제2외국어.toString())){
                 model.addAttribute("page_type","6.2");
-            }else if(field.equals("한국어")){
+            }else if(field.equals(Subject_Field.한국어.toString())){
                 model.addAttribute("page_type","6.3");
             }
-        }else if(type.equals("목회")){
+        }else if(type.equals(Subject_Type.목회.toString())){
             result = "menu/ministry/subject_list";
             model.addAttribute("page_type","7.1");
         }

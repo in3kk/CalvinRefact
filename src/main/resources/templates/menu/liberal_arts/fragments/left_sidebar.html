@@ -12,9 +12,11 @@
     <div class="lnb">
         <ul>
             <li>
-                <a th:if="${page_type == '3.1'}" href="/menu/subject/list?type=일반교양" class='lnb_on'>개설교과목안내</a>
-                <a th:unless="${page_type == '3.1'}" href="/menu/subject/list">개설교과목 안내</a>
-                <ol th:if="${page_type == '3.1'}"class="lnb_on_3depth"><!--3차 메뉴-->
+<!--                <a th:if="${page_type == '3.1'}" href="/menu/subject/list?type=일반교양" class='lnb_on'>개설교과목안내</a>-->
+<!--                <a th:unless="${page_type == '3.1'}" href="/menu/subject/list">개설교과목 안내</a>-->
+<!--                <ol th:if="${page_type == '3.1'}"class="lnb_on_3depth">&lt;!&ndash;3차 메뉴&ndash;&gt;-->
+                <a href="/menu/subject/list?type=일반교양" class='lnb_on'>개설교과목안내</a>
+                <ol class="lnb_on_3depth"><!--3차 메뉴-->
                     <dl>
                         <dd><a href="/menu/subject/list?type=일반교양&field=논술강좌">- 논술강좌</a></dd>
                         <dd><a href="/menu/subject/list?type=일반교양&field=자기계발">- 자기계발강좌</a></dd>

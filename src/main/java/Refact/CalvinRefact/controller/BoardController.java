@@ -174,21 +174,26 @@ public class BoardController {
         String result = "";
         List<MultipartFile> file_list = new ArrayList<>();
         boolean token = false;
-        if(file1 != null){
-            file_list.add(file1);
-        }
-        if(file2 != null){
-            file_list.add(file2);
-        }
-        if(file3 != null){
-            file_list.add(file3);
-        }
-        if(file4 != null){
-            file_list.add(file4);
-        }
-        if(file5 != null){
-            file_list.add(file5);
-        }
+        file_list.add(file1);
+        file_list.add(file2);
+        file_list.add(file3);
+        file_list.add(file4);
+        file_list.add(file5);
+//        if(file1 != null){
+//
+//        }
+//        if(file2 != null){
+//
+//        }
+//        if(file3 != null){
+//
+//        }
+//        if(file4 != null){
+//
+//        }
+//        if(file5 != null){
+//
+//        }
 
 
         try {
