@@ -444,40 +444,45 @@ public class SubjectController {
     @PostMapping("/menu/subject/write")
     @ResponseBody
     public String NewSubjectWrite(@RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code,
-                                  @RequestParam(value = "subject_name") String subject_name,
-                                  @RequestParam(value = "subject_field") String subject_field,
-                                  @RequestParam(value = "subject_type") String subject_type,
-                                  @RequestParam(value = "personnel") int personnel,
-                                  @RequestParam(value = "lecture_time") String lecture_time,
-                                  @RequestParam(value = "period") String period,
-                                  @RequestParam(value = "member_code") Long member_code,
-                                  @RequestParam(value = "fee") int fee,
+                                  @RequestParam(value = "subject_name", required = false, defaultValue = "") String subject_name,
+                                  @RequestParam(value = "subject_field", required = false, defaultValue = "") String subject_field,
+                                  @RequestParam(value = "subject_type", required = false, defaultValue = "") String subject_type,
+                                  @RequestParam(value = "personnel", required = false, defaultValue = "-1") int personnel,
+                                  @RequestParam(value = "lecture_time", required = false, defaultValue = "") String lecture_time,
+                                  @RequestParam(value = "period",required = false, defaultValue = "") String period,
+                                  @RequestParam(value = "member_code",required = false,defaultValue = "-1") Long member_code,
+                                  @RequestParam(value = "fee", required = false, defaultValue = "-1") int fee,
                                   @RequestParam(value = "file1", required = false) MultipartFile file,
                                   HttpSession httpSession){
         boolean insert_result = false;
         String result = "";
         try {
             if (httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null) {
-                result = "<script>alert('로그인이 필요한 서비스입니다..');window.location.href='/member/login';</script>";
+                result = "<script>alert('로그인이 필요한 서비스입니다.');window.location.href='/member/login';</script>";
             } else {
-                try {
-                    insert_result = subjectService.saveSubject(httpSession.getAttribute("member_id").toString(),subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
-                    if (insert_result) {
-                        if (subject_code != -1) {
-                            result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                if (subject_name.equals("") || subject_field.equals("") || subject_type.equals("") ||
+                        personnel <= -1 || lecture_time.equals("") || period.equals("") || member_code.equals(-1L) || fee <= -1) {
+                    System.out.println("결과:"+subject_code+", "+subject_name+", "+subject_field+", "+subject_type+", "+personnel+", "+lecture_time+", "+period+", "+member_code);
+                    result = "<script>alert('입력 데이터를 확인해 주세요');history.back();</script>";
+                } else {
+                    try {
+                        insert_result = subjectService.saveSubject(httpSession.getAttribute("member_id").toString(),subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
+                        if (insert_result) {
+                            if (subject_code != -1) {
+                                result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                            } else {
+                                result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                            }
                         } else {
-                            result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                            result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                         }
-                    } else {
+                    } catch (InvalidPermissionException e) {
+                        result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
+                    } catch (Exception e) {
+//                    System.out.println("컨트롤러 오류 2 : "+ e.getMessage());
                         result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                     }
-                } catch (InvalidPermissionException e) {
-                    result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
-                } catch (Exception e) {
-//                    System.out.println("컨트롤러 오류 2 : "+ e.getMessage());
-                    result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";
                 }
-
             }
         } catch (Exception e) {
 //            System.out.println("컨트롤러 오류1");

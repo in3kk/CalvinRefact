@@ -54,11 +54,6 @@ public class SubjectApiController {
             subjectFieldList.add("성경강해");
             subjectFieldList.add("목회트렌드");
         }
-        System.out.print("실행 : ");
-        for (String s : subjectFieldList) {
-            System.out.print(s+", ");
-        }
-        System.out.println();
         return ResponseEntity.ok(subjectFieldList);
     }
 }
