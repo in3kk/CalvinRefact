@@ -42,8 +42,9 @@
             <form action="/menu/subject/write" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="member_id" th:value="${session.member_id}">
             <div class="bbsView">
-                    <input type="hidden" th:value="${subject_code}" name="subject_code"/>
-                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                <input type="hidden" th:value="${subject_code}" name="subject_code"/>
+                <input type=""hidden="hidden" name="return_page" th:value="${return_page}">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <th width="30%">강좌명</th>
                             <td width="70%">
