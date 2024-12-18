@@ -72,8 +72,10 @@ public class SubjectController {
         if(type.equals(Subject_Type.학점은행제.toString())){
             result = "menu/subject/subject_list";
             model.addAttribute("page_type","2.2");
+            model.addAttribute("return_page","2");
         }else if(type.equals(Subject_Type.일반교양.toString())){
             result = "menu/liberal_arts/subject_list";
+            model.addAttribute("return_page","3");
             if (field.equals(Subject_Field.논술강좌.toString())) {
                 model.addAttribute("page_type","3.1");
             } else if (field.equals(Subject_Field.자기계발.toString())) {
@@ -87,6 +89,7 @@ public class SubjectController {
             }
         }else if(type.equals(Subject_Type.자격증취창업.toString())){
             result = "menu/certificate/subject_list";
+            model.addAttribute("return_page","4");
             if(field.equals(Subject_Field.전문자격증.toString())){
                 model.addAttribute("page_type","4.1");
             }else if(field.equals(Subject_Field.민간자격증.toString())){
@@ -99,6 +102,7 @@ public class SubjectController {
         }else if(type.equals(Subject_Type.특별교육과정.toString())){
             //용인학아카데미, 서현정치경제아카데미, 경기교육아카데미, 사모아카데미, 레이번스축구아카데미, 연예아카데미
             result = "menu/special/subject_list";
+            model.addAttribute("return_page","5");
             if(field.equals(Subject_Field.용인.toString())){
                 model.addAttribute("page_type","5.1");
             }else if(field.equals(Subject_Field.서현정치경제.toString())){
@@ -117,6 +121,7 @@ public class SubjectController {
             }
         }else if(type.equals(Subject_Type.언어.toString())){
             result = "menu/language/subject_list";
+            model.addAttribute("return_page","6");
             if(field.equals(Subject_Field.성경고전어.toString())){
                 model.addAttribute("page_type","6.1");
             }else if(field.equals(Subject_Field.제2외국어.toString())){
@@ -127,6 +132,7 @@ public class SubjectController {
         }else if(type.equals(Subject_Type.목회.toString())){
             result = "menu/ministry/subject_list";
             model.addAttribute("page_type","7.1");
+            model.addAttribute("return_page","7");
         }
         return  result;
     }
@@ -146,12 +152,18 @@ public class SubjectController {
         String result = "";
         if(subject.getSubject_type().equals(Subject_Type.학점은행제)){
             model.addAttribute("page_type","2.2");
+            model.addAttribute("return_page","2");
+
             result = "menu/subject/apply";
         }else if(subject.getSubject_type().equals(Subject_Type.일반교양)){
             model.addAttribute("page_type","3.1");
+            model.addAttribute("return_page","3");
+
             result = "menu/liberal_arts/apply";
         }else if(subject.getSubject_type().equals(Subject_Type.자격증취창업)){
             result = "menu/certificate/apply";
+            model.addAttribute("return_page","4");
+
             if(subject.getSubject_field().equals(Subject_Field.전문자격증)){
                 model.addAttribute("page_type","4.1");
             }else if(subject.getSubject_field().equals(Subject_Field.민간자격증)){
@@ -163,6 +175,8 @@ public class SubjectController {
             }
         }else if(subject.getSubject_type().equals(Subject_Type.특별교육과정)){
             result = "menu/special/apply";
+            model.addAttribute("return_page","5");
+
             if(subject.getSubject_field().equals(Subject_Field.용인)){
                 model.addAttribute("page_type","5.1");
             }else if(subject.getSubject_field().equals(Subject_Field.서현정치경제)){
@@ -178,6 +192,8 @@ public class SubjectController {
             }
         }else if(subject.getSubject_type().equals(Subject_Type.언어)){
             result = "menu/language/apply";
+            model.addAttribute("return_page","6");
+
             if(subject.getSubject_field().equals(Subject_Field.성경고전어)){
                 model.addAttribute("page_type","6.1");
             }else if(subject.getSubject_field().equals(Subject_Field.제2외국어)){
@@ -220,7 +236,8 @@ public class SubjectController {
     }
     //수강신청 완료
     @GetMapping("/menu/subject/apply/done")
-    public String ApplyDone(){
+    public String ApplyDone(@RequestParam("return_page") int return_page,Model model){
+        model.addAttribute("return_page",return_page);
         return "menu/subject/apply_done";
     }
 
@@ -417,7 +434,9 @@ public class SubjectController {
 
     //강의 개설 페이지 & 강의 수정
     @GetMapping("/menu/subject/write_page")
-    public String NewSubjectWritePage(Model model, @RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code, HttpSession httpSession, RedirectAttributes redirectAttributes){
+    public String NewSubjectWritePage(Model model, @RequestParam(value = "return_page",required = false, defaultValue = "2") int return_page,
+                                      @RequestParam(value = "subject_code", required = false, defaultValue = "-1") Long subject_code,
+                                      HttpSession httpSession, RedirectAttributes redirectAttributes){
         String result = "";
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result ="redirect:/member/login";
@@ -432,6 +451,7 @@ public class SubjectController {
                 List<MemberEmailDto> list = memberService.findProfessorList(httpSession.getAttribute("member_id").toString());
                 model.addAttribute("professor", list);
                 model.addAttribute("page_type", "9.3");
+                model.addAttribute("return_page",return_page);
                 result = "menu/subject/subject_write";
             } catch (InvalidPermissionException e) {
                 redirectAttributes.addFlashAttribute("msg", e.getMessage());
@@ -453,6 +473,7 @@ public class SubjectController {
                                   @RequestParam(value = "member_code",required = false,defaultValue = "-1") Long member_code,
                                   @RequestParam(value = "fee", required = false, defaultValue = "-1") int fee,
                                   @RequestParam(value = "file1", required = false) MultipartFile file,
+                                  @RequestParam(value = "return_page",required = false,defaultValue = "2")int return_page,
                                   HttpSession httpSession){
         boolean insert_result = false;
         String result = "";
@@ -468,10 +489,31 @@ public class SubjectController {
                     try {
                         insert_result = subjectService.saveSubject(httpSession.getAttribute("member_id").toString(),subject_name, Subject_Field.valueOf(subject_field), Subject_Type.valueOf(subject_type), personnel, lecture_time, period, member_code, fee, subject_code, file);
                         if (insert_result) {
+                            String page = "window.location.href='";
+                            switch (return_page) {
+                                case 2:
+                                    page += "/menu/subject/list?type=학점은행제';";
+                                    break;
+                                case 3:
+                                    page += "/menu/liberal_arts/list?type=일반교양';";
+                                    break;
+                                case 4:
+                                    page += "/menu/certificate/list?type=자격증취창업&field=전문자격증';";
+                                    break;
+                                case 5:
+                                    page += "/menu/special/list?type=특별교육과정&field=용인';";
+                                    break;
+                                case 6:
+                                    page += "/menu/language/list?type=언어&field=성경고전어';";
+                                    break;
+                                case 7:
+                                    page += "/menu/ministry/list?type=목회';";
+                                    break;
+                            }
                             if (subject_code != -1) {
-                                result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                                result = "<script>alert('강의가 성공적으로 수정되었습니다. 변경사항은 새로고침 후 적용됩니다.');"+page+"</script>";
                             } else {
-                                result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');history.go(-2);</script>";
+                                result = "<script>alert('신규 강의가 성공적으로 개설되었습니다. 변경사항은 새로고침 후 적용됩니다.');"+page+"</script>";
                             }
                         } else {
                             result = "<script>alert('신규 강의 개설 또는 수정에 실패하였습니다. 작성한 내용에 오류가 없는지 확인해주세요');history.back();</script>";

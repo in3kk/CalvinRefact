@@ -108,7 +108,7 @@
                 </table>
             </div>
             <div class="btnArea">
-                <a th:if="${session.member_type == 'dd'} or ${session.member_type == 'st'} or ${session.member_type == 'ai'}"href="/menu/subject/write_page" style="background-image:url('/item/btn_gray.gif');color:white; width:200px; height:50px;">강의 등록</a>
+                <a th:if="${session.member_type == 'dd'} or ${session.member_type == 'st'} or ${session.member_type == 'ai'}"th:href="@{/menu/subject/write_page(return_page=${return_page})}" style="background-image:url('/item/btn_gray.gif');color:white; width:200px; height:50px;">강의 등록</a>
             </div>
         </div>
         <!--//contentsArea 끝-->
