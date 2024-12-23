@@ -2,6 +2,7 @@ package Refact.CalvinRefact.controller;
 
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
 import Refact.CalvinRefact.exception.InvalidPermissionException;
+import Refact.CalvinRefact.exception.NotExistBoardException;
 import Refact.CalvinRefact.repository.BoardRepository;
 import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
@@ -218,7 +219,9 @@ public class BoardController {
                 boardService.deleteBoard(board_code);
                 result = "<script>alert('게시글이 삭제되었습니다.');history.back();</script>";
             } catch (InvalidPermissionException e) {
-                result = "<script>alert('"+e.getMessage()+"');window.location.href='/';</script>";
+                result = "<script>alert('" + e.getMessage() + "');window.location.href='/';</script>";
+            } catch (NotExistBoardException e) {
+                result = "<script>alert('" + e.getMessage() + "');history.back();</script>";
             } catch (Exception e) {
                 result = "<script>alert('게시글 삭제에 실패했습니다.');history.back();</script>";
             }

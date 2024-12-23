@@ -4,6 +4,7 @@ import Refact.CalvinRefact.entity.Board;
 import Refact.CalvinRefact.entity.File;
 import Refact.CalvinRefact.entity.Member;
 import Refact.CalvinRefact.entity.entityEnum.Board_Type;
+import Refact.CalvinRefact.exception.NotExistBoardException;
 import Refact.CalvinRefact.repository.BoardDataJpaRepository;
 import Refact.CalvinRefact.repository.BoardRepository;
 import Refact.CalvinRefact.repository.MemberDataJpaRepository;
@@ -142,9 +143,7 @@ public class BoardService {
             }
             boardDataJpaRepository.deleteById(id);
         } else {
-            /**
-             * 존재하지 않는 게시글 예외 추가
-             */
+            throw new NotExistBoardException("존재하지 않는 게시글입니다.");
         }
     }
 }
