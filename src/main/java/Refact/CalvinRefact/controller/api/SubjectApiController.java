@@ -2,11 +2,13 @@ package Refact.CalvinRefact.controller.api;
 
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
+import Refact.CalvinRefact.service.SubjectService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.List;
 @RestController
 public class SubjectApiController {
 
+    @Autowired
+    SubjectService subjectService;
     @GetMapping("/subjectFieldList")
     @ResponseBody
     public ResponseEntity<List<String>> subjectFiledList(@RequestParam("subject_type") String subjectType) {
@@ -55,5 +59,19 @@ public class SubjectApiController {
             subjectFieldList.add("목회트렌드");
         }
         return ResponseEntity.ok(subjectFieldList);
+    }
+
+    @GetMapping("/applyList/{subject_id}/{type}")
+    public Result applyList(@PathVariable("member_id")Long member_id,
+                            @PathVariable("type")String type) {
+        List<SubjectListDto> subject_list = subjectService.findSubjectList(Subject_Type.valueOf(type));
+
+        return new Result(subject_list);
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class Result<T>{
+        private T data;
     }
 }
