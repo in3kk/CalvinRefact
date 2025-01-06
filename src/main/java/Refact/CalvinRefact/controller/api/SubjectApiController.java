@@ -1,12 +1,20 @@
 package Refact.CalvinRefact.controller.api;
 
+import Refact.CalvinRefact.entity.entityEnum.Board_Type;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Field;
 import Refact.CalvinRefact.entity.entityEnum.Subject_Type;
+import Refact.CalvinRefact.exception.InvalidPermissionException;
+import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.subject.SubjectListDto;
+import Refact.CalvinRefact.service.BoardService;
+import Refact.CalvinRefact.service.CalvinService;
 import Refact.CalvinRefact.service.SubjectService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +26,10 @@ public class SubjectApiController {
 
     @Autowired
     SubjectService subjectService;
+    @Autowired
+    CalvinService calvinService;
+    @Autowired
+    BoardService boardService;
     @GetMapping("/subjectFieldList")
     @ResponseBody
     public ResponseEntity<List<String>> subjectFiledList(@RequestParam("subject_type") String subjectType) {
@@ -69,9 +81,45 @@ public class SubjectApiController {
         return new Result(subject_list);
     }
 
+    @GetMapping("/boardList/{board_type}/{search_word}/{page}/{size}")
+    public Result boardList(@PathVariable("board_type") String board_type,
+                            @PathVariable("page") int page,
+                            @PathVariable("size") int size,
+                            @PathVariable("search_word") String search_word) {
+        if(!search_word.equals(" ")){
+            search_word = calvinService.searchWordFilter(search_word);
+        }
+        Pageable pageable = PageRequest.of(page,size);
+        int count = 0;
+        Page<BoardListDto> board_list = Page.empty();
+        String result = "";
+        String page_type = "8.5";
+        try {
+            if (search_word.equals(" ")) {
+                if (board_type.equals("공지사항")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.공지사항, pageable);
+                } else if (board_type.equals("사진자료실")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.사진자료실, pageable);
+                } else if (board_type.equals("서식자료실")) {
+                    board_list = boardService.findAllByBoard_type(Board_Type.서식자료실, pageable);
+                }
+            } else {
+                if (board_type.equals("공지사항")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.공지사항, pageable);
+                } else if (board_type.equals("사진자료실")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.사진자료실, pageable);
+                } else if (board_type.equals("서식자료실")) {
+                    board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.서식자료실, pageable);
+                }
+            }
+        } catch (InvalidPermissionException e) {
+        }
+        return new Result<>(board_list);
+    }
+
     @Data
     @AllArgsConstructor
-    static class Result<T>{
+    static class Result<T> {
         private T data;
     }
 }
