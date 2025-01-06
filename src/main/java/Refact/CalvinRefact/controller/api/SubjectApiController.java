@@ -81,13 +81,12 @@ public class SubjectApiController {
         return new Result(subject_list);
     }
 
-    @GetMapping("/boardList/{board_type}/{search_type}/{search_word}/{page}/{size}")
+    @GetMapping("/boardList/{board_type}/{search_word}/{page}/{size}")
     public Result boardList(@PathVariable("board_type") String board_type,
-                            @PathVariable("search_type") String search_type,
                             @PathVariable("page") int page,
                             @PathVariable("size") int size,
                             @PathVariable("search_word") String search_word) {
-        if(!search_word.equals("")){
+        if(!search_word.equals(" ")){
             search_word = calvinService.searchWordFilter(search_word);
         }
         Pageable pageable = PageRequest.of(page,size);
@@ -96,10 +95,8 @@ public class SubjectApiController {
         String result = "";
         String page_type = "8.5";
         try {
-            if (search_word.equals("")) {
-                if (board_type.equals("")) {
-
-                } else if (board_type.equals("공지사항")) {
+            if (search_word.equals(" ")) {
+                if (board_type.equals("공지사항")) {
                     board_list = boardService.findAllByBoard_type(Board_Type.공지사항, pageable);
                 } else if (board_type.equals("사진자료실")) {
                     board_list = boardService.findAllByBoard_type(Board_Type.사진자료실, pageable);
@@ -107,10 +104,7 @@ public class SubjectApiController {
                     board_list = boardService.findAllByBoard_type(Board_Type.서식자료실, pageable);
                 }
             } else {
-                if (board_type.equals("")) {
-
-
-                } else if (board_type.equals("공지사항")) {
+                if (board_type.equals("공지사항")) {
                     board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.공지사항, pageable);
                 } else if (board_type.equals("사진자료실")) {
                     board_list = boardService.findAllByTitleAndBoard_type(search_word, Board_Type.사진자료실, pageable);
@@ -119,10 +113,7 @@ public class SubjectApiController {
                 }
             }
         } catch (InvalidPermissionException e) {
-
-
         }
-
         return new Result<>(board_list);
     }
 
