@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -68,7 +69,7 @@ public class MemberService {
 
 
     //회원가입 유효성 검사 메소드
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public boolean saveMember(JoinMemberDto joinMemberDto) throws InvalidMemberDataException{
 
         String id1 = joinMemberDto.getId();
@@ -133,7 +134,7 @@ public class MemberService {
     }
 
     //회원 권한 변경 Exception
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, isolation = Isolation.SERIALIZABLE)
     public void memberGrant(String email, Long id, String member_type,Member_Type target_member_type) throws Exception{
         permissionCheck(email);
         Optional<Member> findResult = memberDataJpaRepository.findById(id);
@@ -176,6 +177,7 @@ public class MemberService {
     }
 
     //회원 정보 보기
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public MemberDetailDto findMemberDetail(String email, Long id) throws InvalidPermissionException{
         MemberDetailDto memberDetailDto = new MemberDetailDto();
         permissionCheck(email);
@@ -191,6 +193,7 @@ public class MemberService {
         return memberDetailDto;
     }
     //내 정보 보기
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public MemberDetailDto findMemberDetail2(String email){
         MemberDetailDto memberDetailDto = new MemberDetailDto();
 
@@ -211,7 +214,7 @@ public class MemberService {
     }
 
     //pwd 변경
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateMember( String email,String newPwd, String newPnum, String address, String address2){
         boolean result = false;
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);

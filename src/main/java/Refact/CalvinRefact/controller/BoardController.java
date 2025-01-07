@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -46,6 +48,7 @@ public class BoardController {
                             @RequestParam(value = "board_type",required = false, defaultValue = "") String board_type,
                             @PageableDefault(size = 20,sort = {"board_id"}) Pageable pageable,
                             HttpSession httpSession, Model model, RedirectAttributes redirectAttributes){
+
         if(!search_word.equals("")){
             search_word = calvinService.searchWordFilter(search_word);
         }
@@ -104,7 +107,6 @@ public class BoardController {
             } else {
                 begin_page = page / 10 * 10 + 1;
             }
-
             int max_page = board_list.getTotalPages();
             model.addAttribute("search_word", search_word);
             model.addAttribute("search_type", search_type);
@@ -119,6 +121,7 @@ public class BoardController {
             redirectAttributes.addFlashAttribute("msg", e.getMessage());
             result = "redirect:/";
         }
+
         return result;
     }
 
@@ -141,6 +144,7 @@ public class BoardController {
         }else if(board_type.equals(Board_Type.서식자료실)){
             model.addAttribute("page_type", "8.7");
         }
+
         return "menu/board/board_view";
     }
     //게시글 작성 페이지
@@ -180,23 +184,6 @@ public class BoardController {
         file_list.add(file3);
         file_list.add(file4);
         file_list.add(file5);
-//        if(file1 != null){
-//
-//        }
-//        if(file2 != null){
-//
-//        }
-//        if(file3 != null){
-//
-//        }
-//        if(file4 != null){
-//
-//        }
-//        if(file5 != null){
-//
-//        }
-
-
         try {
             boardService.saveBoard(member_id, title, board_contents, Board_Type.valueOf(board_type), file_list);
             result= "<script>window.location.href='/menu/board';</script>";

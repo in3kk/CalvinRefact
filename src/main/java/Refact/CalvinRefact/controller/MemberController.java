@@ -28,12 +28,6 @@ public class MemberController {
     @Autowired
     private MemberService memberService;
 
-//    @GetMapping("/errortest")
-//    public String errortest(){
-//        throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//    }
-
-
     //회원가입 페이지
     @GetMapping("/member/join")
     public String joinPage(Model model, HttpSession httpSession){
@@ -268,62 +262,6 @@ public class MemberController {
 
 
     }
-//    //어드민 회원관리 V 완료
-//    @GetMapping("/mypage/admin/member")
-//    public String AdminMember(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
-//                              @RequestParam(value = "search_word", required = false, defaultValue = "") String search_word,
-//                              @RequestParam(value = "search_type", required = false, defaultValue = "1") int search_type,
-//                              Model model,HttpSession httpSession){
-//        String result = "menu/mypage/admin_member";
-//        if(!search_word.equals("")){
-//            Pattern RegPattern1 = Pattern.compile("/[^(A-Za-z가-힣0-9\\s.,@)]/");
-//            Matcher m = RegPattern1.matcher(search_word);
-//            search_word = m.replaceAll(" ");
-//        }
-//        if(httpSession.getAttribute("member_id") != null && httpSession.getAttribute("member_type") != null){
-//            if(httpSession.getAttribute("member_type").equals("dd")||httpSession.getAttribute("member_type").equals("st")||httpSession.getAttribute("member_type").equals("ai")) {
-//                int count;
-//                List<Calvin_Member> member_list;
-//
-//                if(search_word.equals("")){
-//                    count = calvinMemberService.paging();
-//                    member_list = calvinMemberService.SelectAllMember(page,count);
-//                }else{
-//                    count = calvinMemberService.paging(search_type,search_word);
-//                    if(search_type == 1){//아이디
-//                        member_list = calvinMemberService.SelectById(search_word,page,count);
-//                    }else{// 2 일때 이름
-//                        member_list = calvinMemberService.SelectByName(search_word,page,count);
-//                    }
-//                }
-//                int begin_page;
-//                if(page % 10 == 0){
-//                    begin_page = page-9;
-//                }else{
-//                    begin_page = page/10*10+1;
-//                }
-//
-//                int max_page;
-//                if(count/20 == 0 && count%20 > 0){
-//                    max_page = 1;
-//                }else if(count/20 > 0 && count%20 > 0){
-//                    max_page = count/20 + 1;
-//                }else{
-//                    max_page = count/20;
-//                }
-//                model.addAttribute("search_word", search_word);
-//                model.addAttribute("search_type", search_type);
-//                model.addAttribute("page", page);
-//                model.addAttribute("begin_page",begin_page);
-//                model.addAttribute("max_page", max_page);
-//                model.addAttribute("member_list",member_list);
-//                model.addAttribute("page_type","9.3");
-//            }
-//        }else{
-//            throw new CustomException(ErrorCode.INVALID_PERMISSION);
-//        }
-//        return result;
-//    }
 
     //회원정보 열람
     @GetMapping("/mypage/admin/member/view")
@@ -420,22 +358,15 @@ public class MemberController {
         String result;
         if(httpSession.getAttribute("member_id") == null || httpSession.getAttribute("member_type") == null){
             result = "<script>alert('로그인이 필요한 서비스 입니다.');window.location.href='/';</script>";
-
         }else{
             boolean updateResult = memberService.updateMember(httpSession.getAttribute("member_id").toString(), member.getPwd(), member.getPhone_number(), member.getAddress(), member.getAddress2());
 
             if(updateResult){
-//            result = "<script>alert('회원정보가 변경되었습니다..');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
-//            result = "<script>alert('회원정보가 변경되었습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
                 result = "<script>alert('회원정보가 변경되었습니다. 변경 내용은 새로고침 후 적용됩니다.');history.go(-2);</script>";
             }else{
-//            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://calvin.or.kr/member/mypage/info'</script>";//서버
-//            result = "<script>alert('회원정보 변경에 실패하였습니다.');window.location.href='http://localhost:8080/member/mypage/info'</script>";//
                 result = "<script>alert('회원정보 변경에 실패하였습니다.');history.go(-2);</script>";
-
             }
         }
-
         return result;
     }
 
@@ -458,10 +389,8 @@ public class MemberController {
         }else{
             if(memberService.login(httpSession.getAttribute("member_id").toString(), pwd).isPresent()){
                 result = "<script>window.location.href='/member/mypage/modify'</script>";//서버
-//            result = "window.location.href='http://localhost:8080/member/mypage/modify'</script>";//
             }else{
                 result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='/member/mypage/auth'</script>";//서버
-//            result = "<script>alert('비밀번호가 일치하지 않습니다.');window.location.href='http://localhost:8080/member/mypage/auth'</script>";//
             }
         }
 

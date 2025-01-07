@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -162,7 +163,7 @@ public class SubjectService {
     }
 
     //Pay_stat 변경 Exception
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public void updatePayStat(List<Long> applyIdList, int type, String email) throws Exception{
 
         memberService.permissionCheck(email);
@@ -183,7 +184,7 @@ public class SubjectService {
         }
     }
     //강의 상태 변경 Exception
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {Exception.class},isolation = Isolation.SERIALIZABLE)
     public void updateSubjectStat(Long id, int stat,String email) throws Exception{
 
         memberService.permissionCheck(email);
@@ -209,7 +210,7 @@ public class SubjectService {
         }
     }
     //신규 강의 생성 Exception
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean saveSubject(String email,String subject_name, Subject_Field subject_field, Subject_Type subject_type, int personnel, String lecture_time, String period, Long member_code, int fee, Long subject_code,MultipartFile file) throws Exception{
 //        System.out.println("여기1");
         memberService.permissionCheck(email);
