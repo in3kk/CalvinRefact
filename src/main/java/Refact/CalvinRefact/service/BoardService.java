@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -71,9 +73,13 @@ public class BoardService {
     }
 
     public Page<BoardListDto> findAllByBoard_type(Board_Type board_type, Pageable pageable) {
+        LocalDateTime startTime = LocalDateTime.now();
         Page<BoardListDto> boardListDtos = boardRepository.findAllByBoard_Type(board_type,pageable);
 //        Page<Board> boardPage = boardDataJpaRepository.findAllByBoardType(board_type, pageable);
 //        boardListDtos = boardPage.map(board -> new BoardListDto(board.getId(), board.getMember().getId(), board.getTitle(), board.getCreatedDate(), board.getMember().getName(), board.getBoardType(), board.getFiles().isEmpty() ? "-1" : board.getFiles().get(0).getSave_name()));
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("소요시간 : "+ ChronoUnit.MILLIS.between(startTime,now)+"밀리초");
+        System.out.println("소요시간 : "+ ChronoUnit.NANOS.between(startTime,now)+"나노초");
         return boardListDtos;
     }
 

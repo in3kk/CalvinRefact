@@ -38,21 +38,6 @@ public class SubjectController {
     @Autowired
     MemberService memberService;
 
-//    @GetMapping("/menu/subject/list") //강의 리스트 페이지
-//    public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
-//                              @RequestParam(value = "type") String type, Model model){
-//        List<SubjectListDto> subject_list;
-//        if(field.equals("")){
-//            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type));
-//        }else{
-////            System.out.println("result"+field);
-//            subject_list= subjectService.findSubjectList(Subject_Type.valueOf(type),Subject_Field.valueOf(field));
-//        }
-//        String result = "menu/subject/subject_list";
-//        model.addAttribute("subject_list", subject_list);
-//        model.addAttribute("page_type","2.2");
-//        return  result;
-//    }
     //강의 리스트 페이지 (학점은행제, 일반교양, 자격증/취창업)
     @GetMapping({"/menu/subject/list", "/menu/liberal_arts/list","/menu/certificate/list","/menu/special/list","/menu/language/list","/menu/ministry/list"})
     public String SubjectList(@RequestParam(value = "field", required = false, defaultValue = "") String field,
@@ -163,7 +148,6 @@ public class SubjectController {
         }else if(subject.getSubject_type().equals(Subject_Type.자격증취창업)){
             result = "menu/certificate/apply";
             model.addAttribute("return_page","4");
-
             if(subject.getSubject_field().equals(Subject_Field.전문자격증)){
                 model.addAttribute("page_type","4.1");
             }else if(subject.getSubject_field().equals(Subject_Field.민간자격증)){
@@ -176,7 +160,6 @@ public class SubjectController {
         }else if(subject.getSubject_type().equals(Subject_Type.특별교육과정)){
             result = "menu/special/apply";
             model.addAttribute("return_page","5");
-
             if(subject.getSubject_field().equals(Subject_Field.용인)){
                 model.addAttribute("page_type","5.1");
             }else if(subject.getSubject_field().equals(Subject_Field.서현정치경제)){
@@ -193,7 +176,6 @@ public class SubjectController {
         }else if(subject.getSubject_type().equals(Subject_Type.언어)){
             result = "menu/language/apply";
             model.addAttribute("return_page","6");
-
             if(subject.getSubject_field().equals(Subject_Field.성경고전어)){
                 model.addAttribute("page_type","6.1");
             }else if(subject.getSubject_field().equals(Subject_Field.제2외국어)){
@@ -257,7 +239,6 @@ public class SubjectController {
         }else{
             try {
                 Page<ApplyListDto> apply = Page.empty();
-
                 if (search_word.equals("")) {
                     apply = subjectService.findApplyList(pageable, httpSession.getAttribute("member_id").toString());
                 } else {
@@ -483,7 +464,6 @@ public class SubjectController {
             } else {
                 if (subject_name.equals("") || subject_field.equals("") || subject_type.equals("") ||
                         personnel <= -1 || lecture_time.equals("") || period.equals("") || member_code.equals(-1L) || fee <= -1) {
-                    System.out.println("결과:"+subject_code+", "+subject_name+", "+subject_field+", "+subject_type+", "+personnel+", "+lecture_time+", "+period+", "+member_code);
                     result = "<script>alert('입력 데이터를 확인해 주세요');history.back();</script>";
                 } else {
                     try {
@@ -552,5 +532,4 @@ public class SubjectController {
         }
         return result;
     }
-
 }
