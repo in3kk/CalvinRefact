@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static com.mysema.commons.lang.Assert.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +60,8 @@ class BoardDataJpaRepositoryTest {
 
     @Test
     public void basicTest() throws Exception{
-        Member member = new Member("shy4792@naveer.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        Member member = new Member("shy4792@naveer.com", "rlawlstp128", "김진세", Member_Type.member, LocalDate.now(),
+                "01089422159", new Address("경기도","용인"));
         em.persist(member);
 
         Board board = new Board(member, "제목","내용", Board_Type.공지사항);
@@ -69,7 +71,8 @@ class BoardDataJpaRepositoryTest {
         em.persist(file);
 
 
-        Subject subject = new Subject(member, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        Subject subject = new Subject(member, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00",
+                "12주", 30,Subject_Type.언어);
         em.persist(subject);
 
         Member_Subject member_subject = new Member_Subject(member, subject, LocalDate.now(),Pay_Stat.n);
@@ -89,7 +92,6 @@ class BoardDataJpaRepositoryTest {
         assertThat(fileCnt).isEqualTo(1);
         assertThat(subjectCnt).isEqualTo(1);
         assertThat(member_subjectCnt).isEqualTo(1);
-
     }
 
     @Test
@@ -369,14 +371,18 @@ class BoardDataJpaRepositoryTest {
 
     @Test
     public void countFirstByMemberAndSubjectTest() {
-        Member member1 = new Member("shy47921", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
-        Member member2 = new Member("shy47922", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
-        Member member3 = new Member("shy47923", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(), "01089422159", new Address("경기도","용인"));
+        Member member1 = new Member("shy47921", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(),
+                "01089422159", new Address("경기도","용인"));
+        Member member2 = new Member("shy47922", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(),
+                "01089422159", new Address("경기도","용인"));
+        Member member3 = new Member("shy47923", "rlawlstp128", "김진세", Member_Type.professor, LocalDate.now(),
+                "01089422159", new Address("경기도","용인"));
         em.persist(member1);
         em.persist(member2);
         em.persist(member3);
 
-        Subject subject = new Subject(member1, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00", "12주", 30,Subject_Type.언어);
+        Subject subject = new Subject(member1, 123, "jkk", Subject_Field.영어, Subject_Stat.접수중, "월,화 9:00 ~ 13:00",
+                "12주", 30,Subject_Type.언어);
         em.persist(subject);
 
         Member_Subject member_subject1 = new Member_Subject(member1, subject, LocalDate.now(),Pay_Stat.n);

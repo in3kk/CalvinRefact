@@ -73,12 +73,17 @@ public class SubjectApiController {
         return ResponseEntity.ok(subjectFieldList);
     }
 
-    @GetMapping("/applyList/{subject_id}/{type}")
-    public Result applyList(@PathVariable("member_id")Long member_id,
-                            @PathVariable("type")String type) {
+    @GetMapping("/subjectList/{type}")
+    public Result subjectList(@PathVariable("type")String type) {
         List<SubjectListDto> subject_list = subjectService.findSubjectList(Subject_Type.valueOf(type));
 
-        return new Result(subject_list);
+        return new Result<>(subject_list);
+    }
+    @GetMapping("/subjectList2/{type}")
+    public List<SubjectListDto> subjectList2(@PathVariable("type")String type) {
+        List<SubjectListDto> subject_list = subjectService.findSubjectList(Subject_Type.valueOf(type));
+
+        return subject_list;
     }
 
     @GetMapping("/boardList/{board_type}/{search_word}/{page}/{size}")
@@ -116,7 +121,6 @@ public class SubjectApiController {
         }
         return new Result<>(board_list);
     }
-
     @Data
     @AllArgsConstructor
     static class Result<T> {
