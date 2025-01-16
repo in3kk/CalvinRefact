@@ -28,7 +28,7 @@
 
 # 칼빈대학교 평생교육원 리팩토링
 ![칼빈대_평생교육원-로고](https://github.com/user-attachments/assets/a78cad9f-3977-46ff-a751-e595f5435c6f)
-기존에 진행했던 칼빈대학교 평색교육원 홈페이지 프로젝트에 JPA, SpringData JPA, Querydsl 등 새로운 기술을 적용하고, 기존에 존재하던 문제점을 개선했습니다.
+기존에 진행했던 칼빈대학교 평색교육원 홈페이지 프로젝트에 JPA, SpringData JPA, Querydsl 등 새로운 기술을 적용하고, 기존에 존재하던 문제점을 개선했습니다.<br>
 주요 목표 : 
 * DB 설계 문제 개선
 * DB 부하 개선
