@@ -20,6 +20,13 @@
         </li>
       </ul>
     </li>
+    <li>
+      <a href="#diagram">Diagram</a>
+      <ul>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#erd">ERD</a></li>
+      </ul>
+    </li>
     <li><a href="#features">Features</a></li>
     <li><a href="#roadmap">RoadMap</a></li>
     <li><a href="#author">Author</a></li>
@@ -80,6 +87,15 @@
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Diagram
+
+### Architecture
+
+![Image](https://github.com/user-attachments/assets/9f7214d7-a167-4fc3-bb57-4171ded322eb)
+
+### ERD
+
+![Image](https://github.com/user-attachments/assets/7b8e7ce6-6a8e-42c5-9c59-0cf5094a010e)
 
 ## Features
 
