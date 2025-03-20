@@ -41,5 +41,10 @@ public class CalvinService {
         return target;
     }
 
+    public String filter(String target, String p) {
+        Pattern pattern = Pattern.compile(p);
+        Matcher m = pattern.matcher(target);
+        return m.replaceAll("");
+    }
 
 }

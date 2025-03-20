@@ -37,6 +37,8 @@ public class BoardService {
     @Autowired
     FileService fileService;
     @Autowired
+    CalvinService calvinService;
+    @Autowired
     EntityManager em;
 
     //메인 페이지 표시용 공지사항
@@ -115,9 +117,10 @@ public class BoardService {
     //게시글 작성 Exception
     @Transactional(rollbackFor = {Exception.class})
     public void saveBoard(String email, String title, String contents, Board_Type boardType, List<MultipartFile> files) throws Exception {
-        Pattern p1 = Pattern.compile("<([a-zA-Z]+)(\\s[^>]*)?>(?![\\s\\S]*<\\/\\1>)");
-        Matcher m = p1.matcher(contents);
-        contents = m.replaceAll("");//드래그앤드롭 이미지 입력 방지 코드
+//        Pattern p1 = Pattern.compile("<([a-zA-Z]+)(\\s[^>]*)?>(?![\\s\\S]*</\\1>)");
+//        Matcher m = p1.matcher(contents);
+//        contents = m.replaceAll("");//드래그앤드롭 이미지 입력 방지 코드 -> calvinService.filter 로 변경
+        contents = calvinService.filter(contents, "<([a-zA-Z]+)(\\s[^>]*)?>(?![\\s\\S]*</\\1>)");
         Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
         Member member;
         if (memberOptional.isPresent()) {
