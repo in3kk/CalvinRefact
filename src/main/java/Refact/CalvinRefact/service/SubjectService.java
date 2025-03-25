@@ -212,7 +212,6 @@ public class SubjectService {
     //신규 강의 생성 Exception
     @Transactional(rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean saveSubject(String email,String subject_name, Subject_Field subject_field, Subject_Type subject_type, int personnel, String lecture_time, String period, Long member_code, int fee, Long subject_code,MultipartFile file) throws Exception{
-//        System.out.println("여기1");
         memberService.permissionCheck(email);
         boolean result = false;
         Subject subject = new Subject();
@@ -221,10 +220,8 @@ public class SubjectService {
         if (memberOptional.isPresent()) {
             member = memberOptional.get();
         }
-//        System.out.println("여기2");
         if (subject_code == -1) {
             subject = new Subject(member,fee,subject_name,subject_field,Subject_Stat.임시,lecture_time,period,personnel,subject_type);
-//            System.out.println("여기3");
         }else{
             Optional<Subject> subjectOptional = subjectDataJpaRepository.findById(subject_code);
             if (subjectOptional.isPresent()) {

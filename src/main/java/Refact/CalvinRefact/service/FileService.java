@@ -33,6 +33,11 @@ public class FileService {
     @Autowired
     EntityManager em;
 
+    //uuid 생성 메소드
+    public String getUUID(String filename) {
+        UUID uuid = UUID.randomUUID();
+        return uuid+"_"+filename;
+    }
     //파일 저장
     @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
     public String saveFile(Board board, MultipartFile multipartFile) throws Exception {
@@ -41,8 +46,9 @@ public class FileService {
         String path = "F:\\CalvinUploadFiles\\";//로컬
 //        String path = "/iceadmin/CalvinUploadFile/"; //서버
         //uuid 생성
-        UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
+//        UUID uuid = UUID.randomUUID();
+//        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
+        String fileName = getUUID(multipartFile.getOriginalFilename());
         File saveFile = new File(path, fileName);
         multipartFile.transferTo(saveFile);
         Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
@@ -61,8 +67,9 @@ public class FileService {
         String path = "F:\\DocumentFile\\refact\\";//로컬
 //        String path = "/iceadmin/CalvinUploadFile/"; //서버
         //uuid 생성
-        UUID uuid = UUID.randomUUID();
-        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
+//        UUID uuid = UUID.randomUUID();
+//        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
+        String fileName = getUUID(multipartFile.getOriginalFilename());
         File saveFile = new File(path, fileName);
         multipartFile.transferTo(saveFile);
         Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
