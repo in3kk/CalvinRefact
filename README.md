@@ -143,6 +143,13 @@
 - [x] 테스트 코드 작성
 ![image (5)](https://github.com/user-attachments/assets/08d47ac3-bf95-4c4f-8ce0-f23ecbb33d1d)
 
+- [x] log 분석 및 오류 해결
+  - [x] 클래스 캐스팅 오류 (ClassCastException) -> 자바 버전, 톰캣 버전 안맞음 톰캣 10.1.17 버전으로 업그레이드
+  - [x] request method 오류 -> 올바른 매핑 메소드로 변경
+  - [x] enum, String type 오류 -> enum 타입으로 통일
+  - [x] uri 인코딩 오류 -> spring boot utf-8로 설정 & uri 필터 추가
+  - [x] 캐시 크기 문제 -> 캐시 크기 10MB -> 100MB 변경
+  - [x] 애플리케이션이 종료될 때 특정 쓰레드(SeedGenerator Thread)를 종료하지 못하는 문제 -> Tomcat 종료시 강제로 스레드를 종료하는 코드 추가(contextDestroyed)
 ## Author
 
 [@김진세] (https://github.com/in3kk)
