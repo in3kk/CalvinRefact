@@ -1,9 +1,15 @@
 package Refact.CalvinRefact.controller.test.api;
 
+import Refact.CalvinRefact.entity.Member;
+import Refact.CalvinRefact.entity.entityEnum.Member_Type;
 import Refact.CalvinRefact.exception.InvalidMemberDataException;
 import Refact.CalvinRefact.repository.dto.member.JoinMemberDto;
+import Refact.CalvinRefact.repository.dto.member.MemberLoginDto;
 import Refact.CalvinRefact.service.MemberService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @RestController
 public class MemberTestApiController {
@@ -19,7 +26,7 @@ public class MemberTestApiController {
 
     @PostMapping("/test/member/join")
     @ResponseBody
-    public ResponseEntity<Boolean> JoinTest(@RequestParam String id,
+    public ResponseEntity<?> JoinTest(@RequestParam String id,
                                             @RequestParam String id2,
                                             @RequestParam String pwd,
                                             @RequestParam String name,
@@ -39,9 +46,37 @@ public class MemberTestApiController {
         boolean joinResult = false;
         try {
             joinResult = memberService.saveMember(jm);
+            return ResponseEntity.ok(joinResult);
         } catch (InvalidMemberDataException e) {
             System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("올바르지 않은 입력입니다.");
         }
-         return ResponseEntity.ok(joinResult);
+    }
+
+    @PostMapping("/test/member/login")
+    @ResponseBody
+    public ResponseEntity<?> loginTest(HttpSession httpSession,
+                                             @Valid MemberLoginDto memberLoginDto) {
+        Optional<Member> member = memberService.login(memberLoginDto.getId(),memberLoginDto.getPwd());
+        ResponseEntity<?> result;
+        if(member.isPresent()){
+            httpSession.setAttribute("member_id", member.get().getEmail());
+            Member_Type member_type = member.get().getMemberType();
+            if(member_type.equals(Member_Type.member)){
+                httpSession.setAttribute("member_type", "mb");
+            }else if(member_type.equals(Member_Type.developer)){
+                httpSession.setAttribute("member_type", "dd");
+            }else if(member_type.equals(Member_Type.professor)){
+                httpSession.setAttribute("member_type","st");
+            }else if(member_type.equals(Member_Type.admin)){
+                httpSession.setAttribute("member_type","ai");
+            }
+            result =  ResponseEntity.ok(true);
+        }else{
+            result =  ResponseEntity.status(HttpStatus.BAD_REQUEST).body("일치하는 회원 정보가 없습니다.");
+        }
+        httpSession.removeAttribute("member_id");
+        httpSession.removeAttribute("member_type");
+        return result;
     }
 }

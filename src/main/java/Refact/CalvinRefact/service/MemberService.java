@@ -82,7 +82,7 @@ public class MemberService {
         String address2 = joinMemberDto.getAddress2();
 
 
-        Pattern id1_pattern = Pattern.compile("[A-Za-z0-9]{4,15}");
+        Pattern id1_pattern = Pattern.compile("[A-Za-z0-9]{4,30}");
         Pattern id2_pattern = Pattern.compile("[a-z]{4,10}.(com|net|ac.kr)");
         Pattern pwd_pattern = Pattern.compile("[a-zA-Z0-9!@#$%^&\\*()_\\+]{10,25}");
         Pattern name_pattern = Pattern.compile("[가-힣A-Za-z]{2,10}");
@@ -111,6 +111,8 @@ public class MemberService {
             String message = "";
             if (!result1||!result2) {
                 message = "올바르지 않은 이메일 형식입니다.";
+                System.out.println("id1 : " + id1);
+                System.out.println("id2 : " + id2);
             } else if (!result3) {
                 message = "올바르지 않은 비밀번호 형식입니다.";
             } else if (!result4) {
