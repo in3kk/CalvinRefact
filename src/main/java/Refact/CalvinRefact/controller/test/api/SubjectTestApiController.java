@@ -17,7 +17,7 @@ public class SubjectTestApiController {
     SubjectService subjectService;
 
     //테스트 시작전 "member_id" 세션 생성 필요
-    @GetMapping("/menu/subject/apply/pro")
+    @GetMapping("/test/menu/subject/apply/pro")
     @ResponseBody
     public ResponseEntity<?> ApplyPro(HttpSession httpSession, @RequestParam(value = "subject_code") Long subject_code){
         ResponseEntity<?> result;

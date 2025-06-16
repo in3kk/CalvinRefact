@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -50,6 +52,12 @@ public class MemberTestApiController {
         } catch (InvalidMemberDataException e) {
             System.out.println(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("올바르지 않은 입력입니다.");
+        } catch (Exception e) {
+            if (e instanceof SQLException) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("중복된 이메일 입니다.");
+            }else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("알 수 없는 예외가 발생했습니다. : "+e.getMessage());
+            }
         }
     }
 
