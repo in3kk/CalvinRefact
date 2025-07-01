@@ -150,6 +150,17 @@ public class BoardService {
             for (File file : files) {
                 fileService.deleteFile(file);
             }
+            String contents= board.getContents();
+            //로컬
+            Pattern urlPattern = Pattern.compile("(?<=(F:\\\\CalvinUploadFiles\\\\))[^\"]+");
+            //서버
+//            Pattern urlPattern = Pattern.compile("(?<=(/iceadmin/CalvinUploadFile/))[^\"]+");
+            Matcher m = urlPattern.matcher(contents);
+
+            while (m.find()) {
+                String target = m.group();
+                fileService.deleteFileByFileName(target);
+            }
             boardDataJpaRepository.deleteById(id);
         } else {
             throw new NotExistBoardException("존재하지 않는 게시글입니다.");

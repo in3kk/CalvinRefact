@@ -134,4 +134,42 @@ public class FileService {
                     .body("파일 다운로드 중 오류가 발생했습니다.");
         }
     }
+
+    @Transactional(rollbackFor = {IOException.class, IllegalStateException.class})
+    public String imageUploadReturnUrl(MultipartFile multipartFile) throws Exception{
+        String path = "F:\\CalvinUploadFiles\\";//로컬
+//        String path = "/iceadmin/CalvinUploadFile/"; //서버
+        //uuid 생성
+//        UUID uuid = UUID.randomUUID();
+//        String fileName = uuid + "_" + multipartFile.getOriginalFilename();
+        String fileName = getUUID(multipartFile.getOriginalFilename());
+        File saveFile = new File(path, fileName);
+        multipartFile.transferTo(saveFile);
+        Refact.CalvinRefact.entity.File file = new Refact.CalvinRefact.entity.File(
+                multipartFile.getOriginalFilename()
+                , fileName
+                , multipartFile.getSize()
+                , YN.no
+                );
+        fileDataJpaRepository.save(file);
+
+        return path+fileName;
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteFileByFileName(String fileName) throws Exception{
+        String path = "F:\\CalvinUploadFiles\\";//로컬
+//        String path = "/iceadmin/CalvinUploadFile/"; //서버
+
+        path += fileName;
+        Path filePath = Paths.get(path);
+        if (Files.exists(filePath)) {
+            Files.delete(filePath);
+            Refact.CalvinRefact.entity.File file = fileDataJpaRepository.findBySave_name(fileName);
+            file.setDeleted_date(LocalDateTime.now());
+            file.setDelete_yn(YN.yes);
+            file.setBoard(null);
+            em.flush();
+        }
+    }
 }
