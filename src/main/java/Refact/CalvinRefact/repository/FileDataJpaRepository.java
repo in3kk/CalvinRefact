@@ -10,4 +10,6 @@ public interface FileDataJpaRepository extends JpaRepository<File,Long> {
 
     @Query("select new Refact.CalvinRefact.repository.dto.file.FileSimpleDto(f.id,f.original_name,f.save_name, f.size) from File f join f.board b where b.id = :board_id")
     FileSimpleDto findSimpleFileByBoardId(@Param("board_id") Long id);
+
+    File findBySave_name(@Param("save_name")String save_name);
 }
