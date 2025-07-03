@@ -11,6 +11,7 @@ import Refact.CalvinRefact.repository.MemberDataJpaRepository;
 import Refact.CalvinRefact.repository.dto.board.BoardDetailDto;
 import Refact.CalvinRefact.repository.dto.board.BoardListDto;
 import Refact.CalvinRefact.repository.dto.file.FileSimpleDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,6 +101,7 @@ public class BoardService {
         return boardListDtos;
     }
 
+    //게시글 조회
     public BoardDetailDto findBoardDetailById(Long id) {
         BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(id);
         for (int x = 0; x < boardDetailDto.getFiles().size(); x++) {
@@ -139,10 +142,25 @@ public class BoardService {
             boardDataJpaRepository.save(board);
         }
     }
-
     //게시글 삭제 Exception
     @Transactional(rollbackFor = {Exception.class})
     public void deleteBoard(Long id) throws Exception{
+        Optional<Board> boardOptional = boardDataJpaRepository.findById(id);
+        if (boardOptional.isPresent()) {
+            Board board = boardOptional.get();
+            List<File> files = board.getFiles();
+            for (File file : files) {
+                fileService.deleteFile(file);
+            }
+            boardDataJpaRepository.deleteById(id);
+        } else {
+            throw new NotExistBoardException("존재하지 않는 게시글입니다.");
+        }
+    }
+
+    //tiptap 게시글 에디터 삭제 Exception
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteBoardTiptap(Long id) throws Exception{
         Optional<Board> boardOptional = boardDataJpaRepository.findById(id);
         if (boardOptional.isPresent()) {
             Board board = boardOptional.get();
@@ -165,5 +183,42 @@ public class BoardService {
         } else {
             throw new NotExistBoardException("존재하지 않는 게시글입니다.");
         }
+    }
+    //tiptap 에디터 게시글 작성
+    @Transactional(rollbackFor = {Exception.class})
+    public void saveBoardTiptap(String email, String title, Map<String, Object> contentJson, Board_Type boardType, List<MultipartFile> files) throws Exception {
+        Optional<Member> memberOptional = memberDataJpaRepository.findByEmail(email);
+        //Json -> String 형식으로 변환
+        ObjectMapper objectMapper = new ObjectMapper();
+        String contents = objectMapper.writeValueAsString(contentJson);
+
+        Member member;
+        if (memberOptional.isPresent()) {
+            member = memberOptional.get();
+            Board board = new Board(member, title, contents, boardType);
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    String fileName = fileService.saveFile(board, file);
+                }
+            }
+            board.setContents(contents);
+            boardDataJpaRepository.save(board);
+        }
+    }
+
+    //tiptap 에디터 게시글 조회
+    public BoardDetailDto findBoardDetailByIdTiptap(Long id) {
+        BoardDetailDto boardDetailDto = boardRepository.findBoardDetailById(id);
+        for (int x = 0; x < boardDetailDto.getFiles().size(); x++) {
+            if (boardDetailDto.getFiles().get(x) == null) {
+                boardDetailDto.getFiles().add(new FileSimpleDto("-1"));
+            }
+        }
+        for (int x = boardDetailDto.getFiles().size(); x < 5; x++) {
+            boardDetailDto.getFiles().add(new FileSimpleDto("-1"));
+        }
+        boardDetailDto.setThumbnail(boardDetailDto.getFiles().get(0).getSave_name());
+
+        return boardDetailDto;
     }
 }
